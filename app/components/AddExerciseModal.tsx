@@ -1,0 +1,561 @@
+import React, { useState } from 'react';
+import {
+  Modal,
+  View,
+  Text,
+  TextInput,
+  ScrollView,
+  TouchableOpacity,
+  Switch,
+  KeyboardAvoidingView,
+  Platform,
+  StatusBar,
+} from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { Ionicons } from '@expo/vector-icons';
+import type { NewExerciseInput } from '../db/exercises';
+
+// ─── Types ────────────────────────────────────────────────────────────────────
+
+type ExerciseType = 'compound' | 'accessory' | 'isolation';
+
+type FormState = {
+  name: string;
+  exercise_type: ExerciseType;
+  primary_muscles: string[];
+  secondary_muscles: string[];
+  altNameDraft: string;
+  alt_names: string[];
+  description: string;
+  is_private: boolean;
+  weight_direction: 1 | -1;
+};
+
+// ─── Constants ────────────────────────────────────────────────────────────────
+
+const INITIAL_FORM: FormState = {
+  name: '',
+  exercise_type: 'compound',
+  primary_muscles: [],
+  secondary_muscles: [],
+  altNameDraft: '',
+  alt_names: [],
+  description: '',
+  is_private: false,
+  weight_direction: 1,
+};
+
+const MUSCLE_SECTIONS: { label: string; muscles: string[]; isSuper: boolean }[] = [
+  { label: 'Super Muscles', muscles: ['legs', 'back', 'shoulders'], isSuper: true },
+  { label: 'Chest & Arms', muscles: ['chest', 'biceps', 'triceps', 'forearms'], isSuper: false },
+  { label: 'Core', muscles: ['core', 'abs'], isSuper: false },
+  { label: 'Legs', muscles: ['quads', 'glutes', 'hamstrings', 'calves'], isSuper: false },
+  { label: 'Back', muscles: ['traps', 'lats', 'rhomboids', 'lower back'], isSuper: false },
+  { label: 'Shoulders', muscles: ['front delts', 'side delts', 'rear delts'], isSuper: false },
+];
+
+const EXERCISE_TYPES: { value: ExerciseType; label: string; description: string }[] = [
+  { value: 'compound', label: 'Compound', description: 'Multi-joint' },
+  { value: 'accessory', label: 'Accessory', description: 'Supporting lift' },
+  { value: 'isolation', label: 'Isolation', description: 'Single joint' },
+];
+
+// ─── Palette (matches app theme) ─────────────────────────────────────────────
+
+const C = {
+  bg: '#0a0a0a',
+  card: '#18181b',
+  cardAlt: '#1c1c1f',
+  border: '#27272a',
+  borderAlt: '#3f3f46',
+  text: '#f4f4f5',
+  textMuted: '#71717a',
+  textDim: '#52525b',
+  active: '#f4f4f5',
+  activeDark: '#09090b',
+};
+
+// ─── Sub-components ───────────────────────────────────────────────────────────
+
+function SectionHeader({ children }: { children: string }) {
+  return (
+    <Text style={{
+      color: C.textMuted,
+      fontSize: 11,
+      fontWeight: '700',
+      textTransform: 'uppercase',
+      letterSpacing: 1,
+      marginBottom: 12,
+      marginTop: 28,
+    }}>
+      {children}
+    </Text>
+  );
+}
+
+function MuscleChip({
+  muscle, isSelected, isSuper, onPress,
+}: {
+  muscle: string;
+  isSelected: boolean;
+  isSuper: boolean;
+  onPress: () => void;
+}) {
+  return (
+    <TouchableOpacity
+      onPress={onPress}
+      style={{
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 4,
+        paddingHorizontal: 12,
+        paddingVertical: 8,
+        borderRadius: 20,
+        backgroundColor: isSelected ? C.active : C.card,
+        borderWidth: 1,
+        borderColor: isSelected ? C.active : isSuper ? C.borderAlt : C.border,
+        marginRight: 8,
+        marginBottom: 8,
+      }}
+    >
+      {isSuper && (
+        <Ionicons
+          name="layers-outline"
+          size={11}
+          color={isSelected ? C.activeDark : C.textMuted}
+        />
+      )}
+      <Text style={{
+        fontSize: 13,
+        fontWeight: '600',
+        color: isSelected ? C.activeDark : C.text,
+        textTransform: 'capitalize',
+      }}>
+        {muscle}
+      </Text>
+    </TouchableOpacity>
+  );
+}
+
+function MuscleSelector({
+  sectionTitle,
+  selected,
+  onToggle,
+}: {
+  sectionTitle: string;
+  selected: string[];
+  onToggle: (muscle: string) => void;
+}) {
+  return (
+    <View>
+      <SectionHeader>{sectionTitle}</SectionHeader>
+      {MUSCLE_SECTIONS.map((section) => (
+        <View key={section.label} style={{ marginBottom: 8 }}>
+          <Text style={{
+            color: C.textDim,
+            fontSize: 10,
+            fontWeight: '600',
+            textTransform: 'uppercase',
+            letterSpacing: 0.8,
+            marginBottom: 8,
+          }}>
+            {section.label}
+          </Text>
+          <View style={{ flexDirection: 'row', flexWrap: 'wrap' }}>
+            {section.muscles.map((muscle) => (
+              <MuscleChip
+                key={muscle}
+                muscle={muscle}
+                isSelected={selected.includes(muscle)}
+                isSuper={section.isSuper}
+                onPress={() => onToggle(muscle)}
+              />
+            ))}
+          </View>
+        </View>
+      ))}
+    </View>
+  );
+}
+
+function AltNameTag({ name, onRemove }: { name: string; onRemove: () => void }) {
+  return (
+    <View style={{
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 6,
+      backgroundColor: C.card,
+      borderWidth: 1,
+      borderColor: C.border,
+      borderRadius: 20,
+      paddingLeft: 12,
+      paddingRight: 8,
+      paddingVertical: 7,
+      marginRight: 8,
+      marginBottom: 8,
+    }}>
+      <Text style={{ color: C.text, fontSize: 13, fontWeight: '500' }}>{name}</Text>
+      <TouchableOpacity onPress={onRemove}>
+        <Ionicons name="close" size={14} color={C.textMuted} />
+      </TouchableOpacity>
+    </View>
+  );
+}
+
+// ─── Main component ───────────────────────────────────────────────────────────
+
+type Props = {
+  visible: boolean;
+  onClose: () => void;
+  onSubmit: (input: NewExerciseInput) => Promise<void>;
+};
+
+export default function AddExerciseModal({ visible, onClose, onSubmit }: Props) {
+  const [form, setForm] = useState<FormState>(INITIAL_FORM);
+  const [submitting, setSubmitting] = useState(false);
+  const [nameError, setNameError] = useState('');
+
+  function set<K extends keyof FormState>(key: K, value: FormState[K]) {
+    setForm((prev) => ({ ...prev, [key]: value }));
+  }
+
+  function toggleMuscle(list: 'primary_muscles' | 'secondary_muscles', muscle: string) {
+    setForm((prev) => {
+      const current = prev[list];
+      const updated = current.includes(muscle)
+        ? current.filter((m) => m !== muscle)
+        : [...current, muscle];
+      return { ...prev, [list]: updated };
+    });
+  }
+
+  function addAltName() {
+    const trimmed = form.altNameDraft.trim();
+    if (!trimmed || form.alt_names.includes(trimmed)) return;
+    setForm((prev) => ({
+      ...prev,
+      alt_names: [...prev.alt_names, trimmed],
+      altNameDraft: '',
+    }));
+  }
+
+  function removeAltName(name: string) {
+    setForm((prev) => ({ ...prev, alt_names: prev.alt_names.filter((n) => n !== name) }));
+  }
+
+  async function handleSubmit() {
+    if (!form.name.trim()) {
+      setNameError('Name is required');
+      return;
+    }
+    setNameError('');
+    setSubmitting(true);
+    try {
+      await onSubmit({
+        name: form.name.trim(),
+        exercise_type: form.exercise_type,
+        primary_muscles: form.primary_muscles,
+        secondary_muscles: form.secondary_muscles,
+        alt_names: form.alt_names,
+        description: form.description.trim(),
+        is_private: form.is_private,
+        weight_direction: form.weight_direction,
+      });
+      setForm(INITIAL_FORM);
+      onClose();
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
+  function handleClose() {
+    setForm(INITIAL_FORM);
+    setNameError('');
+    onClose();
+  }
+
+  return (
+    <Modal
+      visible={visible}
+      animationType="slide"
+      presentationStyle="pageSheet"
+      onRequestClose={handleClose}
+    >
+      <StatusBar barStyle="light-content" />
+      <SafeAreaView style={{ flex: 1, backgroundColor: C.bg }} edges={['top', 'bottom']}>
+        <KeyboardAvoidingView
+          style={{ flex: 1 }}
+          behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        >
+          {/* Header */}
+          <View style={{
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            paddingHorizontal: 20,
+            paddingVertical: 16,
+            borderBottomWidth: 1,
+            borderBottomColor: C.border,
+          }}>
+            <TouchableOpacity onPress={handleClose}>
+              <Text style={{ color: C.textMuted, fontSize: 16 }}>Cancel</Text>
+            </TouchableOpacity>
+            <Text style={{ color: C.text, fontSize: 16, fontWeight: '700' }}>New Exercise</Text>
+            <TouchableOpacity
+              onPress={handleSubmit}
+              disabled={submitting}
+              style={{
+                backgroundColor: submitting ? C.card : C.active,
+                paddingHorizontal: 16,
+                paddingVertical: 7,
+                borderRadius: 20,
+              }}
+            >
+              <Text style={{
+                color: submitting ? C.textMuted : C.activeDark,
+                fontSize: 14,
+                fontWeight: '700',
+              }}>
+                {submitting ? 'Saving…' : 'Save'}
+              </Text>
+            </TouchableOpacity>
+          </View>
+
+          <ScrollView
+            style={{ flex: 1 }}
+            contentContainerStyle={{ paddingHorizontal: 20, paddingBottom: 40 }}
+            keyboardShouldPersistTaps="handled"
+            showsVerticalScrollIndicator={false}
+          >
+            {/* ── Name ── */}
+            <SectionHeader>Name</SectionHeader>
+            <TextInput
+              value={form.name}
+              onChangeText={(v) => { set('name', v); setNameError(''); }}
+              placeholder="e.g. Barbell Bench Press"
+              placeholderTextColor={C.textDim}
+              style={{
+                backgroundColor: C.card,
+                borderWidth: 1,
+                borderColor: nameError ? '#ef4444' : C.border,
+                borderRadius: 12,
+                paddingHorizontal: 16,
+                paddingVertical: 14,
+                color: C.text,
+                fontSize: 15,
+              }}
+              autoCapitalize="words"
+            />
+            {!!nameError && (
+              <Text style={{ color: '#ef4444', fontSize: 12, marginTop: 6 }}>{nameError}</Text>
+            )}
+
+            {/* ── Exercise Type ── */}
+            <SectionHeader>Exercise Type</SectionHeader>
+            <View style={{
+              flexDirection: 'row',
+              gap: 8,
+            }}>
+              {EXERCISE_TYPES.map(({ value, label, description }) => {
+                const active = form.exercise_type === value;
+                return (
+                  <TouchableOpacity
+                    key={value}
+                    onPress={() => set('exercise_type', value)}
+                    style={{
+                      flex: 1,
+                      backgroundColor: active ? C.active : C.card,
+                      borderWidth: 1,
+                      borderColor: active ? C.active : C.border,
+                      borderRadius: 12,
+                      paddingVertical: 12,
+                      alignItems: 'center',
+                    }}
+                  >
+                    <Text style={{
+                      color: active ? C.activeDark : C.text,
+                      fontSize: 13,
+                      fontWeight: '700',
+                    }}>
+                      {label}
+                    </Text>
+                    <Text style={{
+                      color: active ? '#52525b' : C.textDim,
+                      fontSize: 11,
+                      marginTop: 2,
+                    }}>
+                      {description}
+                    </Text>
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
+
+            {/* ── Primary Muscles ── */}
+            <MuscleSelector
+              sectionTitle="Primary Muscles"
+              selected={form.primary_muscles}
+              onToggle={(m) => toggleMuscle('primary_muscles', m)}
+            />
+
+            {/* ── Secondary Muscles ── */}
+            <MuscleSelector
+              sectionTitle="Secondary Muscles"
+              selected={form.secondary_muscles}
+              onToggle={(m) => toggleMuscle('secondary_muscles', m)}
+            />
+
+            {/* ── Alt Names ── */}
+            <SectionHeader>Alternative Names</SectionHeader>
+            {form.alt_names.length > 0 && (
+              <View style={{ flexDirection: 'row', flexWrap: 'wrap', marginBottom: 8 }}>
+                {form.alt_names.map((name) => (
+                  <AltNameTag key={name} name={name} onRemove={() => removeAltName(name)} />
+                ))}
+              </View>
+            )}
+            <View style={{ flexDirection: 'row', gap: 8 }}>
+              <TextInput
+                value={form.altNameDraft}
+                onChangeText={(v) => set('altNameDraft', v)}
+                onSubmitEditing={addAltName}
+                placeholder="e.g. Flat Press"
+                placeholderTextColor={C.textDim}
+                returnKeyType="done"
+                blurOnSubmit={false}
+                style={{
+                  flex: 1,
+                  backgroundColor: C.card,
+                  borderWidth: 1,
+                  borderColor: C.border,
+                  borderRadius: 12,
+                  paddingHorizontal: 16,
+                  paddingVertical: 12,
+                  color: C.text,
+                  fontSize: 14,
+                }}
+              />
+              <TouchableOpacity
+                onPress={addAltName}
+                style={{
+                  backgroundColor: C.card,
+                  borderWidth: 1,
+                  borderColor: C.border,
+                  borderRadius: 12,
+                  paddingHorizontal: 16,
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+              >
+                <Ionicons name="add" size={20} color={C.textMuted} />
+              </TouchableOpacity>
+            </View>
+
+            {/* ── Description ── */}
+            <SectionHeader>Description (optional)</SectionHeader>
+            <TextInput
+              value={form.description}
+              onChangeText={(v) => set('description', v)}
+              placeholder="Add notes about form, cues, or variations…"
+              placeholderTextColor={C.textDim}
+              multiline
+              numberOfLines={4}
+              style={{
+                backgroundColor: C.card,
+                borderWidth: 1,
+                borderColor: C.border,
+                borderRadius: 12,
+                paddingHorizontal: 16,
+                paddingVertical: 14,
+                color: C.text,
+                fontSize: 14,
+                minHeight: 96,
+                textAlignVertical: 'top',
+              }}
+            />
+
+            {/* ── Settings ── */}
+            <SectionHeader>Settings</SectionHeader>
+            <View style={{
+              backgroundColor: C.card,
+              borderWidth: 1,
+              borderColor: C.border,
+              borderRadius: 16,
+              overflow: 'hidden',
+            }}>
+              {/* Private toggle */}
+              <View style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                paddingHorizontal: 16,
+                paddingVertical: 14,
+                borderBottomWidth: 1,
+                borderBottomColor: C.border,
+              }}>
+                <View style={{ flex: 1, marginRight: 12 }}>
+                  <Text style={{ color: C.text, fontSize: 14, fontWeight: '600' }}>Private</Text>
+                  <Text style={{ color: C.textDim, fontSize: 12, marginTop: 2 }}>
+                    Only visible to you
+                  </Text>
+                </View>
+                <Switch
+                  value={form.is_private}
+                  onValueChange={(v) => set('is_private', v)}
+                  trackColor={{ false: C.border, true: '#3f3f46' }}
+                  thumbColor={form.is_private ? C.active : C.textMuted}
+                />
+              </View>
+
+              {/* Weight direction */}
+              <View style={{
+                paddingHorizontal: 16,
+                paddingVertical: 14,
+              }}>
+                <Text style={{ color: C.text, fontSize: 14, fontWeight: '600', marginBottom: 4 }}>
+                  Weight Direction
+                </Text>
+                <Text style={{ color: C.textDim, fontSize: 12, marginBottom: 12 }}>
+                  How difficulty changes as weight increases
+                </Text>
+                <View style={{ flexDirection: 'row', gap: 8 }}>
+                  {([
+                    { value: 1 as const, label: 'Normal', sub: 'Harder with more weight' },
+                    { value: -1 as const, label: 'Assisted', sub: 'Easier with more weight' },
+                  ] as const).map(({ value, label, sub }) => {
+                    const active = form.weight_direction === value;
+                    return (
+                      <TouchableOpacity
+                        key={value}
+                        onPress={() => set('weight_direction', value)}
+                        style={{
+                          flex: 1,
+                          backgroundColor: active ? C.borderAlt : 'transparent',
+                          borderWidth: 1,
+                          borderColor: active ? C.borderAlt : C.border,
+                          borderRadius: 10,
+                          padding: 10,
+                          alignItems: 'center',
+                        }}
+                      >
+                        <Text style={{ color: active ? C.text : C.textMuted, fontSize: 13, fontWeight: '700' }}>
+                          {label}
+                        </Text>
+                        <Text style={{ color: C.textDim, fontSize: 10, marginTop: 2, textAlign: 'center' }}>
+                          {sub}
+                        </Text>
+                      </TouchableOpacity>
+                    );
+                  })}
+                </View>
+              </View>
+            </View>
+
+            {/* bottom breathing room */}
+            <View style={{ height: 20 }} />
+          </ScrollView>
+        </KeyboardAvoidingView>
+      </SafeAreaView>
+    </Modal>
+  );
+}

@@ -142,7 +142,6 @@ export default function ExploreScreen() {
 
 function ExerciseRow({ exercise }: { exercise: LocalExercise }) {
   const muscle = exercise.primary_muscles[0] ?? exercise.exercise_type ?? '—';
-  const isPending = exercise.sync_status === 'pending_create';
 
   return (
     <View style={{
@@ -150,7 +149,7 @@ function ExerciseRow({ exercise }: { exercise: LocalExercise }) {
       alignItems: 'center',
       backgroundColor: 'rgba(24,24,27,0.4)',
       borderWidth: 1,
-      borderColor: isPending ? 'rgba(113,113,122,0.4)' : 'rgba(39,39,42,0.5)',
+      borderColor: 'rgba(39,39,42,0.5)',
       borderRadius: 16,
       padding: 12,
       marginBottom: 12,
@@ -163,9 +162,6 @@ function ExerciseRow({ exercise }: { exercise: LocalExercise }) {
         <Text style={{ color: '#52525b', fontSize: 12, marginTop: 4 }}>
           {muscle} • {exercise.exercise_type || 'exercise'}
         </Text>
-        {isPending && (
-          <Text style={{ color: '#71717a', fontSize: 10, marginTop: 2 }}>syncing...</Text>
-        )}
       </View>
       <TouchableOpacity style={{ width: 32, height: 32, borderRadius: 16, backgroundColor: '#27272a', alignItems: 'center', justifyContent: 'center' }}>
         <Ionicons name="add" size={18} color="#d4d4d8" />

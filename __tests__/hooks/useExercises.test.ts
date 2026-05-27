@@ -6,11 +6,11 @@ jest.mock('../../app/db/exercises', () => ({
 import { renderHook, act, waitFor } from '@testing-library/react-native';
 import { getAllExercises, insertExercise } from '../../app/db/exercises';
 import { useExercises } from '../../app/hooks/useExercises';
-import type { LocalExercise, NewExerciseInput } from '../../app/db/exercises';
+import type { Exercise, NewExerciseInput } from '../../app/db/exercises';
 
-const MOCK_EXERCISES: LocalExercise[] = [
+const MOCK_EXERCISES: Exercise[] = [
   {
-    local_id: 'local_abc',
+    id: 'abc',
     name: 'Bench Press',
     exercise_type: 'compound',
     primary_muscles: ['chest'],
@@ -29,14 +29,13 @@ const NEW_INPUT: NewExerciseInput = {
   secondary_muscles: [],
   alt_names: [],
   description: '',
-  is_private: false,
   weight_direction: 1,
 };
 
 beforeEach(() => {
   jest.clearAllMocks();
   jest.mocked(getAllExercises).mockResolvedValue(MOCK_EXERCISES);
-  jest.mocked(insertExercise).mockResolvedValue('local_new');
+  jest.mocked(insertExercise).mockResolvedValue('new_id');
 });
 
 describe('useExercises', () => {
@@ -58,9 +57,9 @@ describe('useExercises', () => {
   });
 
   it('createExercise inserts the exercise and refreshes the list', async () => {
-    const refreshed: LocalExercise[] = [
+    const refreshed: Exercise[] = [
       ...MOCK_EXERCISES,
-      { ...MOCK_EXERCISES[0], local_id: 'local_new', name: 'Squat', created_at: 2000 },
+      { ...MOCK_EXERCISES[0], id: 'new_id', name: 'Squat', created_at: 2000 },
     ];
     jest.mocked(getAllExercises)
       .mockResolvedValueOnce(MOCK_EXERCISES)

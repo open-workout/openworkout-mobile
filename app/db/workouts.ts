@@ -1,7 +1,7 @@
 import { getDb } from './database';
 
-export type LocalWorkout = {
-  local_id: string;
+export type Workout = {
+  id: string;
   title: string;
   started_at: string;
   finished_at: string | null;
@@ -15,47 +15,52 @@ export type NewWorkoutInput = {
 };
 
 type RawWorkoutRow = {
-  local_id: string;
+  id: string;
   title: string;
   started_at: string;
   finished_at: string | null;
   created_at: number;
 };
 
-function generateLocalId(): string {
-  return `local_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 7)}`;
+function generateId(): string {
+  return `${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 7)}`;
 }
 
 export async function insertWorkout(input: NewWorkoutInput): Promise<string> {
   const db = await getDb();
-  const localId = generateLocalId();
+  const id = generateId();
   await db.runAsync(
-    `INSERT INTO workouts (local_id, title, started_at, finished_at, created_at)
+    `INSERT INTO workouts (id, title, started_at, finished_at, created_at)
      VALUES (?, ?, ?, ?, ?)`,
-    localId,
+    id,
     input.title,
     input.started_at,
     input.finished_at ?? null,
     Date.now(),
   );
-  return localId;
+  return id;
 }
 
-export async function markWorkoutFinished(localId: string, finishedAt: string): Promise<void> {
+export async function updateWorkoutTitle(id: string, title: string): Promise<void> {
+  const db = await getDb();
+  await db.runAsync(`UPDATE workouts SET title = ? WHERE id = ?`, title, id);
+}
+
+export async function markWorkoutFinished(id: string, finishedAt: string): Promise<void> {
   const db = await getDb();
   await db.runAsync(
-    `UPDATE workouts SET finished_at = ? WHERE local_id = ?`,
+    `UPDATE workouts SET finished_at = ? WHERE id = ?`,
     finishedAt,
-    localId,
+    id,
   );
 }
 
-export async function deleteWorkout(localId: string): Promise<void> {
+export async function deleteWorkout(id: string): Promise<void> {
   const db = await getDb();
-  await db.runAsync(`DELETE FROM workouts WHERE local_id = ?`, localId);
+  await db.runAsync(`DELETE FROM workouts WHERE id = ?`, id);
 }
 
-export async function getAllWorkouts(): Promise<LocalWorkout[]> {
+export async function getAllWorkouts(): Promise<Workout[]> {
   const db = await getDb();
   const rows = await db.getAllAsync<RawWorkoutRow>(
     `SELECT * FROM workouts ORDER BY started_at DESC`,
@@ -63,11 +68,11 @@ export async function getAllWorkouts(): Promise<LocalWorkout[]> {
   return rows;
 }
 
-export async function getWorkoutByLocalId(localId: string): Promise<LocalWorkout | null> {
+export async function getWorkoutById(id: string): Promise<Workout | null> {
   const db = await getDb();
   const row = await db.getFirstAsync<RawWorkoutRow>(
-    `SELECT * FROM workouts WHERE local_id = ?`,
-    localId,
+    `SELECT * FROM workouts WHERE id = ?`,
+    id,
   );
   return row ?? null;
 }

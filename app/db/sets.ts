@@ -1,9 +1,9 @@
 import { getDb } from './database';
 
-export type LocalSet = {
-  local_id: string;
-  local_workout_id: string;
-  local_exercise_id: string;
+export type WorkoutSet = {
+  id: string;
+  workout_id: string;
+  exercise_id: string;
   reps: number;
   difficulty: number;
   weight: number;
@@ -13,8 +13,8 @@ export type LocalSet = {
 };
 
 export type NewSetInput = {
-  local_workout_id: string;
-  local_exercise_id: string;
+  workout_id: string;
+  exercise_id: string;
   reps: number;
   difficulty: number;
   weight: number;
@@ -31,9 +31,9 @@ export type UpdateSetInput = {
 };
 
 type RawSetRow = {
-  local_id: string;
-  local_workout_id: string;
-  local_exercise_id: string;
+  id: string;
+  workout_id: string;
+  exercise_id: string;
   reps: number;
   difficulty: number;
   weight: number;
@@ -42,21 +42,21 @@ type RawSetRow = {
   created_at: number;
 };
 
-function generateLocalId(): string {
-  return `local_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 7)}`;
+function generateId(): string {
+  return `${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 7)}`;
 }
 
 export async function insertSet(input: NewSetInput): Promise<string> {
   const db = await getDb();
-  const localId = generateLocalId();
+  const id = generateId();
   await db.runAsync(
     `INSERT INTO sets
-       (local_id, local_workout_id, local_exercise_id,
+       (id, workout_id, exercise_id,
         reps, difficulty, weight, unit, logged_at, created_at)
      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-    localId,
-    input.local_workout_id,
-    input.local_exercise_id,
+    id,
+    input.workout_id,
+    input.exercise_id,
     input.reps,
     input.difficulty,
     input.weight,
@@ -64,32 +64,32 @@ export async function insertSet(input: NewSetInput): Promise<string> {
     input.logged_at,
     Date.now(),
   );
-  return localId;
+  return id;
 }
 
-export async function updateSet(localId: string, input: UpdateSetInput): Promise<void> {
+export async function updateSet(id: string, input: UpdateSetInput): Promise<void> {
   const db = await getDb();
   await db.runAsync(
-    `UPDATE sets SET reps = ?, difficulty = ?, weight = ?, unit = ?, logged_at = ? WHERE local_id = ?`,
+    `UPDATE sets SET reps = ?, difficulty = ?, weight = ?, unit = ?, logged_at = ? WHERE id = ?`,
     input.reps,
     input.difficulty,
     input.weight,
     input.unit,
     input.logged_at,
-    localId,
+    id,
   );
 }
 
-export async function deleteSet(localId: string): Promise<void> {
+export async function deleteSet(id: string): Promise<void> {
   const db = await getDb();
-  await db.runAsync(`DELETE FROM sets WHERE local_id = ?`, localId);
+  await db.runAsync(`DELETE FROM sets WHERE id = ?`, id);
 }
 
-export async function getSetsForWorkout(localWorkoutId: string): Promise<LocalSet[]> {
+export async function getSetsForWorkout(workoutId: string): Promise<WorkoutSet[]> {
   const db = await getDb();
   const rows = await db.getAllAsync<RawSetRow>(
-    `SELECT * FROM sets WHERE local_workout_id = ? ORDER BY created_at ASC`,
-    localWorkoutId,
+    `SELECT * FROM sets WHERE workout_id = ? ORDER BY created_at ASC`,
+    workoutId,
   );
   return rows;
 }

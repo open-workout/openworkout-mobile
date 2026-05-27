@@ -2,12 +2,12 @@ import { useState, useEffect, useCallback } from 'react';
 import {
   getAllExercises,
   insertExercise,
-  type LocalExercise,
+  type Exercise,
   type NewExerciseInput,
 } from '../db/exercises';
 
 export function useExercises() {
-  const [exercises, setExercises] = useState<LocalExercise[]>([]);
+  const [exercises, setExercises] = useState<Exercise[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   const loadLocal = useCallback(async () => {

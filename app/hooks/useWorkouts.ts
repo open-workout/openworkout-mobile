@@ -3,8 +3,9 @@ import {
   getAllWorkouts,
   insertWorkout,
   markWorkoutFinished,
+  updateWorkoutTitle,
   deleteWorkout,
-  type LocalWorkout,
+  type Workout,
   type NewWorkoutInput,
 } from '../db/workouts';
 import {
@@ -12,13 +13,13 @@ import {
   insertSet,
   updateSet,
   deleteSet,
-  type LocalSet,
+  type WorkoutSet,
   type NewSetInput,
   type UpdateSetInput,
 } from '../db/sets';
 
 export function useWorkouts() {
-  const [workouts, setWorkouts] = useState<LocalWorkout[]>([]);
+  const [workouts, setWorkouts] = useState<Workout[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   const loadLocal = useCallback(async () => {
@@ -32,24 +33,32 @@ export function useWorkouts() {
 
   const createWorkout = useCallback(
     async (input: NewWorkoutInput): Promise<string> => {
-      const localId = await insertWorkout(input);
+      const id = await insertWorkout(input);
       await loadLocal();
-      return localId;
+      return id;
+    },
+    [loadLocal],
+  );
+
+  const renameWorkout = useCallback(
+    async (id: string, title: string) => {
+      await updateWorkoutTitle(id, title);
+      await loadLocal();
     },
     [loadLocal],
   );
 
   const finishWorkout = useCallback(
-    async (localId: string, finishedAt: string) => {
-      await markWorkoutFinished(localId, finishedAt);
+    async (id: string, finishedAt: string) => {
+      await markWorkoutFinished(id, finishedAt);
       await loadLocal();
     },
     [loadLocal],
   );
 
   const removeWorkout = useCallback(
-    async (localId: string) => {
-      await deleteWorkout(localId);
+    async (id: string) => {
+      await deleteWorkout(id);
       await loadLocal();
     },
     [loadLocal],
@@ -63,15 +72,15 @@ export function useWorkouts() {
   );
 
   const editSet = useCallback(
-    async (localId: string, input: UpdateSetInput) => {
-      await updateSet(localId, input);
+    async (id: string, input: UpdateSetInput) => {
+      await updateSet(id, input);
     },
     [],
   );
 
   const removeSet = useCallback(
-    async (localId: string) => {
-      await deleteSet(localId);
+    async (id: string) => {
+      await deleteSet(id);
     },
     [],
   );
@@ -80,6 +89,7 @@ export function useWorkouts() {
     workouts,
     isLoading,
     createWorkout,
+    renameWorkout,
     finishWorkout,
     removeWorkout,
     addSet,

@@ -4,7 +4,7 @@ import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useState, useMemo } from 'react';
 import { useExercises } from '../hooks/useExercises';
 import AddExerciseModal from '../components/AddExerciseModal';
-import type { LocalExercise } from '../db/exercises';
+import type { Exercise } from '../db/exercises';
 
 const categories = ['All', 'Chest', 'Back', 'Legs', 'Arms', 'Shoulders'];
 
@@ -16,7 +16,7 @@ const categoryMuscleKeywords: Record<string, string[]> = {
   Shoulders: ['delt', 'shoulder'],
 };
 
-function matchesCategory(ex: LocalExercise, category: string): boolean {
+function matchesCategory(ex: Exercise, category: string): boolean {
   if (category === 'All') return true;
   const keywords = categoryMuscleKeywords[category] ?? [];
   const muscles = [...ex.primary_muscles, ...ex.secondary_muscles].map((m) => m.toLowerCase());
@@ -124,7 +124,7 @@ export default function ExploreScreen() {
                 {filtered.length} exercise{filtered.length !== 1 ? 's' : ''}
               </Text>
               {filtered.map((ex) => (
-                <ExerciseRow key={ex.local_id} exercise={ex} />
+                <ExerciseRow key={ex.id} exercise={ex} />
               ))}
             </>
           )}
@@ -140,7 +140,7 @@ export default function ExploreScreen() {
   );
 }
 
-function ExerciseRow({ exercise }: { exercise: LocalExercise }) {
+function ExerciseRow({ exercise }: { exercise: Exercise }) {
   const muscle = exercise.primary_muscles[0] ?? exercise.exercise_type ?? '—';
 
   return (

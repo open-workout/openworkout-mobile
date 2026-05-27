@@ -1,7 +1,7 @@
 import { getDb } from './database';
 
-export type LocalExercise = {
-  local_id: string;
+export type Exercise = {
+  id: string;
   name: string;
   exercise_type: string;
   primary_muscles: string[];
@@ -19,12 +19,11 @@ export type NewExerciseInput = {
   secondary_muscles: string[];
   alt_names: string[];
   description: string;
-  is_private: boolean;
   weight_direction: number;
 };
 
 type RawRow = {
-  local_id: string;
+  id: string;
   name: string;
   exercise_type: string;
   primary_muscles: string;
@@ -35,7 +34,7 @@ type RawRow = {
   created_at: number;
 };
 
-function parseRow(row: RawRow): LocalExercise {
+function parseRow(row: RawRow): Exercise {
   return {
     ...row,
     primary_muscles: JSON.parse(row.primary_muscles || '[]'),
@@ -44,19 +43,19 @@ function parseRow(row: RawRow): LocalExercise {
   };
 }
 
-function generateLocalId(): string {
-  return `local_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 7)}`;
+function generateId(): string {
+  return `${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 7)}`;
 }
 
 export async function insertExercise(input: NewExerciseInput): Promise<string> {
   const db = await getDb();
-  const localId = generateLocalId();
+  const id = generateId();
   await db.runAsync(
     `INSERT INTO exercises
-       (local_id, name, exercise_type, primary_muscles, secondary_muscles,
+       (id, name, exercise_type, primary_muscles, secondary_muscles,
         alt_names, description, weight_direction, created_at)
      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-    localId,
+    id,
     input.name,
     input.exercise_type,
     JSON.stringify(input.primary_muscles),
@@ -66,10 +65,10 @@ export async function insertExercise(input: NewExerciseInput): Promise<string> {
     input.weight_direction,
     Date.now(),
   );
-  return localId;
+  return id;
 }
 
-export async function getAllExercises(): Promise<LocalExercise[]> {
+export async function getAllExercises(): Promise<Exercise[]> {
   const db = await getDb();
   const rows = await db.getAllAsync<RawRow>(
     `SELECT * FROM exercises ORDER BY created_at DESC`,

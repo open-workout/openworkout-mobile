@@ -22,14 +22,14 @@ const BASE_INPUT = {
   secondary_muscles: ['triceps'],
   alt_names: ['Flat Press'],
   description: 'Classic chest press',
-  is_private: false,
   weight_direction: 1 as const,
 };
 
 describe('insertExercise', () => {
-  it('returns a local_id with the expected prefix', async () => {
+  it('returns a non-empty id string', async () => {
     const id = await insertExercise(BASE_INPUT);
-    expect(id).toMatch(/^local_/);
+    expect(typeof id).toBe('string');
+    expect(id.length).toBeGreaterThan(0);
   });
 
   it('calls runAsync once with an INSERT INTO exercises statement', async () => {
@@ -40,10 +40,10 @@ describe('insertExercise', () => {
 
   it('passes name, exercise_type and JSON-encoded muscles as SQL params', async () => {
     const id = await insertExercise(BASE_INPUT);
-    const [, localId, name, exerciseType, primaryMuscles, secondaryMuscles, altNames] =
+    const [, rowId, name, exerciseType, primaryMuscles, secondaryMuscles, altNames] =
       mockDb.runAsync.mock.calls[0] as string[];
 
-    expect(localId).toBe(id);
+    expect(rowId).toBe(id);
     expect(name).toBe('Bench Press');
     expect(exerciseType).toBe('compound');
     expect(primaryMuscles).toBe('["chest"]');
@@ -67,7 +67,7 @@ describe('getAllExercises', () => {
   it('parses JSON muscle arrays from raw SQLite rows', async () => {
     mockDb.getAllAsync.mockResolvedValue([
       {
-        local_id: 'local_abc',
+        id: 'abc',
         name: 'Squat',
         exercise_type: 'compound',
         primary_muscles: '["legs","quads"]',
@@ -90,7 +90,7 @@ describe('getAllExercises', () => {
   it('handles null or empty muscle columns without throwing', async () => {
     mockDb.getAllAsync.mockResolvedValue([
       {
-        local_id: 'local_xyz',
+        id: 'xyz',
         name: 'Custom',
         exercise_type: 'isolation',
         primary_muscles: null,

@@ -6,7 +6,7 @@ import {
   getAllWorkouts,
   markWorkoutFinished,
   deleteWorkout,
-  getWorkoutByLocalId,
+  getWorkoutById,
 } from '../../app/db/workouts';
 
 const mockDb = {
@@ -24,9 +24,10 @@ beforeEach(() => {
 const STARTED_AT = '2026-05-26T08:00:00.000Z';
 
 describe('insertWorkout', () => {
-  it('returns a local_id with the expected prefix', async () => {
+  it('returns a non-empty id string', async () => {
     const id = await insertWorkout({ title: 'Leg Day', started_at: STARTED_AT });
-    expect(id).toMatch(/^local_/);
+    expect(typeof id).toBe('string');
+    expect(id.length).toBeGreaterThan(0);
   });
 
   it('calls runAsync with an INSERT INTO workouts statement', async () => {
@@ -37,8 +38,8 @@ describe('insertWorkout', () => {
 
   it('passes title and started_at as SQL params', async () => {
     const id = await insertWorkout({ title: 'Morning Push', started_at: STARTED_AT });
-    const [, localId, title, startedAt] = mockDb.runAsync.mock.calls[0] as string[];
-    expect(localId).toBe(id);
+    const [, rowId, title, startedAt] = mockDb.runAsync.mock.calls[0] as string[];
+    expect(rowId).toBe(id);
     expect(title).toBe('Morning Push');
     expect(startedAt).toBe(STARTED_AT);
   });
@@ -64,15 +65,15 @@ describe('getAllWorkouts', () => {
 
   it('returns all rows from the query', async () => {
     const rows = [
-      { local_id: 'local_a', title: 'A', started_at: STARTED_AT, finished_at: null, created_at: 1000 },
-      { local_id: 'local_b', title: 'B', started_at: STARTED_AT, finished_at: null, created_at: 900 },
+      { id: 'a', title: 'A', started_at: STARTED_AT, finished_at: null, created_at: 1000 },
+      { id: 'b', title: 'B', started_at: STARTED_AT, finished_at: null, created_at: 900 },
     ];
     mockDb.getAllAsync.mockResolvedValue(rows);
 
     const result = await getAllWorkouts();
     expect(result).toHaveLength(2);
-    expect(result[0].local_id).toBe('local_a');
-    expect(result[1].local_id).toBe('local_b');
+    expect(result[0].id).toBe('a');
+    expect(result[1].id).toBe('b');
   });
 
   it('queries workouts ordered by started_at DESC', async () => {
@@ -85,38 +86,38 @@ describe('getAllWorkouts', () => {
 describe('markWorkoutFinished', () => {
   it('issues an UPDATE workouts statement with the correct params', async () => {
     const finishedAt = '2026-05-26T10:00:00.000Z';
-    await markWorkoutFinished('local_abc', finishedAt);
+    await markWorkoutFinished('abc', finishedAt);
 
     expect(mockDb.runAsync).toHaveBeenCalledWith(
       expect.stringContaining('UPDATE workouts'),
       finishedAt,
-      'local_abc',
+      'abc',
     );
   });
 });
 
 describe('deleteWorkout', () => {
-  it('issues a DELETE FROM workouts statement with the local_id', async () => {
-    await deleteWorkout('local_abc');
+  it('issues a DELETE FROM workouts statement with the id', async () => {
+    await deleteWorkout('abc');
 
     expect(mockDb.runAsync).toHaveBeenCalledWith(
       expect.stringContaining('DELETE FROM workouts'),
-      'local_abc',
+      'abc',
     );
   });
 });
 
-describe('getWorkoutByLocalId', () => {
+describe('getWorkoutById', () => {
   it('returns null when no matching workout exists', async () => {
     mockDb.getFirstAsync.mockResolvedValue(null);
-    expect(await getWorkoutByLocalId('missing')).toBeNull();
+    expect(await getWorkoutById('missing')).toBeNull();
   });
 
   it('returns the workout row when found', async () => {
-    const row = { local_id: 'local_a', title: 'A', started_at: STARTED_AT, finished_at: null, created_at: 1000 };
+    const row = { id: 'a', title: 'A', started_at: STARTED_AT, finished_at: null, created_at: 1000 };
     mockDb.getFirstAsync.mockResolvedValue(row);
 
-    const result = await getWorkoutByLocalId('local_a');
+    const result = await getWorkoutById('a');
     expect(result).toEqual(row);
   });
 });

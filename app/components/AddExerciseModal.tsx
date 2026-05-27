@@ -6,7 +6,6 @@ import {
   TextInput,
   ScrollView,
   TouchableOpacity,
-  Switch,
   KeyboardAvoidingView,
   Platform,
   StatusBar,
@@ -27,7 +26,6 @@ type FormState = {
   altNameDraft: string;
   alt_names: string[];
   description: string;
-  is_private: boolean;
   weight_direction: 1 | -1;
 };
 
@@ -41,7 +39,6 @@ const INITIAL_FORM: FormState = {
   altNameDraft: '',
   alt_names: [],
   description: '',
-  is_private: false,
   weight_direction: 1,
 };
 
@@ -258,7 +255,6 @@ export default function AddExerciseModal({ visible, onClose, onSubmit }: Props) 
         secondary_muscles: form.secondary_muscles,
         alt_names: form.alt_names,
         description: form.description.trim(),
-        is_private: form.is_private,
         weight_direction: form.weight_direction,
       });
       setForm(INITIAL_FORM);
@@ -483,30 +479,6 @@ export default function AddExerciseModal({ visible, onClose, onSubmit }: Props) 
               borderRadius: 16,
               overflow: 'hidden',
             }}>
-              {/* Private toggle */}
-              <View style={{
-                flexDirection: 'row',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                paddingHorizontal: 16,
-                paddingVertical: 14,
-                borderBottomWidth: 1,
-                borderBottomColor: C.border,
-              }}>
-                <View style={{ flex: 1, marginRight: 12 }}>
-                  <Text style={{ color: C.text, fontSize: 14, fontWeight: '600' }}>Private</Text>
-                  <Text style={{ color: C.textDim, fontSize: 12, marginTop: 2 }}>
-                    Only visible to you
-                  </Text>
-                </View>
-                <Switch
-                  value={form.is_private}
-                  onValueChange={(v) => set('is_private', v)}
-                  trackColor={{ false: C.border, true: '#3f3f46' }}
-                  thumbColor={form.is_private ? C.active : C.textMuted}
-                />
-              </View>
-
               {/* Weight direction */}
               <View style={{
                 paddingHorizontal: 16,

@@ -91,7 +91,7 @@ export default function HomeScreen() {
                   <Ionicons name="play" size={22} color="#09090b" style={{ marginLeft: 2 }} />
                 </LinearGradient>
                 <View>
-                  <Text style={{ color: '#f4f4f5', fontSize: 17, fontWeight: '700', marginBottom: 2 }}>Start Empty Workout</Text>
+                  <Text style={{ color: '#f4f4f5', fontSize: 17, fontWeight: '700', marginBottom: 2 }}>Start Workout</Text>
                   <Text style={{ color: '#71717a', fontSize: 14 }}>Track a new session</Text>
                 </View>
               </View>

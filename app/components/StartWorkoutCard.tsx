@@ -20,7 +20,7 @@ export default function StartWorkoutCard() {
           <Ionicons name="play" size={28} color="#71717a" />
         </LinearGradient>
         <View style={{ flex: 1 }}>
-          <Text className="text-zinc-700 text-[17px] font-bold mb-0.5">Start Empty Workout</Text>
+          <Text className="text-zinc-700 text-[17px] font-bold mb-0.5">Start Workout</Text>
           <Text className="text-zinc-500 text-[14px]">Track a new session</Text>
         </View>
         <Ionicons name="chevron-forward" size={22} color="#71717a" />

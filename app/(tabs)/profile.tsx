@@ -2,6 +2,10 @@ import { View, Text, ScrollView, TouchableOpacity, StatusBar } from "react-nativ
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Image } from 'expo-image';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
+import { useRouter, useFocusEffect } from 'expo-router';
+import { useCallback } from 'react';
+import { useSplit } from '../hooks/useSplit';
+import { compressMuscles } from '../constants/splits';
 
 const prs = [
   { initial: 'B', name: 'Bench Press', type: 'Estimated 1RM', value: '110 kg', change: '+5kg this month', positive: true },
@@ -9,6 +13,11 @@ const prs = [
 ];
 
 export default function ProfileScreen() {
+  const router = useRouter();
+  const { split, reload } = useSplit();
+
+  useFocusEffect(useCallback(() => { reload(); }, [reload]));
+
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: '#0a0a0a' }} edges={['top']}>
       <StatusBar barStyle="light-content" backgroundColor="#0a0a0a" />
@@ -81,6 +90,71 @@ export default function ProfileScreen() {
             <MaterialCommunityIcons name="dumbbell" size={20} color="#d4d4d8" />
           </View>
         </View>
+
+        {/* Training Split */}
+        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
+          <Text style={{ color: '#f4f4f5', fontSize: 18, fontWeight: '600' }}>Training Split</Text>
+          <TouchableOpacity onPress={() => router.push('/edit-split')}>
+            <Text style={{ color: '#71717a', fontSize: 14, fontWeight: '500' }}>Edit</Text>
+          </TouchableOpacity>
+        </View>
+
+        {split ? (
+          <View style={{
+            backgroundColor: 'rgba(24,24,27,0.6)',
+            borderWidth: 1,
+            borderColor: 'rgba(39,39,42,0.8)',
+            borderRadius: 16,
+            padding: 16,
+            marginBottom: 32,
+          }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
+              <Text style={{ color: '#f4f4f5', fontSize: 15, fontWeight: '700' }}>{split.name}</Text>
+              <View style={{ backgroundColor: '#27272a', borderRadius: 20, paddingHorizontal: 10, paddingVertical: 4 }}>
+                <Text style={{ color: '#71717a', fontSize: 12, fontWeight: '600' }}>
+                  {split.days.length} {split.days.length === 1 ? 'day' : 'days'}
+                </Text>
+              </View>
+            </View>
+            <View style={{ gap: 8 }}>
+              {split.days.map((day, idx) => (
+                <View key={idx} style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 10 }}>
+                  <View style={{
+                    width: 24, height: 24, borderRadius: 12,
+                    backgroundColor: '#27272a', alignItems: 'center', justifyContent: 'center',
+                    marginTop: 1,
+                  }}>
+                    <Text style={{ color: '#71717a', fontSize: 10, fontWeight: '700' }}>{idx + 1}</Text>
+                  </View>
+                  <View style={{ flex: 1 }}>
+                    <Text style={{ color: '#f4f4f5', fontSize: 13, fontWeight: '600', marginBottom: 3 }}>{day.name}</Text>
+                    <Text style={{ color: '#52525b', fontSize: 12, lineHeight: 17 }} numberOfLines={2}>
+                      {compressMuscles(day.muscles).map(m => m.charAt(0).toUpperCase() + m.slice(1)).join(' · ')}
+                    </Text>
+                  </View>
+                </View>
+              ))}
+            </View>
+          </View>
+        ) : (
+          <TouchableOpacity
+            onPress={() => router.push('/edit-split')}
+            style={{
+              backgroundColor: 'rgba(24,24,27,0.6)',
+              borderWidth: 1,
+              borderColor: 'rgba(39,39,42,0.8)',
+              borderRadius: 16,
+              padding: 20,
+              flexDirection: 'row',
+              alignItems: 'center',
+              gap: 12,
+              marginBottom: 32,
+            }}
+          >
+            <Ionicons name="add-circle-outline" size={22} color="#71717a" />
+            <Text style={{ color: '#71717a', fontSize: 14, fontWeight: '500' }}>Set up your training split</Text>
+          </TouchableOpacity>
+        )}
 
         {/* Personal Records */}
         <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>

@@ -36,6 +36,12 @@ export async function getDb(): Promise<SQLite.SQLiteDatabase> {
       logged_at   TEXT NOT NULL,
       created_at  INTEGER NOT NULL
     );
+    CREATE TABLE IF NOT EXISTS splits (
+      id         TEXT PRIMARY KEY,
+      name       TEXT NOT NULL,
+      days       TEXT NOT NULL DEFAULT '[]',
+      created_at INTEGER NOT NULL
+    );
   `);
   return db;
 }

@@ -5,6 +5,7 @@ import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { useWorkouts } from './hooks/useWorkouts';
 import { useExercises } from './hooks/useExercises';
+import { useWeightUnit } from './hooks/useWeightUnit';
 import { getSetsForWorkout } from './db/sets';
 import { getAllExercises } from './db/exercises';
 import { getWorkoutById } from './db/workouts';
@@ -39,6 +40,7 @@ export default function WorkoutScreen() {
   const { workoutId } = useLocalSearchParams<{ workoutId: string }>();
   const { finishWorkout, renameWorkout, addSet: persistSet, editSet, removeSet } = useWorkouts();
   const { exercises } = useExercises();
+  const { unit: weightUnit } = useWeightUnit();
 
   const [blocks, setBlocks] = useState<ExerciseBlock[]>([]);
   const [pickerVisible, setPickerVisible] = useState(false);
@@ -137,7 +139,7 @@ export default function WorkoutScreen() {
         reps: 0,
         difficulty: 0,
         weight: 0,
-        unit: 'kg',
+        unit: weightUnit,
         logged_at: 'seed',
       });
     }
@@ -162,12 +164,12 @@ export default function WorkoutScreen() {
         reps: parseFloat(draft.reps) || 0,
         difficulty: 0,
         weight: parseFloat(draft.weight) || 0,
-        unit: 'kg',
+        unit: weightUnit,
         logged_at: now.toISOString(),
       });
     }
     console.log('[set] created:', newId, 'exercise:', exerciseRef, 'weight:', draft.weight, 'reps:', draft.reps);
-    const saved: LocalSet = { id: newId, weight: draft.weight, reps: draft.reps, unit: 'kg', loggedAt: now };
+    const saved: LocalSet = { id: newId, weight: draft.weight, reps: draft.reps, unit: weightUnit, loggedAt: now };
     setBlocks((prev) => prev.map((b, i) => (i === 0 ? { ...b, sets: [saved, ...b.sets] } : b)));
     setDraft({ weight: '', reps: '' });
   };
@@ -308,7 +310,7 @@ export default function WorkoutScreen() {
 
             <View style={{ backgroundColor: 'rgba(24,24,27,0.6)', borderRadius: 16, borderWidth: 1, borderColor: 'rgba(39,39,42,0.8)', overflow: 'hidden' }}>
               <View style={{ flexDirection: 'row', paddingHorizontal: 16, paddingVertical: 12, gap: 8 }}>
-                {['SET', 'KG', 'REPS'].map((h) => (
+                {['SET', weightUnit.toUpperCase(), 'REPS'].map((h) => (
                   <Text key={h} style={{ flex: 1, textAlign: 'center', color: '#52525b', fontSize: 11, fontWeight: '700', letterSpacing: 0.8 }}>{h}</Text>
                 ))}
                 <View style={{ width: 28 }} />

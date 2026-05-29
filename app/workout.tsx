@@ -47,6 +47,7 @@ export default function WorkoutScreen() {
   const [search, setSearch] = useState('');
   const [elapsed, setElapsed] = useState(0);
   const [draft, setDraft] = useState({ weight: '', reps: '' });
+  const [workoutTitle, setWorkoutTitle] = useState('');
   const startedAt = useRef(Date.now());
 
   // Reset draft whenever a new exercise takes the top spot
@@ -68,9 +69,11 @@ export default function WorkoutScreen() {
       getAllExercises(),
       getWorkoutById(workoutId),
     ]).then(([dbSets, allExercises, workout]) => {
-      // Restore timer to actual workout start time
       if (workout?.started_at) {
         startedAt.current = new Date(workout.started_at).getTime();
+      }
+      if (workout?.title) {
+        setWorkoutTitle(workout.title);
       }
 
       console.log('[resume] sets:', dbSets.length, '| exercises in lib:', allExercises.length);
@@ -269,7 +272,8 @@ export default function WorkoutScreen() {
         {/* Workout title */}
         <View style={{ paddingHorizontal: 24, paddingVertical: 24 }}>
           <TextInput
-            defaultValue=""
+            key={workoutTitle}
+            defaultValue={workoutTitle}
             placeholder="Workout name"
             placeholderTextColor="#3f3f46"
             onEndEditing={(e) => handleTitleBlur(e.nativeEvent.text)}

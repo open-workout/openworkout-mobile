@@ -5,7 +5,6 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useRouter, useFocusEffect } from 'expo-router';
 import { useState, useCallback } from 'react';
-import { useWorkouts } from '../hooks/useWorkouts';
 import { getAllWorkouts, type Workout } from '../db/workouts';
 
 const recentWorkouts = [
@@ -37,20 +36,18 @@ const recentWorkouts = [
 
 export default function HomeScreen() {
   const router = useRouter();
-  const { createWorkout } = useWorkouts();
   const [activeWorkout, setActiveWorkout] = useState<Workout | null>(null);
 
   useFocusEffect(useCallback(() => {
     getAllWorkouts().then((ws) => setActiveWorkout(ws.find((w) => !w.finished_at) ?? null));
   }, []));
 
-  const handleStartWorkout = async () => {
+  const handleStartWorkout = () => {
     if (activeWorkout) {
       router.push(`/workout?workoutId=${activeWorkout.id}`);
       return;
     }
-    const id = await createWorkout({ title: '', started_at: new Date().toISOString() });
-    router.push(`/workout?workoutId=${id}`);
+    router.push('/pick-day');
   };
 
   return (

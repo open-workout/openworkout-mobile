@@ -4,6 +4,7 @@ import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
+import { useWorkouts } from '../hooks/useWorkouts';
 
 const recentWorkouts = [
   {
@@ -34,6 +35,12 @@ const recentWorkouts = [
 
 export default function HomeScreen() {
   const router = useRouter();
+  const { createWorkout } = useWorkouts();
+
+  const handleStartWorkout = async () => {
+    const id = await createWorkout({ title: '', started_at: new Date().toISOString() });
+    router.push(`/workout?workoutId=${id}`);
+  };
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: '#0a0a0a' }} edges={['top']}>
@@ -71,7 +78,7 @@ export default function HomeScreen() {
         {/* Start Workout CTA */}
         <TouchableOpacity
           activeOpacity={0.85}
-          onPress={() => router.push('/workout')}
+          onPress={handleStartWorkout}
           style={{ marginHorizontal: 24, marginTop: 24, marginBottom: 8 }}
         >
           <LinearGradient

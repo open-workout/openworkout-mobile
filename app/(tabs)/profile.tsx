@@ -5,6 +5,7 @@ import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useRouter, useFocusEffect } from 'expo-router';
 import { useCallback } from 'react';
 import { useSplit } from '../hooks/useSplit';
+import { useWeightUnit } from '../hooks/useWeightUnit';
 import { compressMuscles } from '../constants/splits';
 
 const prs = [
@@ -15,8 +16,9 @@ const prs = [
 export default function ProfileScreen() {
   const router = useRouter();
   const { split, reload } = useSplit();
+  const { unit, update: updateUnit, reload: reloadUnit } = useWeightUnit();
 
-  useFocusEffect(useCallback(() => { reload(); }, [reload]));
+  useFocusEffect(useCallback(() => { reload(); reloadUnit(); }, [reload, reloadUnit]));
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: '#0a0a0a' }} edges={['top']}>
@@ -155,6 +157,34 @@ export default function ProfileScreen() {
             <Text style={{ color: '#71717a', fontSize: 14, fontWeight: '500' }}>Set up your training split</Text>
           </TouchableOpacity>
         )}
+
+        {/* Preferences */}
+        <Text style={{ color: '#f4f4f5', fontSize: 18, fontWeight: '600', marginBottom: 16 }}>Preferences</Text>
+        <View style={{ backgroundColor: 'rgba(24,24,27,0.6)', borderWidth: 1, borderColor: 'rgba(39,39,42,0.8)', borderRadius: 16, padding: 20, marginBottom: 32 }}>
+          <Text style={{ color: '#52525b', fontSize: 10, fontWeight: '700', textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 14 }}>Weight Unit</Text>
+          <View style={{ flexDirection: 'row', gap: 10 }}>
+            {(['kg', 'lbs'] as const).map((u) => {
+              const selected = unit === u;
+              return (
+                <TouchableOpacity
+                  key={u}
+                  onPress={() => updateUnit(u)}
+                  style={{
+                    flex: 1,
+                    paddingVertical: 12,
+                    borderRadius: 10,
+                    alignItems: 'center',
+                    backgroundColor: selected ? '#f4f4f5' : '#27272a',
+                    borderWidth: 1,
+                    borderColor: selected ? '#f4f4f5' : '#3f3f46',
+                  }}
+                >
+                  <Text style={{ color: selected ? '#09090b' : '#71717a', fontSize: 15, fontWeight: '700' }}>{u}</Text>
+                </TouchableOpacity>
+              );
+            })}
+          </View>
+        </View>
 
         {/* Personal Records */}
         <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>

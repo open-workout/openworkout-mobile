@@ -88,6 +88,7 @@ export function useWorkouts() {
   return {
     workouts,
     isLoading,
+    reload: loadLocal,
     createWorkout,
     renameWorkout,
     finishWorkout,

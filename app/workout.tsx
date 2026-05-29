@@ -1,4 +1,4 @@
-import { View, Text, ScrollView, TouchableOpacity, TextInput, StatusBar, Modal } from "react-native";
+import { View, Text, ScrollView, TouchableOpacity, TextInput, StatusBar, Modal, Alert } from "react-native";
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter, useLocalSearchParams } from 'expo-router';
@@ -20,6 +20,7 @@ type LocalSet = {
 
 type ExerciseBlock = {
   blockId: string;
+  seedSetId: string | null;
   exercise: Exercise;
   sets: LocalSet[];
 };
@@ -36,7 +37,7 @@ function formatElapsed(seconds: number): string {
 export default function WorkoutScreen() {
   const router = useRouter();
   const { workoutId } = useLocalSearchParams<{ workoutId: string }>();
-  const { finishWorkout, renameWorkout, addSet: persistSet, editSet } = useWorkouts();
+  const { finishWorkout, renameWorkout, addSet: persistSet, editSet, removeSet } = useWorkouts();
   const { exercises } = useExercises();
 
   const [blocks, setBlocks] = useState<ExerciseBlock[]>([]);
@@ -89,6 +90,7 @@ export default function WorkoutScreen() {
         const exercise = allExercises.find((e) => e.id === exId || e.name === exId);
         console.log('[resume] exId:', exId, '| matched exercise:', exercise?.name, '| sets:', exSets.length);
         if (!exercise) continue;
+        const seedSetId = exSets.find((s) => s.logged_at === 'seed')?.id ?? null;
         const localSets: LocalSet[] = [...exSets].reverse().filter((s) => s.logged_at !== 'seed').map((s) => ({
           id: s.id,
           weight: s.weight ? String(s.weight) : '',
@@ -98,6 +100,7 @@ export default function WorkoutScreen() {
         }));
         reconstructed.push({
           blockId: exId + '_' + Math.random().toString(36).slice(2),
+          seedSetId,
           exercise,
           sets: localSets,
         });
@@ -126,8 +129,9 @@ export default function WorkoutScreen() {
   const pickExercise = async (exercise: Exercise) => {
     // exercise.id may be null/undefined for exercises created before IDs were enforced
     const exerciseRef = exercise.id || exercise.name;
+    let seedSetId: string | null = null;
     if (workoutId) {
-      await persistSet({
+      seedSetId = await persistSet({
         workout_id: workoutId,
         exercise_id: exerciseRef,
         reps: 0,
@@ -138,7 +142,7 @@ export default function WorkoutScreen() {
       });
     }
     setBlocks((prev) => [
-      { blockId: Math.random().toString(36).slice(2), exercise, sets: [] },
+      { blockId: Math.random().toString(36).slice(2), seedSetId, exercise, sets: [] },
       ...prev,
     ]);
     setPickerVisible(false);
@@ -149,6 +153,7 @@ export default function WorkoutScreen() {
     const block = blocks[0];
     if (!block || !draft.weight.trim() || !draft.reps.trim()) return;
     const exerciseRef = block.exercise.id || block.exercise.name;
+    const now = new Date();
     let newId = Math.random().toString(36).slice(2);
     if (workoutId) {
       newId = await persistSet({
@@ -158,10 +163,11 @@ export default function WorkoutScreen() {
         difficulty: 0,
         weight: parseFloat(draft.weight) || 0,
         unit: 'kg',
-        logged_at: 'pending',
+        logged_at: now.toISOString(),
       });
     }
-    const saved: LocalSet = { id: newId, weight: draft.weight, reps: draft.reps, unit: 'kg', loggedAt: null };
+    console.log('[set] created:', newId, 'exercise:', exerciseRef, 'weight:', draft.weight, 'reps:', draft.reps);
+    const saved: LocalSet = { id: newId, weight: draft.weight, reps: draft.reps, unit: 'kg', loggedAt: now };
     setBlocks((prev) => prev.map((b, i) => (i === 0 ? { ...b, sets: [saved, ...b.sets] } : b)));
     setDraft({ weight: '', reps: '' });
   };
@@ -188,25 +194,45 @@ export default function WorkoutScreen() {
     });
   };
 
-  const toggleSet = (blockIndex: number, setId: string) => {
-    const set = blocks[blockIndex]?.sets.find((s) => s.id === setId);
+  const handleDeleteSet = (blockIndex: number, setId: string) => {
+    const block = blocks[blockIndex];
+    const set = block?.sets.find((s) => s.id === setId);
     if (!set) return;
-    const nowLogged = set.loggedAt === null;
-    const loggedAt = nowLogged ? new Date() : null;
-    setBlocks((prev) =>
-      prev.map((b, i) =>
-        i === blockIndex
-          ? { ...b, sets: b.sets.map((s) => (s.id === setId ? { ...s, loggedAt } : s)) }
-          : b,
-      ),
+    const label = [set.weight && `${set.weight} kg`, set.reps && `${set.reps} reps`].filter(Boolean).join(' · ');
+    Alert.alert('Delete Set', label || 'Delete this set?', [
+      { text: 'Cancel', style: 'cancel' },
+      {
+        text: 'Delete',
+        style: 'destructive',
+        onPress: async () => {
+          console.log('[set] deleted:', setId);
+          await removeSet(setId);
+          setBlocks((prev) =>
+            prev.map((b, i) => (i === blockIndex ? { ...b, sets: b.sets.filter((s) => s.id !== setId) } : b)),
+          );
+        },
+      },
+    ]);
+  };
+
+  const handleDeleteBlock = (blockIndex: number) => {
+    const block = blocks[blockIndex];
+    Alert.alert(
+      block.exercise.name,
+      'Delete this exercise and all its sets?',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Delete',
+          style: 'destructive',
+          onPress: async () => {
+            if (block.seedSetId) await removeSet(block.seedSetId);
+            await Promise.all(block.sets.map((s) => removeSet(s.id)));
+            setBlocks((prev) => prev.filter((_, i) => i !== blockIndex));
+          },
+        },
+      ],
     );
-    editSet(setId, {
-      reps: parseFloat(set.reps) || 0,
-      difficulty: 0,
-      weight: parseFloat(set.weight) || 0,
-      unit: set.unit,
-      logged_at: nowLogged ? new Date().toISOString() : 'pending',
-    });
   };
 
   const filtered = exercises.filter((e) =>
@@ -275,16 +301,17 @@ export default function WorkoutScreen() {
               <Text style={{ color: '#34d399', fontWeight: '700', fontSize: 13, textTransform: 'uppercase', letterSpacing: 0.8, flex: 1 }}>
                 {block.exercise.name}
               </Text>
-              <TouchableOpacity>
-                <Ionicons name="ellipsis-horizontal" size={20} color="#71717a" />
+              <TouchableOpacity onPress={() => handleDeleteBlock(blockIndex)}>
+                <Ionicons name="trash-outline" size={18} color="#71717a" />
               </TouchableOpacity>
             </View>
 
             <View style={{ backgroundColor: 'rgba(24,24,27,0.6)', borderRadius: 16, borderWidth: 1, borderColor: 'rgba(39,39,42,0.8)', overflow: 'hidden' }}>
               <View style={{ flexDirection: 'row', paddingHorizontal: 16, paddingVertical: 12, gap: 8 }}>
-                {['SET', 'KG', 'REPS', blockIndex === 0 ? '+' : '✓'].map((h) => (
+                {['SET', 'KG', 'REPS'].map((h) => (
                   <Text key={h} style={{ flex: 1, textAlign: 'center', color: '#52525b', fontSize: 11, fontWeight: '700', letterSpacing: 0.8 }}>{h}</Text>
                 ))}
+                <View style={{ width: 28 }} />
               </View>
 
               {blockIndex === 0 && (
@@ -305,7 +332,7 @@ export default function WorkoutScreen() {
                   onWeightChange={(v) => updateSetField(blockIndex, set.id, 'weight', v)}
                   onRepsChange={(v) => updateSetField(blockIndex, set.id, 'reps', v)}
                   onBlur={() => saveSet(blockIndex, set.id)}
-                  onToggle={() => toggleSet(blockIndex, set.id)}
+                  onDelete={() => handleDeleteSet(blockIndex, set.id)}
                 />
               ))}
             </View>
@@ -364,13 +391,13 @@ export default function WorkoutScreen() {
   );
 }
 
-function SetRow({ set, index, onToggle, onWeightChange, onRepsChange, onBlur }: {
+function SetRow({ set, index, onWeightChange, onRepsChange, onBlur, onDelete }: {
   set: LocalSet;
   index: number;
-  onToggle: () => void;
   onWeightChange: (v: string) => void;
   onRepsChange: (v: string) => void;
   onBlur: () => void;
+  onDelete: () => void;
 }) {
   const logged = set.loggedAt !== null;
   const bg = logged ? 'rgba(16,185,129,0.06)' : index % 2 === 0 ? 'rgba(39,39,42,0.15)' : 'transparent';
@@ -403,26 +430,9 @@ function SetRow({ set, index, onToggle, onWeightChange, onRepsChange, onBlur }: 
           style={{ backgroundColor: '#0a0a0a', borderWidth: 1, borderColor: '#3f3f46', borderRadius: 8, paddingVertical: 8, textAlign: 'center', color: '#fff', fontWeight: '500', fontSize: 14 }}
         />
       </View>
-      <View style={{ flex: 1, alignItems: 'center' }}>
-        <TouchableOpacity
-          onPress={onToggle}
-          style={{
-            width: 32,
-            height: 32,
-            borderRadius: 8,
-            alignItems: 'center',
-            justifyContent: 'center',
-            backgroundColor: logged ? '#10b981' : '#27272a',
-            borderWidth: 1,
-            borderColor: logged ? '#34d399' : '#3f3f46',
-            shadowColor: logged ? '#10b981' : 'transparent',
-            shadowOpacity: logged ? 0.3 : 0,
-            shadowRadius: 8,
-          }}
-        >
-          <Ionicons name="checkmark" size={16} color={logged ? '#0a0a0a' : '#52525b'} />
-        </TouchableOpacity>
-      </View>
+      <TouchableOpacity onPress={onDelete} style={{ width: 28, alignItems: 'center' }}>
+        <Ionicons name="remove-circle-outline" size={18} color="#52525b" />
+      </TouchableOpacity>
     </View>
   );
 }
@@ -459,24 +469,13 @@ function DraftSetRow({ weight, reps, onWeightChange, onRepsChange, onConfirm }: 
           style={{ backgroundColor: '#0a0a0a', borderWidth: 1, borderColor: '#3f3f46', borderRadius: 8, paddingVertical: 8, textAlign: 'center', color: '#fff', fontWeight: '500', fontSize: 14 }}
         />
       </View>
-      <View style={{ flex: 1, alignItems: 'center' }}>
-        <TouchableOpacity
-          onPress={onConfirm}
-          disabled={!canConfirm}
-          style={{
-            width: 32,
-            height: 32,
-            borderRadius: 8,
-            alignItems: 'center',
-            justifyContent: 'center',
-            backgroundColor: canConfirm ? '#f4f4f5' : '#27272a',
-            borderWidth: 1,
-            borderColor: canConfirm ? '#e4e4e7' : '#3f3f46',
-          }}
-        >
-          <Ionicons name="add" size={18} color={canConfirm ? '#09090b' : '#52525b'} />
-        </TouchableOpacity>
-      </View>
+      <TouchableOpacity
+        onPress={onConfirm}
+        disabled={!canConfirm}
+        style={{ width: 28, alignItems: 'center' }}
+      >
+        <Ionicons name="add-circle" size={22} color={canConfirm ? '#34d399' : '#3f3f46'} />
+      </TouchableOpacity>
     </View>
   );
 }

@@ -3,8 +3,10 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
-import { useRouter } from 'expo-router';
+import { useRouter, useFocusEffect } from 'expo-router';
+import { useState, useCallback } from 'react';
 import { useWorkouts } from '../hooks/useWorkouts';
+import { getAllWorkouts, type Workout } from '../db/workouts';
 
 const recentWorkouts = [
   {
@@ -36,8 +38,17 @@ const recentWorkouts = [
 export default function HomeScreen() {
   const router = useRouter();
   const { createWorkout } = useWorkouts();
+  const [activeWorkout, setActiveWorkout] = useState<Workout | null>(null);
+
+  useFocusEffect(useCallback(() => {
+    getAllWorkouts().then((ws) => setActiveWorkout(ws.find((w) => !w.finished_at) ?? null));
+  }, []));
 
   const handleStartWorkout = async () => {
+    if (activeWorkout) {
+      router.push(`/workout?workoutId=${activeWorkout.id}`);
+      return;
+    }
     const id = await createWorkout({ title: '', started_at: new Date().toISOString() });
     router.push(`/workout?workoutId=${id}`);
   };
@@ -95,11 +106,15 @@ export default function HomeScreen() {
                   end={{ x: 1, y: 1 }}
                   style={{ width: 48, height: 48, borderRadius: 24, alignItems: 'center', justifyContent: 'center' }}
                 >
-                  <Ionicons name="play" size={22} color="#09090b" style={{ marginLeft: 2 }} />
+                  <Ionicons name={activeWorkout ? 'refresh' : 'play'} size={22} color="#09090b" style={{ marginLeft: activeWorkout ? 0 : 2 }} />
                 </LinearGradient>
                 <View>
-                  <Text style={{ color: '#f4f4f5', fontSize: 17, fontWeight: '700', marginBottom: 2 }}>Start Workout</Text>
-                  <Text style={{ color: '#71717a', fontSize: 14 }}>Track a new session</Text>
+                  <Text style={{ color: '#f4f4f5', fontSize: 17, fontWeight: '700', marginBottom: 2 }}>
+                    {activeWorkout ? 'Resume Workout' : 'Start Workout'}
+                  </Text>
+                  <Text style={{ color: '#71717a', fontSize: 14 }}>
+                    {activeWorkout ? 'Continue your session' : 'Track a new session'}
+                  </Text>
                 </View>
               </View>
               <Ionicons name="chevron-forward" size={20} color="#52525b" />

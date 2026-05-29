@@ -5,6 +5,9 @@ import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { useWorkouts } from './hooks/useWorkouts';
 import { useExercises } from './hooks/useExercises';
+import { getSetsForWorkout } from './db/sets';
+import { getAllExercises } from './db/exercises';
+import { getWorkoutById } from './db/workouts';
 import type { Exercise } from './db/exercises';
 
 type LocalSet = {
@@ -21,9 +24,6 @@ type ExerciseBlock = {
   sets: LocalSet[];
 };
 
-function emptySet(): LocalSet {
-  return { id: Math.random().toString(36).slice(2), weight: '', reps: '', unit: 'kg', loggedAt: null };
-}
 
 function formatElapsed(seconds: number): string {
   const h = Math.floor(seconds / 3600);
@@ -36,14 +36,19 @@ function formatElapsed(seconds: number): string {
 export default function WorkoutScreen() {
   const router = useRouter();
   const { workoutId } = useLocalSearchParams<{ workoutId: string }>();
-  const { finishWorkout, renameWorkout } = useWorkouts();
+  const { finishWorkout, renameWorkout, addSet: persistSet, editSet } = useWorkouts();
   const { exercises } = useExercises();
 
   const [blocks, setBlocks] = useState<ExerciseBlock[]>([]);
   const [pickerVisible, setPickerVisible] = useState(false);
   const [search, setSearch] = useState('');
   const [elapsed, setElapsed] = useState(0);
+  const [draft, setDraft] = useState({ weight: '', reps: '' });
   const startedAt = useRef(Date.now());
+
+  // Reset draft whenever a new exercise takes the top spot
+  const topBlockId = blocks[0]?.blockId;
+  useEffect(() => { setDraft({ weight: '', reps: '' }); }, [topBlockId]);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -52,6 +57,58 @@ export default function WorkoutScreen() {
     return () => clearInterval(interval);
   }, []);
 
+  // Reconstruct exercise blocks from DB when resuming an existing workout
+  useEffect(() => {
+    if (!workoutId) return;
+    Promise.all([
+      getSetsForWorkout(workoutId),
+      getAllExercises(),
+      getWorkoutById(workoutId),
+    ]).then(([dbSets, allExercises, workout]) => {
+      // Restore timer to actual workout start time
+      if (workout?.started_at) {
+        startedAt.current = new Date(workout.started_at).getTime();
+      }
+
+      console.log('[resume] sets:', dbSets.length, '| exercises in lib:', allExercises.length);
+      console.log('[resume] set exercise_ids:', dbSets.map((s) => s.exercise_id));
+      console.log('[resume] exercise ids/names:', allExercises.map((e) => ({ id: e.id, name: e.name })));
+
+      if (dbSets.length === 0) return;
+
+      // Group sets by exercise_id, preserving insertion order
+      const grouped = new Map<string, typeof dbSets>();
+      for (const s of dbSets) {
+        const key = s.exercise_id;
+        if (!grouped.has(key)) grouped.set(key, []);
+        grouped.get(key)!.push(s);
+      }
+
+      const reconstructed: ExerciseBlock[] = [];
+      for (const [exId, exSets] of grouped) {
+        const exercise = allExercises.find((e) => e.id === exId || e.name === exId);
+        console.log('[resume] exId:', exId, '| matched exercise:', exercise?.name, '| sets:', exSets.length);
+        if (!exercise) continue;
+        const localSets: LocalSet[] = [...exSets].reverse().filter((s) => s.logged_at !== 'seed').map((s) => ({
+          id: s.id,
+          weight: s.weight ? String(s.weight) : '',
+          reps: s.reps ? String(s.reps) : '',
+          unit: s.unit as 'kg' | 'lbs',
+          loggedAt: s.logged_at !== 'pending' ? new Date(s.logged_at) : null as Date | null,
+        }));
+        reconstructed.push({
+          blockId: exId + '_' + Math.random().toString(36).slice(2),
+          exercise,
+          sets: localSets,
+        });
+      }
+
+      reconstructed.reverse();
+      console.log('[resume] reconstructed:', reconstructed.map((b) => ({ ex: b.exercise.name, sets: b.sets.length })));
+      setBlocks(reconstructed);
+    });
+  }, [workoutId]);
+
   const handleFinish = async () => {
     if (workoutId) {
       await finishWorkout(workoutId, new Date().toISOString());
@@ -59,29 +116,102 @@ export default function WorkoutScreen() {
     router.back();
   };
 
-  const handleTitleBlur = useCallback((title: string) => {
-    if (workoutId) renameWorkout(workoutId, title);
-  }, [workoutId, renameWorkout]);
+  const handleTitleBlur = useCallback(
+    (title: string) => {
+      if (workoutId) renameWorkout(workoutId, title);
+    },
+    [workoutId, renameWorkout],
+  );
 
-  const pickExercise = (exercise: Exercise) => {
-    setBlocks((prev) => [...prev, { blockId: Math.random().toString(36).slice(2), exercise, sets: [emptySet()] }]);
+  const pickExercise = async (exercise: Exercise) => {
+    // exercise.id may be null/undefined for exercises created before IDs were enforced
+    const exerciseRef = exercise.id || exercise.name;
+    if (workoutId) {
+      await persistSet({
+        workout_id: workoutId,
+        exercise_id: exerciseRef,
+        reps: 0,
+        difficulty: 0,
+        weight: 0,
+        unit: 'kg',
+        logged_at: 'seed',
+      });
+    }
+    setBlocks((prev) => [
+      { blockId: Math.random().toString(36).slice(2), exercise, sets: [] },
+      ...prev,
+    ]);
     setPickerVisible(false);
     setSearch('');
   };
 
-  const addSet = (blockIndex: number) => {
-    setBlocks((prev) => prev.map((b, i) => i === blockIndex ? { ...b, sets: [...b.sets, emptySet()] } : b));
+  const confirmDraft = async () => {
+    const block = blocks[0];
+    if (!block || !draft.weight.trim() || !draft.reps.trim()) return;
+    const exerciseRef = block.exercise.id || block.exercise.name;
+    let newId = Math.random().toString(36).slice(2);
+    if (workoutId) {
+      newId = await persistSet({
+        workout_id: workoutId,
+        exercise_id: exerciseRef,
+        reps: parseFloat(draft.reps) || 0,
+        difficulty: 0,
+        weight: parseFloat(draft.weight) || 0,
+        unit: 'kg',
+        logged_at: 'pending',
+      });
+    }
+    const saved: LocalSet = { id: newId, weight: draft.weight, reps: draft.reps, unit: 'kg', loggedAt: null };
+    setBlocks((prev) => prev.map((b, i) => (i === 0 ? { ...b, sets: [saved, ...b.sets] } : b)));
+    setDraft({ weight: '', reps: '' });
+  };
+
+  const updateSetField = (blockIndex: number, setId: string, field: 'weight' | 'reps', value: string) => {
+    setBlocks((prev) =>
+      prev.map((b, i) =>
+        i === blockIndex
+          ? { ...b, sets: b.sets.map((s) => (s.id === setId ? { ...s, [field]: value } : s)) }
+          : b,
+      ),
+    );
+  };
+
+  const saveSet = (blockIndex: number, setId: string) => {
+    const set = blocks[blockIndex]?.sets.find((s) => s.id === setId);
+    if (!set) return;
+    editSet(setId, {
+      reps: parseFloat(set.reps) || 0,
+      difficulty: 0,
+      weight: parseFloat(set.weight) || 0,
+      unit: set.unit,
+      logged_at: set.loggedAt ? set.loggedAt.toISOString() : 'pending',
+    });
   };
 
   const toggleSet = (blockIndex: number, setId: string) => {
-    setBlocks((prev) => prev.map((b, i) =>
-      i === blockIndex
-        ? { ...b, sets: b.sets.map((s) => s.id === setId ? { ...s, loggedAt: s.loggedAt ? null : new Date() } : s) }
-        : b
-    ));
+    const set = blocks[blockIndex]?.sets.find((s) => s.id === setId);
+    if (!set) return;
+    const nowLogged = set.loggedAt === null;
+    const loggedAt = nowLogged ? new Date() : null;
+    setBlocks((prev) =>
+      prev.map((b, i) =>
+        i === blockIndex
+          ? { ...b, sets: b.sets.map((s) => (s.id === setId ? { ...s, loggedAt } : s)) }
+          : b,
+      ),
+    );
+    editSet(setId, {
+      reps: parseFloat(set.reps) || 0,
+      difficulty: 0,
+      weight: parseFloat(set.weight) || 0,
+      unit: set.unit,
+      logged_at: nowLogged ? new Date().toISOString() : 'pending',
+    });
   };
 
-  const filtered = exercises.filter((e) => e.name.toLowerCase().includes(search.toLowerCase()));
+  const filtered = exercises.filter((e) =>
+    e.name.toLowerCase().includes(search.toLowerCase()),
+  );
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: '#0a0a0a' }} edges={['top']}>
@@ -114,55 +244,13 @@ export default function WorkoutScreen() {
             defaultValue=""
             placeholder="Workout name"
             placeholderTextColor="#3f3f46"
-            onBlur={(e) => handleTitleBlur(e.nativeEvent.text)}
+            onEndEditing={(e) => handleTitleBlur(e.nativeEvent.text)}
             style={{ color: '#fff', fontSize: 24, fontWeight: '700', backgroundColor: 'transparent' }}
           />
         </View>
 
-        {/* Empty state */}
-        {blocks.length === 0 && (
-          <View style={{ alignItems: 'center', paddingTop: 48, paddingBottom: 32 }}>
-            <Ionicons name="barbell-outline" size={48} color="#27272a" />
-            <Text style={{ color: '#52525b', fontSize: 16, fontWeight: '500', marginTop: 16 }}>No exercises yet</Text>
-            <Text style={{ color: '#3f3f46', fontSize: 14, marginTop: 4 }}>Tap "Add Exercise" to get started</Text>
-          </View>
-        )}
-
-        {/* Exercise blocks */}
-        {blocks.map((block, blockIndex) => (
-          <View key={block.blockId} style={{ paddingHorizontal: 16, marginBottom: 24 }}>
-            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 8, marginBottom: 12 }}>
-              <Text style={{ color: '#34d399', fontWeight: '700', fontSize: 13, textTransform: 'uppercase', letterSpacing: 0.8, flex: 1 }}>
-                {blockIndex + 1}. {block.exercise.name}
-              </Text>
-              <TouchableOpacity>
-                <Ionicons name="ellipsis-horizontal" size={20} color="#71717a" />
-              </TouchableOpacity>
-            </View>
-
-            <View style={{ backgroundColor: 'rgba(24,24,27,0.6)', borderRadius: 16, borderWidth: 1, borderColor: 'rgba(39,39,42,0.8)', overflow: 'hidden' }}>
-              <View style={{ flexDirection: 'row', paddingHorizontal: 16, paddingVertical: 12, gap: 8 }}>
-                {['SET', 'KG', 'REPS', '✓'].map((h) => (
-                  <Text key={h} style={{ flex: 1, textAlign: 'center', color: '#52525b', fontSize: 11, fontWeight: '700', letterSpacing: 0.8 }}>{h}</Text>
-                ))}
-              </View>
-
-              {block.sets.map((set, i) => (
-                <SetRow key={set.id} set={set} index={i} onToggle={() => toggleSet(blockIndex, set.id)} />
-              ))}
-
-              <TouchableOpacity
-                onPress={() => addSet(blockIndex)}
-                style={{ paddingVertical: 14, alignItems: 'center', borderTopWidth: 1, borderTopColor: 'rgba(39,39,42,0.5)', backgroundColor: 'rgba(24,24,27,0.3)' }}
-              >
-                <Text style={{ color: '#71717a', fontSize: 14, fontWeight: '600' }}>+ Add Set</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        ))}
-
         {/* Add exercise */}
-        <View style={{ paddingHorizontal: 24, marginTop: 8 }}>
+        <View style={{ paddingHorizontal: 24, paddingTop: 8, paddingBottom: 16 }}>
           <TouchableOpacity
             onPress={() => setPickerVisible(true)}
             style={{ paddingVertical: 16, borderRadius: 12, borderWidth: 2, borderColor: '#27272a', borderStyle: 'dashed', alignItems: 'center', flexDirection: 'row', justifyContent: 'center', gap: 8 }}
@@ -171,6 +259,58 @@ export default function WorkoutScreen() {
             <Text style={{ color: '#52525b', fontWeight: '600', fontSize: 15 }}>Add Exercise</Text>
           </TouchableOpacity>
         </View>
+
+        {/* Empty state */}
+        {blocks.length === 0 && (
+          <View style={{ alignItems: 'center', paddingTop: 32, paddingBottom: 32 }}>
+            <Ionicons name="barbell-outline" size={48} color="#27272a" />
+            <Text style={{ color: '#52525b', fontSize: 16, fontWeight: '500', marginTop: 16 }}>No exercises yet</Text>
+          </View>
+        )}
+
+        {/* Exercise blocks */}
+        {blocks.map((block, blockIndex) => (
+          <View key={block.blockId} style={{ paddingHorizontal: 16, marginBottom: 24 }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 8, marginBottom: 12 }}>
+              <Text style={{ color: '#34d399', fontWeight: '700', fontSize: 13, textTransform: 'uppercase', letterSpacing: 0.8, flex: 1 }}>
+                {block.exercise.name}
+              </Text>
+              <TouchableOpacity>
+                <Ionicons name="ellipsis-horizontal" size={20} color="#71717a" />
+              </TouchableOpacity>
+            </View>
+
+            <View style={{ backgroundColor: 'rgba(24,24,27,0.6)', borderRadius: 16, borderWidth: 1, borderColor: 'rgba(39,39,42,0.8)', overflow: 'hidden' }}>
+              <View style={{ flexDirection: 'row', paddingHorizontal: 16, paddingVertical: 12, gap: 8 }}>
+                {['SET', 'KG', 'REPS', blockIndex === 0 ? '+' : '✓'].map((h) => (
+                  <Text key={h} style={{ flex: 1, textAlign: 'center', color: '#52525b', fontSize: 11, fontWeight: '700', letterSpacing: 0.8 }}>{h}</Text>
+                ))}
+              </View>
+
+              {blockIndex === 0 && (
+                <DraftSetRow
+                  weight={draft.weight}
+                  reps={draft.reps}
+                  onWeightChange={(v) => setDraft((d) => ({ ...d, weight: v }))}
+                  onRepsChange={(v) => setDraft((d) => ({ ...d, reps: v }))}
+                  onConfirm={confirmDraft}
+                />
+              )}
+
+              {block.sets.map((set, i) => (
+                <SetRow
+                  key={set.id}
+                  set={set}
+                  index={i}
+                  onWeightChange={(v) => updateSetField(blockIndex, set.id, 'weight', v)}
+                  onRepsChange={(v) => updateSetField(blockIndex, set.id, 'reps', v)}
+                  onBlur={() => saveSet(blockIndex, set.id)}
+                  onToggle={() => toggleSet(blockIndex, set.id)}
+                />
+              ))}
+            </View>
+          </View>
+        ))}
       </ScrollView>
 
       {/* Exercise picker modal */}
@@ -178,7 +318,10 @@ export default function WorkoutScreen() {
         <SafeAreaView style={{ flex: 1, backgroundColor: '#0a0a0a' }} edges={['top']}>
           <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16, paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: '#18181b' }}>
             <Text style={{ color: '#f4f4f5', fontSize: 18, fontWeight: '700' }}>Select Exercise</Text>
-            <TouchableOpacity onPress={() => { setPickerVisible(false); setSearch(''); }} style={{ width: 40, height: 40, alignItems: 'center', justifyContent: 'center' }}>
+            <TouchableOpacity
+              onPress={() => { setPickerVisible(false); setSearch(''); }}
+              style={{ width: 40, height: 40, alignItems: 'center', justifyContent: 'center' }}
+            >
               <Ionicons name="close" size={24} color="#71717a" />
             </TouchableOpacity>
           </View>
@@ -203,7 +346,7 @@ export default function WorkoutScreen() {
             ) : (
               filtered.map((item) => (
                 <TouchableOpacity
-                  key={item.id}
+                  key={item.id ?? item.name}
                   onPress={() => pickExercise(item)}
                   style={{ paddingHorizontal: 24, paddingVertical: 16, borderBottomWidth: 1, borderBottomColor: '#18181b' }}
                 >
@@ -221,7 +364,14 @@ export default function WorkoutScreen() {
   );
 }
 
-function SetRow({ set, index, onToggle }: { set: LocalSet; index: number; onToggle: () => void }) {
+function SetRow({ set, index, onToggle, onWeightChange, onRepsChange, onBlur }: {
+  set: LocalSet;
+  index: number;
+  onToggle: () => void;
+  onWeightChange: (v: string) => void;
+  onRepsChange: (v: string) => void;
+  onBlur: () => void;
+}) {
   const logged = set.loggedAt !== null;
   const bg = logged ? 'rgba(16,185,129,0.06)' : index % 2 === 0 ? 'rgba(39,39,42,0.15)' : 'transparent';
 
@@ -233,7 +383,9 @@ function SetRow({ set, index, onToggle }: { set: LocalSet; index: number; onTogg
       <Text style={{ flex: 1, textAlign: 'center', color: '#71717a', fontSize: 14, fontWeight: '500' }}>{index + 1}</Text>
       <View style={{ flex: 1 }}>
         <TextInput
-          defaultValue={set.weight}
+          value={set.weight}
+          onChangeText={onWeightChange}
+          onBlur={onBlur}
           placeholder="—"
           placeholderTextColor="#3f3f46"
           keyboardType="numeric"
@@ -242,7 +394,9 @@ function SetRow({ set, index, onToggle }: { set: LocalSet; index: number; onTogg
       </View>
       <View style={{ flex: 1 }}>
         <TextInput
-          defaultValue={set.reps}
+          value={set.reps}
+          onChangeText={onRepsChange}
+          onBlur={onBlur}
           placeholder="—"
           placeholderTextColor="#3f3f46"
           keyboardType="numeric"
@@ -267,6 +421,60 @@ function SetRow({ set, index, onToggle }: { set: LocalSet; index: number; onTogg
           }}
         >
           <Ionicons name="checkmark" size={16} color={logged ? '#0a0a0a' : '#52525b'} />
+        </TouchableOpacity>
+      </View>
+    </View>
+  );
+}
+
+function DraftSetRow({ weight, reps, onWeightChange, onRepsChange, onConfirm }: {
+  weight: string;
+  reps: string;
+  onWeightChange: (v: string) => void;
+  onRepsChange: (v: string) => void;
+  onConfirm: () => void;
+}) {
+  const canConfirm = weight.trim().length > 0 && reps.trim().length > 0;
+
+  return (
+    <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, paddingVertical: 12, gap: 8, borderTopWidth: 1, borderTopColor: 'rgba(39,39,42,0.5)' }}>
+      <Text style={{ flex: 1, textAlign: 'center', color: '#3f3f46', fontSize: 14 }}>—</Text>
+      <View style={{ flex: 1 }}>
+        <TextInput
+          value={weight}
+          onChangeText={onWeightChange}
+          placeholder="—"
+          placeholderTextColor="#3f3f46"
+          keyboardType="numeric"
+          style={{ backgroundColor: '#0a0a0a', borderWidth: 1, borderColor: '#3f3f46', borderRadius: 8, paddingVertical: 8, textAlign: 'center', color: '#fff', fontWeight: '500', fontSize: 14 }}
+        />
+      </View>
+      <View style={{ flex: 1 }}>
+        <TextInput
+          value={reps}
+          onChangeText={onRepsChange}
+          placeholder="—"
+          placeholderTextColor="#3f3f46"
+          keyboardType="numeric"
+          style={{ backgroundColor: '#0a0a0a', borderWidth: 1, borderColor: '#3f3f46', borderRadius: 8, paddingVertical: 8, textAlign: 'center', color: '#fff', fontWeight: '500', fontSize: 14 }}
+        />
+      </View>
+      <View style={{ flex: 1, alignItems: 'center' }}>
+        <TouchableOpacity
+          onPress={onConfirm}
+          disabled={!canConfirm}
+          style={{
+            width: 32,
+            height: 32,
+            borderRadius: 8,
+            alignItems: 'center',
+            justifyContent: 'center',
+            backgroundColor: canConfirm ? '#f4f4f5' : '#27272a',
+            borderWidth: 1,
+            borderColor: canConfirm ? '#e4e4e7' : '#3f3f46',
+          }}
+        >
+          <Ionicons name="add" size={18} color={canConfirm ? '#09090b' : '#52525b'} />
         </TouchableOpacity>
       </View>
     </View>

@@ -42,6 +42,14 @@ export async function getDb(): Promise<SQLite.SQLiteDatabase> {
       days       TEXT NOT NULL DEFAULT '[]',
       created_at INTEGER NOT NULL
     );
+    CREATE TABLE IF NOT EXISTS exercise_stats (
+      exercise_id          TEXT NOT NULL PRIMARY KEY,
+      last_performed_at    INTEGER,
+      times_last_21_days   INTEGER DEFAULT 0,
+      last_weight          REAL,
+      last_reps            INTEGER,
+      unit                 TEXT NOT NULL DEFAULT 'kg'
+    );
   `);
   return db;
 }

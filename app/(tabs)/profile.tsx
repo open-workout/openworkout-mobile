@@ -6,7 +6,9 @@ import { useRouter, useFocusEffect } from 'expo-router';
 import { useCallback } from 'react';
 import { useSplit } from '../hooks/useSplit';
 import { useWeightUnit } from '../hooks/useWeightUnit';
+import { useWorkoutPreferences } from '../hooks/useWorkoutPreferences';
 import { compressMuscles } from '../constants/splits';
+import WorkoutPrefsEditor from '../components/WorkoutPrefsEditor';
 
 const prs = [
   { initial: 'B', name: 'Bench Press', type: 'Estimated 1RM', value: '110 kg', change: '+5kg this month', positive: true },
@@ -17,8 +19,9 @@ export default function ProfileScreen() {
   const router = useRouter();
   const { split, reload } = useSplit();
   const { unit, update: updateUnit, reload: reloadUnit } = useWeightUnit();
+  const { prefs, update: updatePrefs, reload: reloadPrefs } = useWorkoutPreferences();
 
-  useFocusEffect(useCallback(() => { reload(); reloadUnit(); }, [reload, reloadUnit]));
+  useFocusEffect(useCallback(() => { reload(); reloadUnit(); reloadPrefs(); }, [reload, reloadUnit, reloadPrefs]));
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: '#0a0a0a' }} edges={['top']}>
@@ -160,7 +163,7 @@ export default function ProfileScreen() {
 
         {/* Preferences */}
         <Text style={{ color: '#f4f4f5', fontSize: 18, fontWeight: '600', marginBottom: 16 }}>Preferences</Text>
-        <View style={{ backgroundColor: 'rgba(24,24,27,0.6)', borderWidth: 1, borderColor: 'rgba(39,39,42,0.8)', borderRadius: 16, padding: 20, marginBottom: 32 }}>
+        <View style={{ backgroundColor: 'rgba(24,24,27,0.6)', borderWidth: 1, borderColor: 'rgba(39,39,42,0.8)', borderRadius: 16, padding: 20, marginBottom: 20 }}>
           <Text style={{ color: '#52525b', fontSize: 10, fontWeight: '700', textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 14 }}>Weight Unit</Text>
           <View style={{ flexDirection: 'row', gap: 10 }}>
             {(['kg', 'lbs'] as const).map((u) => {
@@ -185,6 +188,15 @@ export default function ProfileScreen() {
             })}
           </View>
         </View>
+
+        {prefs && (
+          <View style={{ marginBottom: 32 }}>
+            <WorkoutPrefsEditor
+              prefs={prefs}
+              onChange={(next) => updatePrefs(next)}
+            />
+          </View>
+        )}
 
         {/* Personal Records */}
         <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>

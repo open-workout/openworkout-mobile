@@ -18,7 +18,8 @@ function scoreExercise(
   muscleLoad: Record<string, number>,
   stats: Map<string, ExerciseStat>,
 ): number {
-  const expanded = expandMuscles(exercise.primary_muscles);
+  const allMuscles = [...new Set([...exercise.primary_muscles, ...exercise.secondary_muscles])];
+  const expanded = expandMuscles(allMuscles);
   let overlap = 0;
   for (const m of expanded) {
     const key = Object.keys(muscleLoad).find((k) => k.toLowerCase() === m.toLowerCase());
@@ -81,7 +82,8 @@ export function generateWorkout(
       const bestKey = best.id ?? best.name;
       chosen.add(bestKey);
 
-      for (const m of expandMuscles(best.primary_muscles)) {
+      const bestMuscles = [...new Set([...best.primary_muscles, ...best.secondary_muscles])];
+      for (const m of expandMuscles(bestMuscles)) {
         const key = Object.keys(muscleLoad).find((k) => k.toLowerCase() === m.toLowerCase());
         if (key !== undefined) {
           muscleLoad[key] = Math.max(0, muscleLoad[key] - 1 / E);

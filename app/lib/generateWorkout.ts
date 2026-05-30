@@ -1,5 +1,6 @@
 import type { Exercise } from '../db/exercises';
 import type { WorkoutPreferences } from '../storage';
+import { expandMuscles } from '../constants/splits';
 
 export type ExerciseStat = {
   exercise_id: string;
@@ -17,33 +18,33 @@ function scoreExercise(
   muscleLoad: Record<string, number>,
   stats: Map<string, ExerciseStat>,
 ): number {
+  const expanded = expandMuscles(exercise.primary_muscles);
   let overlap = 0;
-  for (const m of exercise.primary_muscles) {
-    if (m in muscleLoad) overlap += muscleLoad[m];
+  for (const m of expanded) {
+    const key = Object.keys(muscleLoad).find((k) => k.toLowerCase() === m.toLowerCase());
+    if (key !== undefined) overlap += muscleLoad[key];
   }
+  const n = expanded.length;
+  const normalizedOverlap = n > 0 ? overlap / n : 0;
   const stat = stats.get(exercise.id ?? exercise.name);
   const recencyBonus = (stat?.times_last_21_days ?? 0) > 0 ? 0.3 : 0;
-  return overlap + recencyBonus;
+  return normalizedOverlap + recencyBonus;
 }
 
 function rankCandidates(
   exercises: Exercise[],
   type: string,
-  muscles: string[],
   muscleLoad: Record<string, number>,
   stats: Map<string, ExerciseStat>,
   chosen: Set<string>,
 ): Exercise[] {
+  // Filter only by type and uniqueness — muscle overlap is handled by scoring.
+  // Exercises with no matching primary muscles get score 0 and are picked last
+  // as a fallback when the library doesn't have enough on-target exercises.
   return exercises
-    .filter((e) => {
-      const key = e.id ?? e.name;
-      return (
-        e.exercise_type === type &&
-        !chosen.has(key) &&
-        e.primary_muscles.some((m) => muscles.includes(m))
-      );
-    })
+    .filter((e) => e.exercise_type === type && !chosen.has(e.id ?? e.name))
     .map((e) => ({ exercise: e, score: scoreExercise(e, muscleLoad, stats) }))
+    .filter((r) => r.score > 0)
     .sort((a, b) => b.score - a.score)
     .map((r) => r.exercise);
 }
@@ -71,7 +72,7 @@ export function generateWorkout(
 
   for (const { type, count } of phases) {
     for (let i = 0; i < count; i++) {
-      const candidates = rankCandidates(exercises, type, muscles, muscleLoad, stats, chosen);
+      const candidates = rankCandidates(exercises, type, muscleLoad, stats, chosen);
       if (candidates.length === 0) continue;
 
       slots.push({ type, candidates });
@@ -80,9 +81,10 @@ export function generateWorkout(
       const bestKey = best.id ?? best.name;
       chosen.add(bestKey);
 
-      for (const m of best.primary_muscles) {
-        if (m in muscleLoad) {
-          muscleLoad[m] = Math.max(0, muscleLoad[m] - 1 / E);
+      for (const m of expandMuscles(best.primary_muscles)) {
+        const key = Object.keys(muscleLoad).find((k) => k.toLowerCase() === m.toLowerCase());
+        if (key !== undefined) {
+          muscleLoad[key] = Math.max(0, muscleLoad[key] - 1 / E);
         }
       }
     }

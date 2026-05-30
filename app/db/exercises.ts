@@ -68,6 +68,25 @@ export async function insertExercise(input: NewExerciseInput): Promise<string> {
   return id;
 }
 
+export async function updateExercise(exercise: Exercise, input: NewExerciseInput): Promise<void> {
+  const db = await getDb();
+  if (exercise.id) {
+    await db.runAsync(
+      `UPDATE exercises SET name=?, exercise_type=?, primary_muscles=?, secondary_muscles=?, alt_names=?, description=?, weight_direction=? WHERE id=?`,
+      input.name, input.exercise_type, JSON.stringify(input.primary_muscles),
+      JSON.stringify(input.secondary_muscles), JSON.stringify(input.alt_names),
+      input.description, input.weight_direction, exercise.id,
+    );
+  } else {
+    await db.runAsync(
+      `UPDATE exercises SET name=?, exercise_type=?, primary_muscles=?, secondary_muscles=?, alt_names=?, description=?, weight_direction=? WHERE name=?`,
+      input.name, input.exercise_type, JSON.stringify(input.primary_muscles),
+      JSON.stringify(input.secondary_muscles), JSON.stringify(input.alt_names),
+      input.description, input.weight_direction, exercise.name,
+    );
+  }
+}
+
 export async function getAllExercises(): Promise<Exercise[]> {
   const db = await getDb();
   const rows = await db.getAllAsync<RawRow>(

@@ -43,7 +43,6 @@ export default function PickDayScreen() {
     if (!canGenerate || !prefs) return;
     const stats = await getAllExerciseStats();
     const slots = generateWorkout(activeMuscles, exercises, stats, prefs);
-    if (slots.length === 0) return;
     setPendingWorkout(slots, activeMuscles);
     router.push('/generated-workout');
   };

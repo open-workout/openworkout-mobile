@@ -6,6 +6,12 @@ export async function getDb(): Promise<SQLite.SQLiteDatabase> {
   if (db) return db;
   db = await SQLite.openDatabaseAsync('openworkout.db');
   await db.execAsync('PRAGMA foreign_keys = ON;');
+  // Migration: add id column to exercises if missing (older installs pre-date this column)
+  const exerciseCols = await db.getAllAsync<{ name: string }>('PRAGMA table_info(exercises)');
+  if (exerciseCols.length > 0 && !exerciseCols.find((c) => c.name === 'id')) {
+    await db.execAsync('ALTER TABLE exercises ADD COLUMN id TEXT;');
+  }
+
   await db.execAsync(`
     CREATE TABLE IF NOT EXISTS exercises (
       id                TEXT PRIMARY KEY,
@@ -41,6 +47,14 @@ export async function getDb(): Promise<SQLite.SQLiteDatabase> {
       name       TEXT NOT NULL,
       days       TEXT NOT NULL DEFAULT '[]',
       created_at INTEGER NOT NULL
+    );
+    CREATE TABLE IF NOT EXISTS exercise_stats (
+      exercise_id          TEXT NOT NULL PRIMARY KEY,
+      last_performed_at    INTEGER,
+      times_last_21_days   INTEGER DEFAULT 0,
+      last_weight          REAL,
+      last_reps            INTEGER,
+      unit                 TEXT NOT NULL DEFAULT 'kg'
     );
   `);
   return db;

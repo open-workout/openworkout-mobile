@@ -2,6 +2,25 @@ import * as SecureStore from 'expo-secure-store';
 
 const ONBOARDING_DONE_KEY = 'onboarding_done';
 const WEIGHT_UNIT_KEY = 'weight_unit';
+const WORKOUT_PREFS_KEY = 'workout_preferences';
+
+export type WorkoutPreferences = {
+  compound_exercises: number;
+  accessory_exercises: number;
+  isolation_exercises: number;
+  compound_sets: number;
+  accessory_sets: number;
+  isolation_sets: number;
+};
+
+const DEFAULT_WORKOUT_PREFS: WorkoutPreferences = {
+  compound_exercises: 3,
+  accessory_exercises: 3,
+  isolation_exercises: 2,
+  compound_sets: 4,
+  accessory_sets: 3,
+  isolation_sets: 3,
+};
 
 export async function markOnboardingDone(): Promise<void> {
   await SecureStore.setItemAsync(ONBOARDING_DONE_KEY, '1');
@@ -18,4 +37,18 @@ export async function getWeightUnit(): Promise<'kg' | 'lbs'> {
 
 export async function setWeightUnit(unit: 'kg' | 'lbs'): Promise<void> {
   await SecureStore.setItemAsync(WEIGHT_UNIT_KEY, unit);
+}
+
+export async function getWorkoutPreferences(): Promise<WorkoutPreferences> {
+  const v = await SecureStore.getItemAsync(WORKOUT_PREFS_KEY);
+  if (!v) return { ...DEFAULT_WORKOUT_PREFS };
+  try {
+    return { ...DEFAULT_WORKOUT_PREFS, ...JSON.parse(v) };
+  } catch {
+    return { ...DEFAULT_WORKOUT_PREFS };
+  }
+}
+
+export async function setWorkoutPreferences(prefs: WorkoutPreferences): Promise<void> {
+  await SecureStore.setItemAsync(WORKOUT_PREFS_KEY, JSON.stringify(prefs));
 }

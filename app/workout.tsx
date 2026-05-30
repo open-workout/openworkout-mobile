@@ -9,7 +9,8 @@ import { useWeightUnit } from './hooks/useWeightUnit';
 import { getSetsForWorkout } from './db/sets';
 import { getAllExercises } from './db/exercises';
 import { getWorkoutById } from './db/workouts';
-import type { Exercise } from './db/exercises';
+import type { Exercise, NewExerciseInput } from './db/exercises';
+import AddExerciseModal from './components/AddExerciseModal';
 
 type LocalSet = {
   id: string;
@@ -39,14 +40,16 @@ export default function WorkoutScreen() {
   const router = useRouter();
   const { workoutId } = useLocalSearchParams<{ workoutId: string }>();
   const { finishWorkout, renameWorkout, addSet: persistSet, editSet, removeSet } = useWorkouts();
-  const { exercises } = useExercises();
+  const { exercises, createExercise } = useExercises();
   const { unit: weightUnit } = useWeightUnit();
 
   const [blocks, setBlocks] = useState<ExerciseBlock[]>([]);
   const [pickerVisible, setPickerVisible] = useState(false);
+  const [addExerciseVisible, setAddExerciseVisible] = useState(false);
   const [search, setSearch] = useState('');
   const [elapsed, setElapsed] = useState(0);
   const [draft, setDraft] = useState({ weight: '', reps: '' });
+  const [workoutTitle, setWorkoutTitle] = useState('');
   const startedAt = useRef(Date.now());
 
   // Reset draft whenever a new exercise takes the top spot
@@ -68,9 +71,11 @@ export default function WorkoutScreen() {
       getAllExercises(),
       getWorkoutById(workoutId),
     ]).then(([dbSets, allExercises, workout]) => {
-      // Restore timer to actual workout start time
       if (workout?.started_at) {
         startedAt.current = new Date(workout.started_at).getTime();
+      }
+      if (workout?.title) {
+        setWorkoutTitle(workout.title);
       }
 
       console.log('[resume] sets:', dbSets.length, '| exercises in lib:', allExercises.length);
@@ -128,6 +133,14 @@ export default function WorkoutScreen() {
     [workoutId, renameWorkout],
   );
 
+  const handleCreateExercise = useCallback(
+    async (input: NewExerciseInput) => {
+      await createExercise(input);
+      setAddExerciseVisible(false);
+    },
+    [createExercise],
+  );
+
   const pickExercise = async (exercise: Exercise) => {
     // exercise.id may be null/undefined for exercises created before IDs were enforced
     const exerciseRef = exercise.id || exercise.name;
@@ -143,10 +156,14 @@ export default function WorkoutScreen() {
         logged_at: 'seed',
       });
     }
-    setBlocks((prev) => [
-      { blockId: Math.random().toString(36).slice(2), seedSetId, exercise, sets: [] },
-      ...prev,
-    ]);
+    setBlocks((prev) => {
+      const toRemove = prev.filter((b) => b.sets.length === 0);
+      toRemove.forEach((b) => { if (b.seedSetId) removeSet(b.seedSetId); });
+      return [
+        { blockId: Math.random().toString(36).slice(2), seedSetId, exercise, sets: [] },
+        ...prev.filter((b) => b.sets.length > 0),
+      ];
+    });
     setPickerVisible(false);
     setSearch('');
   };
@@ -269,7 +286,8 @@ export default function WorkoutScreen() {
         {/* Workout title */}
         <View style={{ paddingHorizontal: 24, paddingVertical: 24 }}>
           <TextInput
-            defaultValue=""
+            key={workoutTitle}
+            defaultValue={workoutTitle}
             placeholder="Workout name"
             placeholderTextColor="#3f3f46"
             onEndEditing={(e) => handleTitleBlur(e.nativeEvent.text)}
@@ -310,7 +328,7 @@ export default function WorkoutScreen() {
 
             <View style={{ backgroundColor: 'rgba(24,24,27,0.6)', borderRadius: 16, borderWidth: 1, borderColor: 'rgba(39,39,42,0.8)', overflow: 'hidden' }}>
               <View style={{ flexDirection: 'row', paddingHorizontal: 16, paddingVertical: 12, gap: 8 }}>
-                {['SET', weightUnit.toUpperCase(), 'REPS'].map((h) => (
+                {[weightUnit.toUpperCase(), 'REPS'].map((h) => (
                   <Text key={h} style={{ flex: 1, textAlign: 'center', color: '#52525b', fontSize: 11, fontWeight: '700', letterSpacing: 0.8 }}>{h}</Text>
                 ))}
                 <View style={{ width: 28 }} />
@@ -326,11 +344,10 @@ export default function WorkoutScreen() {
                 />
               )}
 
-              {block.sets.map((set, i) => (
+              {block.sets.map((set) => (
                 <SetRow
                   key={set.id}
                   set={set}
-                  index={i}
                   onWeightChange={(v) => updateSetField(blockIndex, set.id, 'weight', v)}
                   onRepsChange={(v) => updateSetField(blockIndex, set.id, 'reps', v)}
                   onBlur={() => saveSet(blockIndex, set.id)}
@@ -341,6 +358,12 @@ export default function WorkoutScreen() {
           </View>
         ))}
       </ScrollView>
+
+      <AddExerciseModal
+        visible={addExerciseVisible}
+        onClose={() => setAddExerciseVisible(false)}
+        onSubmit={handleCreateExercise}
+      />
 
       {/* Exercise picker modal */}
       <Modal visible={pickerVisible} animationType="slide" presentationStyle="pageSheet" onRequestClose={() => setPickerVisible(false)}>
@@ -367,10 +390,29 @@ export default function WorkoutScreen() {
             />
           </View>
 
+          <TouchableOpacity
+            onPress={() => setAddExerciseVisible(true)}
+            style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 24, paddingVertical: 14, borderBottomWidth: 1, borderBottomColor: '#18181b', gap: 10 }}
+          >
+            <View style={{ width: 28, height: 28, borderRadius: 8, backgroundColor: '#18181b', borderWidth: 1, borderColor: '#27272a', alignItems: 'center', justifyContent: 'center' }}>
+              <Ionicons name="add" size={16} color="#71717a" />
+            </View>
+            <Text style={{ color: '#71717a', fontSize: 15, fontWeight: '600' }}>New exercise</Text>
+          </TouchableOpacity>
+
           <ScrollView keyboardShouldPersistTaps="handled">
             {filtered.length === 0 ? (
-              <View style={{ alignItems: 'center', paddingTop: 48 }}>
-                <Text style={{ color: '#52525b', fontSize: 16 }}>No exercises found</Text>
+              <View style={{ alignItems: 'center', paddingTop: 48, paddingHorizontal: 24 }}>
+                <Text style={{ color: '#52525b', fontSize: 16, marginBottom: 16 }}>No exercises found</Text>
+                {search.trim().length > 0 && (
+                  <TouchableOpacity
+                    onPress={() => setAddExerciseVisible(true)}
+                    style={{ flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: '#18181b', borderWidth: 1, borderColor: '#27272a', borderRadius: 12, paddingHorizontal: 16, paddingVertical: 12 }}
+                  >
+                    <Ionicons name="add-circle-outline" size={18} color="#a1a1aa" />
+                    <Text style={{ color: '#a1a1aa', fontSize: 15, fontWeight: '600' }}>{`Create "${search.trim()}"`}</Text>
+                  </TouchableOpacity>
+                )}
               </View>
             ) : (
               filtered.map((item) => (
@@ -393,23 +435,21 @@ export default function WorkoutScreen() {
   );
 }
 
-function SetRow({ set, index, onWeightChange, onRepsChange, onBlur, onDelete }: {
+function SetRow({ set, onWeightChange, onRepsChange, onBlur, onDelete }: {
   set: LocalSet;
-  index: number;
   onWeightChange: (v: string) => void;
   onRepsChange: (v: string) => void;
   onBlur: () => void;
   onDelete: () => void;
 }) {
   const logged = set.loggedAt !== null;
-  const bg = logged ? 'rgba(16,185,129,0.06)' : index % 2 === 0 ? 'rgba(39,39,42,0.15)' : 'transparent';
+  const bg = logged ? 'rgba(16,185,129,0.06)' : 'transparent';
 
   return (
     <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, paddingVertical: 12, gap: 8, backgroundColor: bg, borderTopWidth: 1, borderTopColor: 'rgba(39,39,42,0.5)', position: 'relative' }}>
       {logged && (
         <View style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: 2, backgroundColor: '#10b981' }} />
       )}
-      <Text style={{ flex: 1, textAlign: 'center', color: '#71717a', fontSize: 14, fontWeight: '500' }}>{index + 1}</Text>
       <View style={{ flex: 1 }}>
         <TextInput
           value={set.weight}
@@ -450,7 +490,6 @@ function DraftSetRow({ weight, reps, onWeightChange, onRepsChange, onConfirm }: 
 
   return (
     <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, paddingVertical: 12, gap: 8, borderTopWidth: 1, borderTopColor: 'rgba(39,39,42,0.5)' }}>
-      <Text style={{ flex: 1, textAlign: 'center', color: '#3f3f46', fontSize: 14 }}>—</Text>
       <View style={{ flex: 1 }}>
         <TextInput
           value={weight}

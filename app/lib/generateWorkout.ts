@@ -46,7 +46,7 @@ function rankCandidates(
     .filter((e) => e.exercise_type === type && !chosen.has(e.id ?? e.name))
     .map((e) => ({ exercise: e, score: scoreExercise(e, muscleLoad, stats) }))
     .filter((r) => r.score > 0)
-    .sort((a, b) => b.score - a.score)
+    .sort((a, b) => b.score - a.score || Math.random() - 0.5)
     .map((r) => r.exercise);
 }
 

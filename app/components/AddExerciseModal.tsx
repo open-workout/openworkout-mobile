@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Modal,
   View,
@@ -12,7 +12,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
-import type { NewExerciseInput } from '../db/exercises';
+import type { Exercise, NewExerciseInput } from '../db/exercises';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -205,12 +205,32 @@ type Props = {
   visible: boolean;
   onClose: () => void;
   onSubmit: (input: NewExerciseInput) => Promise<void>;
+  exercise?: Exercise;
 };
 
-export default function AddExerciseModal({ visible, onClose, onSubmit }: Props) {
+export default function AddExerciseModal({ visible, onClose, onSubmit, exercise }: Props) {
   const [form, setForm] = useState<FormState>(INITIAL_FORM);
   const [submitting, setSubmitting] = useState(false);
   const [nameError, setNameError] = useState('');
+
+  useEffect(() => {
+    if (!visible) return;
+    if (exercise) {
+      setForm({
+        name: exercise.name,
+        exercise_type: (exercise.exercise_type as ExerciseType) ?? 'compound',
+        primary_muscles: exercise.primary_muscles ?? [],
+        secondary_muscles: exercise.secondary_muscles ?? [],
+        altNameDraft: '',
+        alt_names: exercise.alt_names ?? [],
+        description: exercise.description ?? '',
+        weight_direction: exercise.weight_direction === -1 ? -1 : 1,
+      });
+    } else {
+      setForm(INITIAL_FORM);
+    }
+    setNameError('');
+  }, [visible]);
 
   function set<K extends keyof FormState>(key: K, value: FormState[K]) {
     setForm((prev) => ({ ...prev, [key]: value }));
@@ -296,7 +316,7 @@ export default function AddExerciseModal({ visible, onClose, onSubmit }: Props) 
             <TouchableOpacity onPress={handleClose}>
               <Text style={{ color: C.textMuted, fontSize: 16 }}>Cancel</Text>
             </TouchableOpacity>
-            <Text style={{ color: C.text, fontSize: 16, fontWeight: '700' }}>New Exercise</Text>
+            <Text style={{ color: C.text, fontSize: 16, fontWeight: '700' }}>{exercise ? 'Edit Exercise' : 'New Exercise'}</Text>
             <TouchableOpacity
               onPress={handleSubmit}
               disabled={submitting}

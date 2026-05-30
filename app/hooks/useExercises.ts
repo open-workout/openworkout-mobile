@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import {
   getAllExercises,
   insertExercise,
+  updateExercise as dbUpdateExercise,
   type Exercise,
   type NewExerciseInput,
 } from '../db/exercises';
@@ -27,5 +28,13 @@ export function useExercises() {
     [loadLocal],
   );
 
-  return { exercises, createExercise, isLoading };
+  const editExercise = useCallback(
+    async (exercise: Exercise, input: NewExerciseInput) => {
+      await dbUpdateExercise(exercise, input);
+      await loadLocal();
+    },
+    [loadLocal],
+  );
+
+  return { exercises, createExercise, editExercise, isLoading };
 }

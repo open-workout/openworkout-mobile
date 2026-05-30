@@ -9,8 +9,8 @@
     "ios": "expo run:ios",
     "web": "expo start --web",
     "lint": "expo lint",
-    "test": "jest",
-    "test:watch": "jest --watch"
+    "test": "node node_modules/jest-expo/bin/jest.js",
+    "test:watch": "node node_modules/jest-expo/bin/jest.js --watch"
   },
   "dependencies": {
     "@expo/vector-icons": "^15.0.3",
@@ -54,7 +54,9 @@
     "@types/react-test-renderer": "^19.1.0",
     "eslint": "^9.25.0",
     "eslint-config-expo": "~10.0.0",
+    "jest": "^29.7.0",
     "jest-expo": "^54.0.17",
+    "jest-mock": "^29.7.0",
     "postcss": "^8.5.13",
     "react-test-renderer": "^19.1.0",
     "tailwindcss": "^4.2.4",

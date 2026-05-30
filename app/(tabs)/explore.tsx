@@ -27,7 +27,9 @@ export default function ExploreScreen() {
   const [activeCategory, setActiveCategory] = useState(0);
   const [search, setSearch] = useState('');
   const [showAdd, setShowAdd] = useState(false);
-  const { exercises, isLoading, createExercise } = useExercises();
+  const [editingExercise, setEditingExercise] = useState<Exercise | null>(null);
+  const [expandedKey, setExpandedKey] = useState<string | null>(null);
+  const { exercises, isLoading, createExercise, editExercise } = useExercises();
 
   const filtered = useMemo(() => {
     const cat = categories[activeCategory];
@@ -123,9 +125,18 @@ export default function ExploreScreen() {
               <Text style={{ color: '#71717a', fontSize: 11, fontWeight: '700', textTransform: 'uppercase', letterSpacing: 1, marginTop: 16, marginBottom: 12 }}>
                 {filtered.length} exercise{filtered.length !== 1 ? 's' : ''}
               </Text>
-              {filtered.map((ex) => (
-                <ExerciseRow key={ex.id} exercise={ex} />
-              ))}
+              {filtered.map((ex) => {
+                const key = ex.id ?? ex.name;
+                return (
+                  <ExerciseRow
+                    key={key}
+                    exercise={ex}
+                    expanded={expandedKey === key}
+                    onToggle={() => setExpandedKey(expandedKey === key ? null : key)}
+                    onEdit={() => setEditingExercise(ex)}
+                  />
+                );
+              })}
             </>
           )}
         </ScrollView>
@@ -136,36 +147,106 @@ export default function ExploreScreen() {
         onClose={() => setShowAdd(false)}
         onSubmit={createExercise}
       />
+      <AddExerciseModal
+        visible={editingExercise !== null}
+        exercise={editingExercise ?? undefined}
+        onClose={() => setEditingExercise(null)}
+        onSubmit={(input) => editExercise(editingExercise!, input)}
+      />
     </SafeAreaView>
   );
 }
 
-function ExerciseRow({ exercise }: { exercise: Exercise }) {
+function ExerciseRow({ exercise, expanded, onToggle, onEdit }: {
+  exercise: Exercise;
+  expanded: boolean;
+  onToggle: () => void;
+  onEdit: () => void;
+}) {
   const muscle = exercise.primary_muscles[0] ?? exercise.exercise_type ?? '—';
 
   return (
     <View style={{
-      flexDirection: 'row',
-      alignItems: 'center',
       backgroundColor: 'rgba(24,24,27,0.4)',
       borderWidth: 1,
-      borderColor: 'rgba(39,39,42,0.5)',
+      borderColor: expanded ? 'rgba(63,63,70,0.8)' : 'rgba(39,39,42,0.5)',
       borderRadius: 16,
-      padding: 12,
       marginBottom: 12,
+      overflow: 'hidden',
     }}>
-      <View style={{ width: 64, height: 64, borderRadius: 12, backgroundColor: '#27272a', borderWidth: 1, borderColor: '#3f3f46', alignItems: 'center', justifyContent: 'center' }}>
-        <MaterialCommunityIcons name="dumbbell" size={24} color="#a1a1aa" />
+      {/* Main row */}
+      <View style={{ flexDirection: 'row', alignItems: 'center', padding: 12 }}>
+        <View style={{ width: 64, height: 64, borderRadius: 12, backgroundColor: '#27272a', borderWidth: 1, borderColor: '#3f3f46', alignItems: 'center', justifyContent: 'center' }}>
+          <MaterialCommunityIcons name="dumbbell" size={24} color="#a1a1aa" />
+        </View>
+        <View style={{ flex: 1, marginLeft: 16 }}>
+          <Text style={{ color: '#f4f4f5', fontSize: 14, fontWeight: '700' }}>{exercise.name}</Text>
+          <Text style={{ color: '#52525b', fontSize: 12, marginTop: 4 }}>
+            {muscle} • {exercise.exercise_type || 'exercise'}
+          </Text>
+        </View>
+        <TouchableOpacity
+          onPress={onToggle}
+          style={{ width: 32, height: 32, borderRadius: 16, backgroundColor: expanded ? '#3f3f46' : '#27272a', alignItems: 'center', justifyContent: 'center' }}
+        >
+          <Ionicons name={expanded ? 'remove' : 'add'} size={18} color="#d4d4d8" />
+        </TouchableOpacity>
       </View>
-      <View style={{ flex: 1, marginLeft: 16 }}>
-        <Text style={{ color: '#f4f4f5', fontSize: 14, fontWeight: '700' }}>{exercise.name}</Text>
-        <Text style={{ color: '#52525b', fontSize: 12, marginTop: 4 }}>
-          {muscle} • {exercise.exercise_type || 'exercise'}
-        </Text>
-      </View>
-      <TouchableOpacity style={{ width: 32, height: 32, borderRadius: 16, backgroundColor: '#27272a', alignItems: 'center', justifyContent: 'center' }}>
-        <Ionicons name="add" size={18} color="#d4d4d8" />
-      </TouchableOpacity>
+
+      {/* Expanded detail panel */}
+      {expanded && (
+        <View style={{ borderTopWidth: 1, borderTopColor: '#27272a', paddingHorizontal: 16, paddingVertical: 14, gap: 12 }}>
+          {exercise.exercise_type ? (
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+              <Text style={{ color: '#52525b', fontSize: 11, fontWeight: '700', textTransform: 'uppercase', letterSpacing: 0.8, width: 72 }}>Type</Text>
+              <View style={{ backgroundColor: '#27272a', borderRadius: 8, paddingHorizontal: 10, paddingVertical: 4 }}>
+                <Text style={{ color: '#a1a1aa', fontSize: 12, fontWeight: '600', textTransform: 'capitalize' }}>{exercise.exercise_type}</Text>
+              </View>
+            </View>
+          ) : null}
+
+          {exercise.primary_muscles.length > 0 && (
+            <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 8 }}>
+              <Text style={{ color: '#52525b', fontSize: 11, fontWeight: '700', textTransform: 'uppercase', letterSpacing: 0.8, width: 72, paddingTop: 4 }}>Primary</Text>
+              <View style={{ flex: 1, flexDirection: 'row', flexWrap: 'wrap', gap: 6 }}>
+                {exercise.primary_muscles.map((m) => (
+                  <View key={m} style={{ backgroundColor: '#1c1c1f', borderWidth: 1, borderColor: '#3f3f46', borderRadius: 20, paddingHorizontal: 10, paddingVertical: 4 }}>
+                    <Text style={{ color: '#d4d4d8', fontSize: 12, textTransform: 'capitalize' }}>{m}</Text>
+                  </View>
+                ))}
+              </View>
+            </View>
+          )}
+
+          {exercise.secondary_muscles.length > 0 && (
+            <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 8 }}>
+              <Text style={{ color: '#52525b', fontSize: 11, fontWeight: '700', textTransform: 'uppercase', letterSpacing: 0.8, width: 72, paddingTop: 4 }}>Secondary</Text>
+              <View style={{ flex: 1, flexDirection: 'row', flexWrap: 'wrap', gap: 6 }}>
+                {exercise.secondary_muscles.map((m) => (
+                  <View key={m} style={{ backgroundColor: '#18181b', borderWidth: 1, borderColor: '#27272a', borderRadius: 20, paddingHorizontal: 10, paddingVertical: 4 }}>
+                    <Text style={{ color: '#71717a', fontSize: 12, textTransform: 'capitalize' }}>{m}</Text>
+                  </View>
+                ))}
+              </View>
+            </View>
+          )}
+
+          {!!exercise.description && (
+            <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 8 }}>
+              <Text style={{ color: '#52525b', fontSize: 11, fontWeight: '700', textTransform: 'uppercase', letterSpacing: 0.8, width: 72, paddingTop: 2 }}>Notes</Text>
+              <Text style={{ flex: 1, color: '#71717a', fontSize: 13, lineHeight: 18 }}>{exercise.description}</Text>
+            </View>
+          )}
+
+          <TouchableOpacity
+            onPress={onEdit}
+            style={{ alignSelf: 'flex-start', flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 4, backgroundColor: '#18181b', borderWidth: 1, borderColor: '#3f3f46', borderRadius: 10, paddingHorizontal: 14, paddingVertical: 8 }}
+          >
+            <Ionicons name="pencil-outline" size={14} color="#a1a1aa" />
+            <Text style={{ color: '#a1a1aa', fontSize: 13, fontWeight: '600' }}>Edit</Text>
+          </TouchableOpacity>
+        </View>
+      )}
     </View>
   );
 }

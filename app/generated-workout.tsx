@@ -6,7 +6,9 @@ import { useState, useEffect } from 'react';
 import { insertWorkout } from './db/workouts';
 import { insertSet } from './db/sets';
 import { useWeightUnit } from './hooks/useWeightUnit';
+import { useExercises } from './hooks/useExercises';
 import { getPendingWorkout, clearPendingWorkout } from './lib/pendingWorkout';
+import { findAlternatives } from './lib/generateWorkout';
 import { compressMuscles } from './constants/splits';
 import type { GeneratedSlot } from './lib/generateWorkout';
 import type { Exercise } from './db/exercises';
@@ -30,13 +32,12 @@ const TYPE_LABEL: Record<string, string> = {
 export default function GeneratedWorkoutScreen() {
   const router = useRouter();
   const { unit: weightUnit } = useWeightUnit();
+  const { exercises } = useExercises();
 
   const pending = getPendingWorkout();
+  const slots: GeneratedSlot[] = pending?.slots ?? [];
 
-  const [slots, setSlots] = useState<GeneratedSlot[]>(pending?.slots ?? []);
-  const [selections, setSelections] = useState<number[]>(
-    (pending?.slots ?? []).map(() => 0),
-  );
+  const [chosen, setChosen] = useState<Exercise[]>(() => slots.map((s) => s.exercise));
   const [switchingSlot, setSwitchingSlot] = useState<number | null>(null);
   const [starting, setStarting] = useState(false);
 
@@ -44,18 +45,21 @@ export default function GeneratedWorkoutScreen() {
     if (!pending) router.back();
   }, []);
 
-  const selectCandidate = (slotIndex: number, candidateIndex: number) => {
-    setSelections((prev) => prev.map((sel, i) => (i === slotIndex ? candidateIndex : sel)));
+  const alternatives =
+    switchingSlot !== null ? findAlternatives(chosen[switchingSlot], exercises) : [];
+
+  const selectAlternative = (slotIndex: number, exercise: Exercise) => {
+    setChosen((prev) => prev.map((e, i) => (i === slotIndex ? exercise : e)));
     setSwitchingSlot(null);
   };
 
   const handleStart = async () => {
-    if (starting || slots.length === 0) return;
+    if (starting || chosen.length === 0) return;
     setStarting(true);
     try {
       const id = await insertWorkout({ title: '', started_at: new Date().toISOString() });
-      for (let i = slots.length - 1; i >= 0; i--) {
-        const exercise = slots[i].candidates[selections[i]];
+      for (let i = chosen.length - 1; i >= 0; i--) {
+        const exercise = chosen[i];
         await insertSet({
           workout_id: id,
           exercise_id: exercise.id ?? exercise.name,
@@ -78,9 +82,6 @@ export default function GeneratedWorkoutScreen() {
         .map((m) => m.charAt(0).toUpperCase() + m.slice(1))
         .join(' · ')
     : '';
-
-  const switchingCandidates =
-    switchingSlot !== null ? slots[switchingSlot]?.candidates ?? [] : [];
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: C.bg }} edges={['top']}>
@@ -109,9 +110,9 @@ export default function GeneratedWorkoutScreen() {
         showsVerticalScrollIndicator={false}
       >
         {slots.map((slot, slotIndex) => {
-          const exercise = slot.candidates[selections[slotIndex]];
+          const exercise = chosen[slotIndex];
+          if (!exercise) return null;
           const muscles = exercise.primary_muscles.join(', ');
-          const hasAlternatives = slot.candidates.length > 1;
 
           return (
             <View
@@ -133,15 +134,13 @@ export default function GeneratedWorkoutScreen() {
                   )}
                 </View>
 
-                {hasAlternatives && (
-                  <TouchableOpacity
-                    onPress={() => setSwitchingSlot(slotIndex)}
-                    style={{ flexDirection: 'row', alignItems: 'center', gap: 5, backgroundColor: '#141414', borderRadius: 10, borderWidth: 1, borderColor: C.border, paddingHorizontal: 10, paddingVertical: 7, marginTop: 2 }}
-                  >
-                    <Ionicons name="swap-horizontal-outline" size={15} color={C.textMuted} />
-                    <Text style={{ color: C.textMuted, fontSize: 12, fontWeight: '600' }}>Switch</Text>
-                  </TouchableOpacity>
-                )}
+                <TouchableOpacity
+                  onPress={() => setSwitchingSlot(slotIndex)}
+                  style={{ flexDirection: 'row', alignItems: 'center', gap: 5, backgroundColor: '#141414', borderRadius: 10, borderWidth: 1, borderColor: C.border, paddingHorizontal: 10, paddingVertical: 7, marginTop: 2 }}
+                >
+                  <Ionicons name="swap-horizontal-outline" size={15} color={C.textMuted} />
+                  <Text style={{ color: C.textMuted, fontSize: 12, fontWeight: '600' }}>Switch</Text>
+                </TouchableOpacity>
               </View>
             </View>
           );
@@ -193,27 +192,29 @@ export default function GeneratedWorkoutScreen() {
           </View>
 
           <ScrollView>
-            {switchingCandidates.map((candidate, candidateIndex) => {
-              const isSelected = switchingSlot !== null && selections[switchingSlot] === candidateIndex;
-              const muscles = candidate.primary_muscles.join(', ');
-              return (
-                <TouchableOpacity
-                  key={candidate.id ?? candidate.name}
-                  onPress={() => selectCandidate(switchingSlot!, candidateIndex)}
-                  style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 20, paddingVertical: 16, borderBottomWidth: 1, borderBottomColor: C.border, backgroundColor: isSelected ? '#141414' : 'transparent' }}
-                >
-                  <View style={{ flex: 1 }}>
+            {alternatives.length === 0 ? (
+              <View style={{ alignItems: 'center', paddingTop: 48, paddingHorizontal: 32 }}>
+                <Text style={{ color: C.textDim, fontSize: 15, textAlign: 'center' }}>
+                  No similar exercises found in your library
+                </Text>
+              </View>
+            ) : (
+              alternatives.map((candidate) => {
+                const muscles = candidate.primary_muscles.join(', ');
+                return (
+                  <TouchableOpacity
+                    key={candidate.id ?? candidate.name}
+                    onPress={() => selectAlternative(switchingSlot!, candidate)}
+                    style={{ paddingHorizontal: 20, paddingVertical: 16, borderBottomWidth: 1, borderBottomColor: C.border }}
+                  >
                     <Text style={{ color: C.text, fontSize: 16, fontWeight: '600' }}>{candidate.name}</Text>
                     {!!muscles && (
                       <Text style={{ color: C.textDim, fontSize: 13, marginTop: 2, textTransform: 'capitalize' }}>{muscles}</Text>
                     )}
-                  </View>
-                  {isSelected && (
-                    <Ionicons name="checkmark-circle" size={22} color={C.text} />
-                  )}
-                </TouchableOpacity>
-              );
-            })}
+                  </TouchableOpacity>
+                );
+              })
+            )}
           </ScrollView>
         </SafeAreaView>
       </Modal>

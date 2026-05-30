@@ -4,9 +4,15 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useSplit } from './hooks/useSplit';
+import { useExercises } from './hooks/useExercises';
+import { useWorkoutPreferences } from './hooks/useWorkoutPreferences';
 import { insertWorkout } from './db/workouts';
+import { getAllExerciseStats } from './db/exerciseStats';
+import { generateWorkout } from './lib/generateWorkout';
+import { setPendingWorkout } from './lib/pendingWorkout';
 import {
   compressMuscles,
+  expandMuscles,
   MUSCLE_SECTIONS_SPLIT,
   SUPER_MUSCLE_MAP,
   getSuperState,
@@ -17,13 +23,29 @@ import {
 export default function PickDayScreen() {
   const router = useRouter();
   const { split, isLoading } = useSplit();
+  const { exercises } = useExercises();
+  const { prefs } = useWorkoutPreferences();
   const [selectedDay, setSelectedDay] = useState<string | null>(null);
   const [showMusclePicker, setShowMusclePicker] = useState(false);
   const [selectedMuscles, setSelectedMuscles] = useState<string[]>([]);
 
+  const activeMuscles = selectedDay
+    ? expandMuscles(split?.days.find((d) => d.name === selectedDay)?.muscles ?? [])
+    : expandMuscles(selectedMuscles);
+  const canGenerate = activeMuscles.length > 0 && exercises.length > 0 && prefs !== null;
+
   const handleSelect = async (title: string) => {
     const id = await insertWorkout({ title, started_at: new Date().toISOString() });
     router.replace(`/workout?workoutId=${id}`);
+  };
+
+  const handleGenerate = async () => {
+    if (!canGenerate || !prefs) return;
+    const stats = await getAllExerciseStats();
+    const slots = generateWorkout(activeMuscles, exercises, stats, prefs);
+    if (slots.length === 0) return;
+    setPendingWorkout(slots, activeMuscles);
+    router.push('/generated-workout');
   };
 
   const toggleMuscle = (muscle: string) => {
@@ -60,15 +82,25 @@ export default function PickDayScreen() {
           <MuscleGrid selected={selectedMuscles} onToggle={toggleMuscle} />
         </ScrollView>
 
-        {/* Continue button */}
-        <View style={{ paddingHorizontal: 20, paddingBottom: 16, paddingTop: 8, borderTopWidth: 1, borderTopColor: '#18181b' }}>
+        {/* Footer buttons */}
+        <View style={{ paddingHorizontal: 20, paddingBottom: 16, paddingTop: 8, borderTopWidth: 1, borderTopColor: '#18181b', gap: 10 }}>
+          {canGenerate && (
+            <TouchableOpacity
+              activeOpacity={0.85}
+              onPress={handleGenerate}
+              style={{ backgroundColor: '#1c1c1f', borderWidth: 1, borderColor: '#3f3f46', borderRadius: 14, paddingVertical: 14, alignItems: 'center', flexDirection: 'row', justifyContent: 'center', gap: 8 }}
+            >
+              <Ionicons name="sparkles" size={16} color="#f4f4f5" />
+              <Text style={{ color: '#f4f4f5', fontSize: 15, fontWeight: '700' }}>Generate workout</Text>
+            </TouchableOpacity>
+          )}
           <TouchableOpacity
             activeOpacity={0.85}
             onPress={() => handleSelect('')}
             style={{ backgroundColor: '#f4f4f5', borderRadius: 14, paddingVertical: 16, alignItems: 'center' }}
           >
             <Text style={{ color: '#09090b', fontSize: 16, fontWeight: '700' }}>
-              {selectedMuscles.length > 0 ? 'Continue' : 'Skip'}
+              {selectedMuscles.length > 0 ? 'Continue manually' : 'Skip'}
             </Text>
           </TouchableOpacity>
         </View>
@@ -125,14 +157,18 @@ export default function PickDayScreen() {
 
             <TouchableOpacity
               activeOpacity={0.8}
-              style={{ backgroundColor: '#18181b', borderWidth: 1, borderColor: '#27272a', borderRadius: 16, paddingHorizontal: 20, paddingVertical: 18, flexDirection: 'row', alignItems: 'center', gap: 14, marginBottom: 12 }}
+              onPress={handleGenerate}
+              disabled={!canGenerate}
+              style={{ backgroundColor: canGenerate ? '#1c1c1f' : '#18181b', borderWidth: 1, borderColor: canGenerate ? '#3f3f46' : '#27272a', borderRadius: 16, paddingHorizontal: 20, paddingVertical: 18, flexDirection: 'row', alignItems: 'center', gap: 14, marginBottom: 12 }}
             >
               <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: '#27272a', alignItems: 'center', justifyContent: 'center' }}>
-                <Ionicons name="sparkles" size={17} color="#a1a1aa" />
+                <Ionicons name="sparkles" size={17} color={canGenerate ? '#f4f4f5' : '#a1a1aa'} />
               </View>
               <View style={{ flex: 1 }}>
-                <Text style={{ color: '#f4f4f5', fontSize: 16, fontWeight: '700' }}>Generate workout</Text>
-                <Text style={{ color: '#71717a', fontSize: 13, marginTop: 2 }}>AI picks exercises for you</Text>
+                <Text style={{ color: canGenerate ? '#f4f4f5' : '#71717a', fontSize: 16, fontWeight: '700' }}>Generate workout</Text>
+                <Text style={{ color: '#71717a', fontSize: 13, marginTop: 2 }}>
+                  {canGenerate ? 'Based on selected muscles' : 'Select a day above to enable'}
+                </Text>
               </View>
               <Ionicons name="chevron-forward" size={18} color="#52525b" />
             </TouchableOpacity>

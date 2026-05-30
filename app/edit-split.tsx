@@ -27,8 +27,12 @@ export default function EditSplitScreen() {
   const initialDays: SplitDay[] = startInCustom ? (split?.days ?? []) : [];
 
   async function handleSave(name: string, days: SplitDay[]) {
-    await deleteAllSplits();
-    await insertSplit({ name, days });
+    try {
+      await deleteAllSplits();
+      await insertSplit({ name, days });
+    } catch (e) {
+      console.error('[handleSave] failed to save split:', e);
+    }
     router.back();
   }
 

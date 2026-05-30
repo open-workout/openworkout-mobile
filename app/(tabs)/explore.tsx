@@ -124,7 +124,7 @@ export default function ExploreScreen() {
                 {filtered.length} exercise{filtered.length !== 1 ? 's' : ''}
               </Text>
               {filtered.map((ex) => (
-                <ExerciseRow key={ex.id} exercise={ex} />
+                <ExerciseRow key={ex.id ?? ex.name} exercise={ex} />
               ))}
             </>
           )}

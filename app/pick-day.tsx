@@ -139,6 +139,7 @@ export default function PickDayScreen() {
 
             <TouchableOpacity
               activeOpacity={0.8}
+              onPress={() => handleSelect('Manual Workout')}
               style={{ backgroundColor: '#18181b', borderWidth: 1, borderColor: '#27272a', borderRadius: 16, paddingHorizontal: 20, paddingVertical: 18, flexDirection: 'row', alignItems: 'center', gap: 14 }}
             >
               <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: '#27272a', alignItems: 'center', justifyContent: 'center' }}>

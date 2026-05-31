@@ -7,15 +7,12 @@ import { useWorkouts } from './hooks/useWorkouts';
 import { useExercises } from './hooks/useExercises';
 import { useWeightUnit } from './hooks/useWeightUnit';
 import { insertWorkout } from './db/workouts';
-import { insertSet } from './db/sets';
+import { insertSet, deleteSetsByExercise } from './db/sets';
 import { getAllExercises } from './db/exercises';
-import { deleteSetsByExercise } from './db/sets';
 import { getPendingWorkout, clearPendingWorkout } from './lib/pendingWorkout';
 import { findAlternatives } from './lib/generateWorkout';
 import { compressMuscles } from './constants/splits';
-import type { GeneratedSlot } from './lib/generateWorkout';
-import type { Exercise } from './db/exercises';
-import type { NewExerciseInput } from './db/exercises';
+import type { Exercise, NewExerciseInput } from './db/exercises';
 import { SetRow, DraftSetRow, type LocalSet } from './components/SetRows';
 import AddExerciseModal from './components/AddExerciseModal';
 import ConfirmModal from './components/ConfirmModal';
@@ -36,6 +33,16 @@ const TYPE_LABEL: Record<string, string> = {
   isolation: 'Isolation',
 };
 
+type WorkoutCard = {
+  cardId: string;
+  slotType: string;
+  exercise: Exercise;
+};
+
+function mkId() {
+  return Math.random().toString(36).slice(2);
+}
+
 function formatElapsed(seconds: number): string {
   const h = Math.floor(seconds / 3600);
   const m = Math.floor((seconds % 3600) / 60);
@@ -51,19 +58,19 @@ export default function GeneratedWorkoutScreen() {
   const { finishWorkout, editSet, removeSet } = useWorkouts();
 
   const pending = getPendingWorkout();
-  const slots: GeneratedSlot[] = pending?.slots ?? [];
+  const slots = pending?.slots ?? [];
 
-  // Which exercise is chosen per slot
-  const [chosen, setChosen] = useState<Exercise[]>(() => slots.map((s) => s.exercise));
+  // Cards — stable cardId keys replace numeric slot indices
+  const [cards, setCards] = useState<WorkoutCard[]>(() =>
+    slots.map((s) => ({ cardId: mkId(), slotType: s.type, exercise: s.exercise })),
+  );
 
-  // Expandable cards
-  const [expandedSlots, setExpandedSlots] = useState<Record<number, boolean>>({});
+  // Per-card state keyed by cardId (stable across add/delete)
+  const [expandedCards, setExpandedCards] = useState<Record<string, boolean>>({});
+  const [cardSets, setCardSets] = useState<Record<string, LocalSet[]>>({});
+  const [drafts, setDrafts] = useState<Record<string, { weight: string; reps: string }>>({});
 
-  // Per-slot logged sets and draft inputs
-  const [slotSets, setSlotSets] = useState<Record<number, LocalSet[]>>({});
-  const [drafts, setDrafts] = useState<Record<number, { weight: string; reps: string }>>({});
-
-  // Lazy workout creation — store a Promise so concurrent first-set logs can't double-create
+  // Lazy workout creation
   const workoutRef = useRef<Promise<string> | null>(null);
   const startedAtRef = useRef<number | null>(null);
 
@@ -72,12 +79,18 @@ export default function GeneratedWorkoutScreen() {
   const [timerRunning, setTimerRunning] = useState(false);
 
   // Switch modal
-  const [switchingSlot, setSwitchingSlot] = useState<number | null>(null);
+  const [switchingCardId, setSwitchingCardId] = useState<string | null>(null);
   const [switchSearch, setSwitchSearch] = useState('');
   const [showCreate, setShowCreate] = useState(false);
 
-  // Delete set confirmation
-  const [deletingSet, setDeletingSet] = useState<{ slotIndex: number; setId: string } | null>(null);
+  // Add exercise picker
+  const [showPicker, setShowPicker] = useState(false);
+  const [pickerSearch, setPickerSearch] = useState('');
+  const [showCreateForAdd, setShowCreateForAdd] = useState(false);
+
+  // Delete confirmations
+  const [deletingSet, setDeletingSet] = useState<{ cardId: string; setId: string } | null>(null);
+  const [deletingCardId, setDeletingCardId] = useState<string | null>(null);
 
   useEffect(() => {
     if (!pending) router.back();
@@ -107,11 +120,12 @@ export default function GeneratedWorkoutScreen() {
 
   // ─── Set operations ─────────────────────────────────────────────────────────
 
-  const confirmDraft = async (slotIndex: number) => {
-    const draft = drafts[slotIndex];
+  const confirmDraft = async (cardId: string) => {
+    const draft = drafts[cardId];
     if (!draft?.weight.trim() || !draft?.reps.trim()) return;
-    const exercise = chosen[slotIndex];
-    const exerciseRef = exercise.id || exercise.name;
+    const card = cards.find((c) => c.cardId === cardId);
+    if (!card) return;
+    const exerciseRef = card.exercise.id || card.exercise.name;
     const now = new Date();
 
     const workoutId = await ensureWorkout();
@@ -126,19 +140,19 @@ export default function GeneratedWorkoutScreen() {
     });
 
     const saved: LocalSet = { id: newId, weight: draft.weight, reps: draft.reps, unit: weightUnit, loggedAt: now };
-    setSlotSets((prev) => ({ ...prev, [slotIndex]: [saved, ...(prev[slotIndex] ?? [])] }));
-    setDrafts((prev) => ({ ...prev, [slotIndex]: { weight: '', reps: '' } }));
+    setCardSets((prev) => ({ ...prev, [cardId]: [saved, ...(prev[cardId] ?? [])] }));
+    setDrafts((prev) => ({ ...prev, [cardId]: { weight: '', reps: '' } }));
   };
 
-  const updateSetField = (slotIndex: number, setId: string, field: 'weight' | 'reps', value: string) => {
-    setSlotSets((prev) => ({
+  const updateSetField = (cardId: string, setId: string, field: 'weight' | 'reps', value: string) => {
+    setCardSets((prev) => ({
       ...prev,
-      [slotIndex]: (prev[slotIndex] ?? []).map((s) => (s.id === setId ? { ...s, [field]: value } : s)),
+      [cardId]: (prev[cardId] ?? []).map((s) => (s.id === setId ? { ...s, [field]: value } : s)),
     }));
   };
 
-  const saveSet = (slotIndex: number, setId: string) => {
-    const set = (slotSets[slotIndex] ?? []).find((s) => s.id === setId);
+  const saveSet = (cardId: string, setId: string) => {
+    const set = (cardSets[cardId] ?? []).find((s) => s.id === setId);
     if (!set) return;
     editSet(setId, {
       reps: parseFloat(set.reps) || 0,
@@ -151,16 +165,43 @@ export default function GeneratedWorkoutScreen() {
 
   const confirmDeleteSet = async () => {
     if (!deletingSet) return;
-    const { slotIndex, setId } = deletingSet;
+    const { cardId, setId } = deletingSet;
     await removeSet(setId);
-    setSlotSets((prev) => ({
-      ...prev,
-      [slotIndex]: (prev[slotIndex] ?? []).filter((s) => s.id !== setId),
-    }));
+    setCardSets((prev) => ({ ...prev, [cardId]: (prev[cardId] ?? []).filter((s) => s.id !== setId) }));
     setDeletingSet(null);
   };
 
-  // ─── Finish ─────────────────────────────────────────────────────────────────
+  // ─── Add / delete cards ──────────────────────────────────────────────────────
+
+  const addCard = (exercise: Exercise) => {
+    const newCard: WorkoutCard = {
+      cardId: mkId(),
+      slotType: exercise.exercise_type || 'accessory',
+      exercise,
+    };
+    setCards((prev) => [...prev, newCard]);
+    setShowPicker(false);
+    setPickerSearch('');
+  };
+
+  const confirmDeleteCard = async () => {
+    if (!deletingCardId) return;
+    if (workoutRef.current) {
+      const workoutId = await workoutRef.current;
+      const card = cards.find((c) => c.cardId === deletingCardId);
+      if (card) {
+        const exerciseRef = card.exercise.id || card.exercise.name;
+        await deleteSetsByExercise(workoutId, exerciseRef);
+      }
+    }
+    setCards((prev) => prev.filter((c) => c.cardId !== deletingCardId));
+    setCardSets((prev) => { const n = { ...prev }; delete n[deletingCardId!]; return n; });
+    setDrafts((prev) => { const n = { ...prev }; delete n[deletingCardId!]; return n; });
+    setExpandedCards((prev) => { const n = { ...prev }; delete n[deletingCardId!]; return n; });
+    setDeletingCardId(null);
+  };
+
+  // ─── Finish ──────────────────────────────────────────────────────────────────
 
   const handleFinish = async () => {
     const workoutId = workoutRef.current ? await workoutRef.current : null;
@@ -171,10 +212,10 @@ export default function GeneratedWorkoutScreen() {
     router.back();
   };
 
-  // ─── Switch exercise ─────────────────────────────────────────────────────────
+  // ─── Switch exercise ──────────────────────────────────────────────────────────
 
-  const alternatives =
-    switchingSlot !== null ? findAlternatives(chosen[switchingSlot], exercises) : [];
+  const switchingCard = cards.find((c) => c.cardId === switchingCardId) ?? null;
+  const alternatives = switchingCard ? findAlternatives(switchingCard.exercise, exercises) : [];
 
   const q = switchSearch.trim().toLowerCase();
   const switchCandidates = q
@@ -184,23 +225,33 @@ export default function GeneratedWorkoutScreen() {
       })
     : alternatives;
 
-  const selectAlternative = async (slotIndex: number, exercise: Exercise) => {
-    if (workoutRef.current && (slotSets[slotIndex]?.length ?? 0) > 0) {
+  const selectAlternative = async (cardId: string, exercise: Exercise) => {
+    const card = cards.find((c) => c.cardId === cardId);
+    if (workoutRef.current && card && (cardSets[cardId]?.length ?? 0) > 0) {
       const workoutId = await workoutRef.current;
-      const oldRef = chosen[slotIndex].id || chosen[slotIndex].name;
-      await deleteSetsByExercise(workoutId, oldRef);
+      await deleteSetsByExercise(workoutId, card.exercise.id || card.exercise.name);
     }
-    setChosen((prev) => prev.map((e, i) => (i === slotIndex ? exercise : e)));
-    setSlotSets((prev) => { const n = { ...prev }; delete n[slotIndex]; return n; });
-    setDrafts((prev) => { const n = { ...prev }; delete n[slotIndex]; return n; });
-    setSwitchingSlot(null);
+    setCards((prev) => prev.map((c) => (c.cardId === cardId ? { ...c, exercise } : c)));
+    setCardSets((prev) => { const n = { ...prev }; delete n[cardId]; return n; });
+    setDrafts((prev) => { const n = { ...prev }; delete n[cardId]; return n; });
+    setSwitchingCardId(null);
     setSwitchSearch('');
   };
 
   const closeSwitchModal = () => {
-    setSwitchingSlot(null);
+    setSwitchingCardId(null);
     setSwitchSearch('');
   };
+
+  // ─── Picker search ───────────────────────────────────────────────────────────
+
+  const pq = pickerSearch.trim().toLowerCase();
+  const pickerCandidates = pq
+    ? exercises.filter((e) => {
+        const haystack = [e.name, ...(e.alt_names ?? [])].join(' ').toLowerCase();
+        return haystack.includes(pq);
+      })
+    : exercises;
 
   const muscleLabel = pending?.muscles
     ? compressMuscles(pending.muscles)
@@ -247,28 +298,27 @@ export default function GeneratedWorkoutScreen() {
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
       >
-        {slots.map((slot, slotIndex) => {
-          const exercise = chosen[slotIndex];
-          if (!exercise) return null;
+        {cards.map((card) => {
+          const { cardId, slotType, exercise } = card;
           const muscles = exercise.primary_muscles.join(', ');
-          const isExpanded = !!expandedSlots[slotIndex];
-          const sets = slotSets[slotIndex] ?? [];
-          const draft = drafts[slotIndex] ?? { weight: '', reps: '' };
+          const isExpanded = !!expandedCards[cardId];
+          const sets = cardSets[cardId] ?? [];
+          const draft = drafts[cardId] ?? { weight: '', reps: '' };
 
           return (
             <View
-              key={slotIndex}
+              key={cardId}
               style={{ backgroundColor: C.card, borderRadius: 16, borderWidth: 1, borderColor: isExpanded ? C.borderAlt : C.border, marginBottom: 12, overflow: 'hidden' }}
             >
               {/* Card header */}
               <TouchableOpacity
-                onPress={() => setExpandedSlots((prev) => ({ ...prev, [slotIndex]: !isExpanded }))}
+                onPress={() => setExpandedCards((prev) => ({ ...prev, [cardId]: !isExpanded }))}
                 activeOpacity={0.7}
                 style={{ flexDirection: 'row', alignItems: 'flex-start', padding: 16, gap: 12 }}
               >
                 <View style={{ flex: 1 }}>
                   <Text style={{ color: C.textDim, fontSize: 10, fontWeight: '700', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 6 }}>
-                    {TYPE_LABEL[slot.type] ?? slot.type}
+                    {TYPE_LABEL[slotType] ?? slotType}
                   </Text>
                   <Text style={{ color: C.text, fontSize: 18, fontWeight: '700', marginBottom: 4 }}>
                     {exercise.name}
@@ -282,11 +332,14 @@ export default function GeneratedWorkoutScreen() {
 
                 <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 2 }}>
                   <TouchableOpacity
-                    onPress={() => setSwitchingSlot(slotIndex)}
+                    onPress={() => setSwitchingCardId(cardId)}
                     style={{ flexDirection: 'row', alignItems: 'center', gap: 5, backgroundColor: '#141414', borderRadius: 10, borderWidth: 1, borderColor: C.border, paddingHorizontal: 10, paddingVertical: 7 }}
                   >
                     <Ionicons name="swap-horizontal-outline" size={15} color={C.textMuted} />
                     <Text style={{ color: C.textMuted, fontSize: 12, fontWeight: '600' }}>Switch</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity onPress={() => setDeletingCardId(cardId)}>
+                    <Ionicons name="trash-outline" size={17} color={C.textDim} />
                   </TouchableOpacity>
                   <Ionicons
                     name={isExpanded ? 'chevron-up' : 'chevron-down'}
@@ -299,7 +352,6 @@ export default function GeneratedWorkoutScreen() {
               {/* Expanded set panel */}
               {isExpanded && (
                 <View style={{ borderTopWidth: 1, borderTopColor: C.border }}>
-                  {/* Column headers */}
                   <View style={{ flexDirection: 'row', paddingHorizontal: 16, paddingVertical: 10, gap: 8 }}>
                     {[weightUnit.toUpperCase(), 'REPS'].map((h) => (
                       <Text key={h} style={{ flex: 1, textAlign: 'center', color: C.textDim, fontSize: 11, fontWeight: '700', letterSpacing: 0.8 }}>{h}</Text>
@@ -310,19 +362,19 @@ export default function GeneratedWorkoutScreen() {
                   <DraftSetRow
                     weight={draft.weight}
                     reps={draft.reps}
-                    onWeightChange={(v) => setDrafts((prev) => ({ ...prev, [slotIndex]: { ...draft, weight: v } }))}
-                    onRepsChange={(v) => setDrafts((prev) => ({ ...prev, [slotIndex]: { ...draft, reps: v } }))}
-                    onConfirm={() => confirmDraft(slotIndex)}
+                    onWeightChange={(v) => setDrafts((prev) => ({ ...prev, [cardId]: { ...draft, weight: v } }))}
+                    onRepsChange={(v) => setDrafts((prev) => ({ ...prev, [cardId]: { ...draft, reps: v } }))}
+                    onConfirm={() => confirmDraft(cardId)}
                   />
 
                   {sets.map((set) => (
                     <SetRow
                       key={set.id}
                       set={set}
-                      onWeightChange={(v) => updateSetField(slotIndex, set.id, 'weight', v)}
-                      onRepsChange={(v) => updateSetField(slotIndex, set.id, 'reps', v)}
-                      onBlur={() => saveSet(slotIndex, set.id)}
-                      onDelete={() => setDeletingSet({ slotIndex, setId: set.id })}
+                      onWeightChange={(v) => updateSetField(cardId, set.id, 'weight', v)}
+                      onRepsChange={(v) => updateSetField(cardId, set.id, 'reps', v)}
+                      onBlur={() => saveSet(cardId, set.id)}
+                      onDelete={() => setDeletingSet({ cardId, setId: set.id })}
                     />
                   ))}
                 </View>
@@ -331,20 +383,19 @@ export default function GeneratedWorkoutScreen() {
           );
         })}
 
-        {slots.length === 0 && (
-          <View style={{ alignItems: 'center', paddingTop: 48 }}>
-            <Ionicons name="barbell-outline" size={48} color={C.border} />
-            <Text style={{ color: C.textDim, fontSize: 16, marginTop: 16 }}>No exercises found</Text>
-            <Text style={{ color: C.textDim, fontSize: 13, marginTop: 6, textAlign: 'center' }}>
-              Add more exercises to the library that match your target muscles
-            </Text>
-          </View>
-        )}
+        {/* Add exercise */}
+        <TouchableOpacity
+          onPress={() => setShowPicker(true)}
+          style={{ paddingVertical: 16, borderRadius: 12, borderWidth: 2, borderColor: C.border, borderStyle: 'dashed', alignItems: 'center', flexDirection: 'row', justifyContent: 'center', gap: 8, marginTop: 4 }}
+        >
+          <Ionicons name="add" size={18} color={C.textDim} />
+          <Text style={{ color: C.textDim, fontWeight: '600', fontSize: 15 }}>Add Exercise</Text>
+        </TouchableOpacity>
       </ScrollView>
 
-      {/* Switch alternatives modal */}
+      {/* Switch modal */}
       <Modal
-        visible={switchingSlot !== null}
+        visible={switchingCardId !== null}
         animationType="slide"
         presentationStyle="pageSheet"
         onRequestClose={closeSwitchModal}
@@ -352,15 +403,11 @@ export default function GeneratedWorkoutScreen() {
         <SafeAreaView style={{ flex: 1, backgroundColor: C.bg }} edges={['top']}>
           <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16, paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: C.border }}>
             <Text style={{ color: C.text, fontSize: 17, fontWeight: '700' }}>Switch Exercise</Text>
-            <TouchableOpacity
-              onPress={closeSwitchModal}
-              style={{ width: 40, height: 40, alignItems: 'center', justifyContent: 'center' }}
-            >
+            <TouchableOpacity onPress={closeSwitchModal} style={{ width: 40, height: 40, alignItems: 'center', justifyContent: 'center' }}>
               <Ionicons name="close" size={24} color={C.textMuted} />
             </TouchableOpacity>
           </View>
 
-          {/* Search bar */}
           <View style={{ flexDirection: 'row', alignItems: 'center', margin: 12, paddingHorizontal: 12, backgroundColor: C.card, borderRadius: 12, borderWidth: 1, borderColor: C.border }}>
             <Ionicons name="search" size={16} color={C.textMuted} style={{ marginRight: 8 }} />
             <TextInput
@@ -380,7 +427,6 @@ export default function GeneratedWorkoutScreen() {
           </View>
 
           <ScrollView keyboardShouldPersistTaps="handled">
-            {/* Create new exercise */}
             <TouchableOpacity
               onPress={() => setShowCreate(true)}
               style={{ flexDirection: 'row', alignItems: 'center', gap: 10, paddingHorizontal: 20, paddingVertical: 16, borderBottomWidth: 1, borderBottomColor: C.border }}
@@ -398,27 +444,91 @@ export default function GeneratedWorkoutScreen() {
                 </Text>
               </View>
             ) : (
-              switchCandidates.map((candidate) => {
-                const muscles = candidate.primary_muscles.join(', ');
-                return (
-                  <TouchableOpacity
-                    key={candidate.id ?? candidate.name}
-                    onPress={() => selectAlternative(switchingSlot!, candidate)}
-                    style={{ paddingHorizontal: 20, paddingVertical: 16, borderBottomWidth: 1, borderBottomColor: C.border }}
-                  >
-                    <Text style={{ color: C.text, fontSize: 16, fontWeight: '600' }}>{candidate.name}</Text>
-                    {!!muscles && (
-                      <Text style={{ color: C.textDim, fontSize: 13, marginTop: 2, textTransform: 'capitalize' }}>{muscles}</Text>
-                    )}
-                  </TouchableOpacity>
-                );
-              })
+              switchCandidates.map((candidate) => (
+                <TouchableOpacity
+                  key={candidate.id ?? candidate.name}
+                  onPress={() => selectAlternative(switchingCardId!, candidate)}
+                  style={{ paddingHorizontal: 20, paddingVertical: 16, borderBottomWidth: 1, borderBottomColor: C.border }}
+                >
+                  <Text style={{ color: C.text, fontSize: 16, fontWeight: '600' }}>{candidate.name}</Text>
+                  {candidate.primary_muscles.length > 0 && (
+                    <Text style={{ color: C.textDim, fontSize: 13, marginTop: 2, textTransform: 'capitalize' }}>
+                      {candidate.primary_muscles.join(', ')}
+                    </Text>
+                  )}
+                </TouchableOpacity>
+              ))
             )}
           </ScrollView>
         </SafeAreaView>
       </Modal>
 
-      {/* Create exercise modal */}
+      {/* Add exercise picker modal */}
+      <Modal
+        visible={showPicker}
+        animationType="slide"
+        presentationStyle="pageSheet"
+        onRequestClose={() => { setShowPicker(false); setPickerSearch(''); }}
+      >
+        <SafeAreaView style={{ flex: 1, backgroundColor: C.bg }} edges={['top']}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16, paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: C.border }}>
+            <Text style={{ color: C.text, fontSize: 17, fontWeight: '700' }}>Add Exercise</Text>
+            <TouchableOpacity
+              onPress={() => { setShowPicker(false); setPickerSearch(''); }}
+              style={{ width: 40, height: 40, alignItems: 'center', justifyContent: 'center' }}
+            >
+              <Ionicons name="close" size={24} color={C.textMuted} />
+            </TouchableOpacity>
+          </View>
+
+          <View style={{ flexDirection: 'row', alignItems: 'center', margin: 12, paddingHorizontal: 12, backgroundColor: C.card, borderRadius: 12, borderWidth: 1, borderColor: C.border }}>
+            <Ionicons name="search" size={16} color={C.textMuted} style={{ marginRight: 8 }} />
+            <TextInput
+              value={pickerSearch}
+              onChangeText={setPickerSearch}
+              placeholder="Search exercises…"
+              placeholderTextColor={C.textDim}
+              style={{ flex: 1, color: C.text, fontSize: 15, paddingVertical: 10 }}
+              autoCorrect={false}
+              autoCapitalize="none"
+            />
+            {pickerSearch.length > 0 && (
+              <TouchableOpacity onPress={() => setPickerSearch('')}>
+                <Ionicons name="close-circle" size={16} color={C.textMuted} />
+              </TouchableOpacity>
+            )}
+          </View>
+
+          <ScrollView keyboardShouldPersistTaps="handled">
+            <TouchableOpacity
+              onPress={() => setShowCreateForAdd(true)}
+              style={{ flexDirection: 'row', alignItems: 'center', gap: 10, paddingHorizontal: 20, paddingVertical: 16, borderBottomWidth: 1, borderBottomColor: C.border }}
+            >
+              <View style={{ width: 28, height: 28, borderRadius: 8, backgroundColor: C.card, borderWidth: 1, borderColor: C.borderAlt, alignItems: 'center', justifyContent: 'center' }}>
+                <Ionicons name="add" size={18} color={C.text} />
+              </View>
+              <Text style={{ color: C.text, fontSize: 15, fontWeight: '600' }}>Create Exercise</Text>
+            </TouchableOpacity>
+
+            {pickerCandidates.map((candidate) => (
+              <TouchableOpacity
+                key={candidate.id ?? candidate.name}
+                onPress={() => addCard(candidate)}
+                style={{ paddingHorizontal: 20, paddingVertical: 16, borderBottomWidth: 1, borderBottomColor: C.border }}
+              >
+                <Text style={{ color: C.text, fontSize: 16, fontWeight: '600' }}>{candidate.name}</Text>
+                {candidate.primary_muscles.length > 0 && (
+                  <Text style={{ color: C.textDim, fontSize: 13, marginTop: 2, textTransform: 'capitalize' }}>
+                    {candidate.primary_muscles.join(', ')}
+                  </Text>
+                )}
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
+        </SafeAreaView>
+      </Modal>
+
+      {/* Create exercise (from switch modal) */}
       <AddExerciseModal
         visible={showCreate}
         onClose={() => setShowCreate(false)}
@@ -426,8 +536,21 @@ export default function GeneratedWorkoutScreen() {
           await createExercise(input);
           const all = await getAllExercises();
           const fresh = all.find((e) => e.name === input.name);
-          if (fresh && switchingSlot !== null) await selectAlternative(switchingSlot, fresh);
+          if (fresh && switchingCardId !== null) await selectAlternative(switchingCardId, fresh);
           setShowCreate(false);
+        }}
+      />
+
+      {/* Create exercise (from add picker) */}
+      <AddExerciseModal
+        visible={showCreateForAdd}
+        onClose={() => setShowCreateForAdd(false)}
+        onSubmit={async (input: NewExerciseInput) => {
+          await createExercise(input);
+          const all = await getAllExercises();
+          const fresh = all.find((e) => e.name === input.name);
+          if (fresh) addCard(fresh);
+          setShowCreateForAdd(false);
         }}
       />
 
@@ -440,6 +563,17 @@ export default function GeneratedWorkoutScreen() {
         destructive
         onCancel={() => setDeletingSet(null)}
         onConfirm={confirmDeleteSet}
+      />
+
+      {/* Delete card confirmation */}
+      <ConfirmModal
+        visible={deletingCardId !== null}
+        title="Remove Exercise"
+        message={`Remove "${cards.find((c) => c.cardId === deletingCardId)?.exercise.name ?? ''}" from this workout?`}
+        confirmLabel="Remove"
+        destructive
+        onCancel={() => setDeletingCardId(null)}
+        onConfirm={confirmDeleteCard}
       />
     </SafeAreaView>
   );

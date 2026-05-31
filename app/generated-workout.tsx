@@ -2,18 +2,23 @@ import { View, Text, ScrollView, TouchableOpacity, StatusBar, Modal, TextInput }
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
+import { useWorkouts } from './hooks/useWorkouts';
+import { useExercises } from './hooks/useExercises';
+import { useWeightUnit } from './hooks/useWeightUnit';
 import { insertWorkout } from './db/workouts';
 import { insertSet } from './db/sets';
-import { useWeightUnit } from './hooks/useWeightUnit';
-import { useExercises } from './hooks/useExercises';
+import { getAllExercises } from './db/exercises';
+import { deleteSetsByExercise } from './db/sets';
 import { getPendingWorkout, clearPendingWorkout } from './lib/pendingWorkout';
 import { findAlternatives } from './lib/generateWorkout';
 import { compressMuscles } from './constants/splits';
 import type { GeneratedSlot } from './lib/generateWorkout';
 import type { Exercise } from './db/exercises';
-import { getAllExercises } from './db/exercises';
+import type { NewExerciseInput } from './db/exercises';
+import { SetRow, DraftSetRow, type LocalSet } from './components/SetRows';
 import AddExerciseModal from './components/AddExerciseModal';
+import ConfirmModal from './components/ConfirmModal';
 
 const C = {
   bg: '#0a0a0a',
@@ -31,23 +36,142 @@ const TYPE_LABEL: Record<string, string> = {
   isolation: 'Isolation',
 };
 
+function formatElapsed(seconds: number): string {
+  const h = Math.floor(seconds / 3600);
+  const m = Math.floor((seconds % 3600) / 60);
+  const s = seconds % 60;
+  if (h > 0) return `${h}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+  return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+}
+
 export default function GeneratedWorkoutScreen() {
   const router = useRouter();
   const { unit: weightUnit } = useWeightUnit();
   const { exercises, createExercise } = useExercises();
+  const { finishWorkout, editSet, removeSet } = useWorkouts();
 
   const pending = getPendingWorkout();
   const slots: GeneratedSlot[] = pending?.slots ?? [];
 
+  // Which exercise is chosen per slot
   const [chosen, setChosen] = useState<Exercise[]>(() => slots.map((s) => s.exercise));
+
+  // Expandable cards
+  const [expandedSlots, setExpandedSlots] = useState<Record<number, boolean>>({});
+
+  // Per-slot logged sets and draft inputs
+  const [slotSets, setSlotSets] = useState<Record<number, LocalSet[]>>({});
+  const [drafts, setDrafts] = useState<Record<number, { weight: string; reps: string }>>({});
+
+  // Lazy workout creation — store a Promise so concurrent first-set logs can't double-create
+  const workoutRef = useRef<Promise<string> | null>(null);
+  const startedAtRef = useRef<number | null>(null);
+
+  // Timer
+  const [elapsed, setElapsed] = useState(0);
+  const [timerRunning, setTimerRunning] = useState(false);
+
+  // Switch modal
   const [switchingSlot, setSwitchingSlot] = useState<number | null>(null);
   const [switchSearch, setSwitchSearch] = useState('');
   const [showCreate, setShowCreate] = useState(false);
-  const [starting, setStarting] = useState(false);
+
+  // Delete set confirmation
+  const [deletingSet, setDeletingSet] = useState<{ slotIndex: number; setId: string } | null>(null);
 
   useEffect(() => {
     if (!pending) router.back();
   }, []);
+
+  useEffect(() => {
+    if (!timerRunning) return;
+    const interval = setInterval(() => {
+      setElapsed(Math.floor((Date.now() - startedAtRef.current!) / 1000));
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [timerRunning]);
+
+  // ─── Workout lazy creation ──────────────────────────────────────────────────
+
+  const ensureWorkout = (): Promise<string> => {
+    if (!workoutRef.current) {
+      workoutRef.current = insertWorkout({ title: '', started_at: new Date().toISOString() })
+        .then((id) => {
+          startedAtRef.current = Date.now();
+          setTimerRunning(true);
+          return id;
+        });
+    }
+    return workoutRef.current;
+  };
+
+  // ─── Set operations ─────────────────────────────────────────────────────────
+
+  const confirmDraft = async (slotIndex: number) => {
+    const draft = drafts[slotIndex];
+    if (!draft?.weight.trim() || !draft?.reps.trim()) return;
+    const exercise = chosen[slotIndex];
+    const exerciseRef = exercise.id || exercise.name;
+    const now = new Date();
+
+    const workoutId = await ensureWorkout();
+    const newId = await insertSet({
+      workout_id: workoutId,
+      exercise_id: exerciseRef,
+      reps: parseFloat(draft.reps) || 0,
+      difficulty: 0,
+      weight: parseFloat(draft.weight) || 0,
+      unit: weightUnit,
+      logged_at: now.toISOString(),
+    });
+
+    const saved: LocalSet = { id: newId, weight: draft.weight, reps: draft.reps, unit: weightUnit, loggedAt: now };
+    setSlotSets((prev) => ({ ...prev, [slotIndex]: [saved, ...(prev[slotIndex] ?? [])] }));
+    setDrafts((prev) => ({ ...prev, [slotIndex]: { weight: '', reps: '' } }));
+  };
+
+  const updateSetField = (slotIndex: number, setId: string, field: 'weight' | 'reps', value: string) => {
+    setSlotSets((prev) => ({
+      ...prev,
+      [slotIndex]: (prev[slotIndex] ?? []).map((s) => (s.id === setId ? { ...s, [field]: value } : s)),
+    }));
+  };
+
+  const saveSet = (slotIndex: number, setId: string) => {
+    const set = (slotSets[slotIndex] ?? []).find((s) => s.id === setId);
+    if (!set) return;
+    editSet(setId, {
+      reps: parseFloat(set.reps) || 0,
+      difficulty: 0,
+      weight: parseFloat(set.weight) || 0,
+      unit: set.unit,
+      logged_at: set.loggedAt ? set.loggedAt.toISOString() : 'pending',
+    });
+  };
+
+  const confirmDeleteSet = async () => {
+    if (!deletingSet) return;
+    const { slotIndex, setId } = deletingSet;
+    await removeSet(setId);
+    setSlotSets((prev) => ({
+      ...prev,
+      [slotIndex]: (prev[slotIndex] ?? []).filter((s) => s.id !== setId),
+    }));
+    setDeletingSet(null);
+  };
+
+  // ─── Finish ─────────────────────────────────────────────────────────────────
+
+  const handleFinish = async () => {
+    const workoutId = workoutRef.current ? await workoutRef.current : null;
+    if (workoutId) {
+      await finishWorkout(workoutId, new Date().toISOString());
+    }
+    clearPendingWorkout();
+    router.back();
+  };
+
+  // ─── Switch exercise ─────────────────────────────────────────────────────────
 
   const alternatives =
     switchingSlot !== null ? findAlternatives(chosen[switchingSlot], exercises) : [];
@@ -60,8 +184,15 @@ export default function GeneratedWorkoutScreen() {
       })
     : alternatives;
 
-  const selectAlternative = (slotIndex: number, exercise: Exercise) => {
+  const selectAlternative = async (slotIndex: number, exercise: Exercise) => {
+    if (workoutRef.current && (slotSets[slotIndex]?.length ?? 0) > 0) {
+      const workoutId = await workoutRef.current;
+      const oldRef = chosen[slotIndex].id || chosen[slotIndex].name;
+      await deleteSetsByExercise(workoutId, oldRef);
+    }
     setChosen((prev) => prev.map((e, i) => (i === slotIndex ? exercise : e)));
+    setSlotSets((prev) => { const n = { ...prev }; delete n[slotIndex]; return n; });
+    setDrafts((prev) => { const n = { ...prev }; delete n[slotIndex]; return n; });
     setSwitchingSlot(null);
     setSwitchSearch('');
   };
@@ -69,30 +200,6 @@ export default function GeneratedWorkoutScreen() {
   const closeSwitchModal = () => {
     setSwitchingSlot(null);
     setSwitchSearch('');
-  };
-
-  const handleStart = async () => {
-    if (starting || chosen.length === 0) return;
-    setStarting(true);
-    try {
-      const id = await insertWorkout({ title: '', started_at: new Date().toISOString() });
-      for (let i = chosen.length - 1; i >= 0; i--) {
-        const exercise = chosen[i];
-        await insertSet({
-          workout_id: id,
-          exercise_id: exercise.id ?? exercise.name,
-          reps: 0,
-          difficulty: 0,
-          weight: 0,
-          unit: weightUnit,
-          logged_at: 'seed',
-        });
-      }
-      clearPendingWorkout();
-      router.replace(`/workout?workoutId=${id}`);
-    } finally {
-      setStarting(false);
-    }
   };
 
   const muscleLabel = pending?.muscles
@@ -106,9 +213,9 @@ export default function GeneratedWorkoutScreen() {
       <StatusBar barStyle="light-content" backgroundColor={C.bg} />
 
       {/* Header */}
-      <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16, paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: C.border }}>
+      <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16, paddingVertical: 12, backgroundColor: '#0c0c0e', borderBottomWidth: 1, borderBottomColor: C.border }}>
         <TouchableOpacity
-          onPress={() => router.back()}
+          onPress={handleFinish}
           style={{ width: 40, height: 40, alignItems: 'center', justifyContent: 'center' }}
         >
           <Ionicons name="chevron-down" size={26} color={C.textMuted} />
@@ -119,25 +226,46 @@ export default function GeneratedWorkoutScreen() {
             <Text style={{ color: C.textDim, fontSize: 12, marginTop: 2 }}>{muscleLabel}</Text>
           )}
         </View>
-        <View style={{ width: 40 }} />
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+          {timerRunning && (
+            <Text style={{ color: '#34d399', fontFamily: 'monospace', fontSize: 15, fontWeight: '600', letterSpacing: 1.5 }}>
+              {formatElapsed(elapsed)}
+            </Text>
+          )}
+          <TouchableOpacity
+            onPress={handleFinish}
+            style={{ backgroundColor: C.text, borderRadius: 8, paddingHorizontal: 14, paddingVertical: 7 }}
+          >
+            <Text style={{ color: '#09090b', fontWeight: '700', fontSize: 14 }}>Finish</Text>
+          </TouchableOpacity>
+        </View>
       </View>
 
       <ScrollView
         style={{ flex: 1 }}
-        contentContainerStyle={{ padding: 16, paddingBottom: 32 }}
+        contentContainerStyle={{ padding: 16, paddingBottom: 48 }}
         showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
       >
         {slots.map((slot, slotIndex) => {
           const exercise = chosen[slotIndex];
           if (!exercise) return null;
           const muscles = exercise.primary_muscles.join(', ');
+          const isExpanded = !!expandedSlots[slotIndex];
+          const sets = slotSets[slotIndex] ?? [];
+          const draft = drafts[slotIndex] ?? { weight: '', reps: '' };
 
           return (
             <View
               key={slotIndex}
-              style={{ backgroundColor: C.card, borderRadius: 16, borderWidth: 1, borderColor: C.border, padding: 16, marginBottom: 12 }}
+              style={{ backgroundColor: C.card, borderRadius: 16, borderWidth: 1, borderColor: isExpanded ? C.borderAlt : C.border, marginBottom: 12, overflow: 'hidden' }}
             >
-              <View style={{ flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'space-between', gap: 12 }}>
+              {/* Card header */}
+              <TouchableOpacity
+                onPress={() => setExpandedSlots((prev) => ({ ...prev, [slotIndex]: !isExpanded }))}
+                activeOpacity={0.7}
+                style={{ flexDirection: 'row', alignItems: 'flex-start', padding: 16, gap: 12 }}
+              >
                 <View style={{ flex: 1 }}>
                   <Text style={{ color: C.textDim, fontSize: 10, fontWeight: '700', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 6 }}>
                     {TYPE_LABEL[slot.type] ?? slot.type}
@@ -152,14 +280,53 @@ export default function GeneratedWorkoutScreen() {
                   )}
                 </View>
 
-                <TouchableOpacity
-                  onPress={() => setSwitchingSlot(slotIndex)}
-                  style={{ flexDirection: 'row', alignItems: 'center', gap: 5, backgroundColor: '#141414', borderRadius: 10, borderWidth: 1, borderColor: C.border, paddingHorizontal: 10, paddingVertical: 7, marginTop: 2 }}
-                >
-                  <Ionicons name="swap-horizontal-outline" size={15} color={C.textMuted} />
-                  <Text style={{ color: C.textMuted, fontSize: 12, fontWeight: '600' }}>Switch</Text>
-                </TouchableOpacity>
-              </View>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 2 }}>
+                  <TouchableOpacity
+                    onPress={() => setSwitchingSlot(slotIndex)}
+                    style={{ flexDirection: 'row', alignItems: 'center', gap: 5, backgroundColor: '#141414', borderRadius: 10, borderWidth: 1, borderColor: C.border, paddingHorizontal: 10, paddingVertical: 7 }}
+                  >
+                    <Ionicons name="swap-horizontal-outline" size={15} color={C.textMuted} />
+                    <Text style={{ color: C.textMuted, fontSize: 12, fontWeight: '600' }}>Switch</Text>
+                  </TouchableOpacity>
+                  <Ionicons
+                    name={isExpanded ? 'chevron-up' : 'chevron-down'}
+                    size={18}
+                    color={C.textMuted}
+                  />
+                </View>
+              </TouchableOpacity>
+
+              {/* Expanded set panel */}
+              {isExpanded && (
+                <View style={{ borderTopWidth: 1, borderTopColor: C.border }}>
+                  {/* Column headers */}
+                  <View style={{ flexDirection: 'row', paddingHorizontal: 16, paddingVertical: 10, gap: 8 }}>
+                    {[weightUnit.toUpperCase(), 'REPS'].map((h) => (
+                      <Text key={h} style={{ flex: 1, textAlign: 'center', color: C.textDim, fontSize: 11, fontWeight: '700', letterSpacing: 0.8 }}>{h}</Text>
+                    ))}
+                    <View style={{ width: 28 }} />
+                  </View>
+
+                  <DraftSetRow
+                    weight={draft.weight}
+                    reps={draft.reps}
+                    onWeightChange={(v) => setDrafts((prev) => ({ ...prev, [slotIndex]: { ...draft, weight: v } }))}
+                    onRepsChange={(v) => setDrafts((prev) => ({ ...prev, [slotIndex]: { ...draft, reps: v } }))}
+                    onConfirm={() => confirmDraft(slotIndex)}
+                  />
+
+                  {sets.map((set) => (
+                    <SetRow
+                      key={set.id}
+                      set={set}
+                      onWeightChange={(v) => updateSetField(slotIndex, set.id, 'weight', v)}
+                      onRepsChange={(v) => updateSetField(slotIndex, set.id, 'reps', v)}
+                      onBlur={() => saveSet(slotIndex, set.id)}
+                      onDelete={() => setDeletingSet({ slotIndex, setId: set.id })}
+                    />
+                  ))}
+                </View>
+              )}
             </View>
           );
         })}
@@ -174,22 +341,6 @@ export default function GeneratedWorkoutScreen() {
           </View>
         )}
       </ScrollView>
-
-      {/* Start button */}
-      {slots.length > 0 && (
-        <View style={{ paddingHorizontal: 16, paddingBottom: 24, paddingTop: 8, borderTopWidth: 1, borderTopColor: C.border }}>
-          <TouchableOpacity
-            onPress={handleStart}
-            disabled={starting}
-            activeOpacity={0.85}
-            style={{ backgroundColor: starting ? C.card : C.text, borderRadius: 14, paddingVertical: 16, alignItems: 'center' }}
-          >
-            <Text style={{ color: starting ? C.textMuted : '#09090b', fontSize: 16, fontWeight: '700' }}>
-              {starting ? 'Starting…' : 'Start Workout'}
-            </Text>
-          </TouchableOpacity>
-        </View>
-      )}
 
       {/* Switch alternatives modal */}
       <Modal
@@ -271,13 +422,24 @@ export default function GeneratedWorkoutScreen() {
       <AddExerciseModal
         visible={showCreate}
         onClose={() => setShowCreate(false)}
-        onSubmit={async (input) => {
+        onSubmit={async (input: NewExerciseInput) => {
           await createExercise(input);
           const all = await getAllExercises();
           const fresh = all.find((e) => e.name === input.name);
-          if (fresh && switchingSlot !== null) selectAlternative(switchingSlot, fresh);
+          if (fresh && switchingSlot !== null) await selectAlternative(switchingSlot, fresh);
           setShowCreate(false);
         }}
+      />
+
+      {/* Delete set confirmation */}
+      <ConfirmModal
+        visible={deletingSet !== null}
+        title="Delete Set"
+        message="Remove this set?"
+        confirmLabel="Delete"
+        destructive
+        onCancel={() => setDeletingSet(null)}
+        onConfirm={confirmDeleteSet}
       />
     </SafeAreaView>
   );

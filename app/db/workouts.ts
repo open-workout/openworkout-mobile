@@ -60,6 +60,11 @@ export async function deleteWorkout(id: string): Promise<void> {
   await db.runAsync(`DELETE FROM workouts WHERE id = ?`, id);
 }
 
+export async function deleteAllWorkouts(): Promise<void> {
+  const db = await getDb();
+  await db.runAsync(`DELETE FROM workouts`);
+}
+
 export async function getAllWorkouts(): Promise<Workout[]> {
   const db = await getDb();
   const rows = await db.getAllAsync<RawWorkoutRow>(

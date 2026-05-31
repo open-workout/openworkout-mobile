@@ -38,7 +38,7 @@ export default function ExploreScreen() {
     return exercises.filter(
       (ex) =>
         matchesCategory(ex, cat) &&
-        ex.name.toLowerCase().includes(search.toLowerCase()),
+        [ex.name, ...(ex.alt_names ?? [])].some((n) => n.toLowerCase().includes(search.toLowerCase())),
     );
   }, [exercises, activeCategory, search]);
 

@@ -85,6 +85,15 @@ export async function deleteSet(id: string): Promise<void> {
   await db.runAsync(`DELETE FROM sets WHERE id = ?`, id);
 }
 
+export async function deleteSetsByExercise(workoutId: string, exerciseId: string): Promise<void> {
+  const db = await getDb();
+  await db.runAsync(
+    `DELETE FROM sets WHERE workout_id = ? AND exercise_id = ?`,
+    workoutId,
+    exerciseId,
+  );
+}
+
 export async function getSetsForWorkout(workoutId: string): Promise<WorkoutSet[]> {
   const db = await getDb();
   const rows = await db.getAllAsync<RawSetRow>(

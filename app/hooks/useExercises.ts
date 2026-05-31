@@ -3,6 +3,7 @@ import {
   getAllExercises,
   insertExercise,
   updateExercise as dbUpdateExercise,
+  deleteExercise as dbDeleteExercise,
   type Exercise,
   type NewExerciseInput,
 } from '../db/exercises';
@@ -36,5 +37,13 @@ export function useExercises() {
     [loadLocal],
   );
 
-  return { exercises, createExercise, editExercise, isLoading };
+  const deleteExercise = useCallback(
+    async (exercise: Exercise) => {
+      await dbDeleteExercise(exercise);
+      await loadLocal();
+    },
+    [loadLocal],
+  );
+
+  return { exercises, createExercise, editExercise, deleteExercise, isLoading };
 }

@@ -15,6 +15,12 @@ async function initializeDb(database: SQLiteDatabase) {
     await database.execAsync('ALTER TABLE exercises ADD COLUMN id TEXT;');
   }
 
+  // Migration: add unit column to exercise_stats if missing
+  const statCols = await database.getAllAsync<{ name: string }>('PRAGMA table_info(exercise_stats)');
+  if (statCols.length > 0 && !statCols.find((c) => c.name === 'unit')) {
+    await database.execAsync(`ALTER TABLE exercise_stats ADD COLUMN unit TEXT NOT NULL DEFAULT 'kg';`);
+  }
+
   await database.execAsync(`
     CREATE TABLE IF NOT EXISTS exercises (
       id                TEXT PRIMARY KEY,

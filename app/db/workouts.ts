@@ -98,6 +98,7 @@ export type WorkoutExerciseSummary = {
   set_count: number;
   total_volume: number;
   unit: string;
+  first_set_at: number;
 };
 
 export async function getWorkoutExerciseSummaries(workoutId: string): Promise<WorkoutExerciseSummary[]> {
@@ -108,12 +109,13 @@ export async function getWorkoutExerciseSummaries(workoutId: string): Promise<Wo
        e.name AS exercise_name,
        COUNT(s.id) AS set_count,
        SUM(s.weight * s.reps) AS total_volume,
-       s.unit
+       s.unit,
+       MIN(s.created_at) AS first_set_at
      FROM sets s
      JOIN exercises e ON s.exercise_id = e.id
      WHERE s.workout_id = ?
      GROUP BY s.exercise_id
-     ORDER BY MIN(s.created_at) ASC`,
+     ORDER BY first_set_at ASC`,
     workoutId,
   );
   return rows;
@@ -134,12 +136,13 @@ export async function getWorkoutExerciseSummariesBatch(
        e.name AS exercise_name,
        COUNT(s.id) AS set_count,
        SUM(s.weight * s.reps) AS total_volume,
-       s.unit
+       s.unit,
+       MIN(s.created_at) AS first_set_at
      FROM sets s
      JOIN exercises e ON s.exercise_id = e.id
      WHERE s.workout_id IN (${placeholders})
      GROUP BY s.workout_id, s.exercise_id
-     ORDER BY s.workout_id, MIN(s.created_at) ASC`,
+     ORDER BY s.workout_id, first_set_at ASC`,
     ...workoutIds,
   );
   return rows;

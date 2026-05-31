@@ -56,7 +56,8 @@ export function WorkoutCard({
 
   const exercisePreview = (() => {
     if (summaries.length === 0) return null;
-    const shown = summaries.slice(0, 3).map((s) => s.exercise_name);
+    const sorted = [...summaries].sort((a, b) => a.first_set_at - b.first_set_at);
+    const shown = sorted.slice(0, 3).map((s) => s.exercise_name);
     const rest = summaries.length - shown.length;
     return rest > 0 ? `${shown.join(', ')} +${rest} more` : shown.join(', ');
   })();

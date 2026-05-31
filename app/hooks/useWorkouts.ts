@@ -17,6 +17,7 @@ import {
   type NewSetInput,
   type UpdateSetInput,
 } from '../db/sets';
+import { refreshExerciseStats } from '../db/exerciseStats';
 
 export function useWorkouts() {
   const [workouts, setWorkouts] = useState<Workout[]>([]);
@@ -51,6 +52,7 @@ export function useWorkouts() {
   const finishWorkout = useCallback(
     async (id: string, finishedAt: string) => {
       await markWorkoutFinished(id, finishedAt);
+      await refreshExerciseStats(id, finishedAt);
       await loadLocal();
     },
     [loadLocal],

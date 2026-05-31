@@ -18,14 +18,18 @@ function scoreExercise(
   muscleLoad: Record<string, number>,
   stats: Map<string, ExerciseStat>,
 ): number {
-  const allMuscles = [...new Set([...exercise.primary_muscles, ...exercise.secondary_muscles])];
-  const expanded = expandMuscles(allMuscles);
+  const expandedPrimary = expandMuscles([...new Set(exercise.primary_muscles)]);
+  const expandedSecondary = expandMuscles([...new Set(exercise.secondary_muscles)]);
+  const n = new Set([...expandedPrimary, ...expandedSecondary]).size;
   let overlap = 0;
-  for (const m of expanded) {
+  for (const m of expandedPrimary) {
     const key = Object.keys(muscleLoad).find((k) => k.toLowerCase() === m.toLowerCase());
     if (key !== undefined) overlap += muscleLoad[key];
   }
-  const n = expanded.length;
+  for (const m of expandedSecondary) {
+    const key = Object.keys(muscleLoad).find((k) => k.toLowerCase() === m.toLowerCase());
+    if (key !== undefined) overlap += 0.9 * muscleLoad[key];
+  }
   const normalizedOverlap = n > 0 ? overlap / n : 0;
   const stat = stats.get(exercise.id ?? exercise.name);
   const recencyBonus = (stat?.times_last_21_days ?? 0) > 0 ? 0.3 : 0;

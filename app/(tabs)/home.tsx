@@ -1,11 +1,11 @@
-import { View, Text, FlatList, StatusBar, TouchableOpacity, ActivityIndicator } from "react-native";
+import { View, Text, FlatList, StatusBar, TouchableOpacity, ActivityIndicator, Alert } from "react-native";
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useRouter, useFocusEffect } from 'expo-router';
 import { useState, useCallback, useRef } from 'react';
-import { getAllWorkouts, getFinishedWorkoutsPaginated, getWorkoutExerciseSummariesBatch, type Workout, type WorkoutExerciseSummary } from '../db/workouts';
+import { getAllWorkouts, getFinishedWorkoutsPaginated, getWorkoutExerciseSummariesBatch, deleteWorkout, type Workout, type WorkoutExerciseSummary } from '../db/workouts';
 import { getSetsForWorkout, type WorkoutSet } from '../db/sets';
 
 const PAGE_SIZE = 10;
@@ -203,6 +203,11 @@ export default function HomeScreen() {
             onToggle={() => setExpandedWorkoutId(
               expandedWorkoutId === item.workout.id ? null : item.workout.id
             )}
+            onDelete={async () => {
+              await deleteWorkout(item.workout.id);
+              setExpandedWorkoutId(null);
+              setPastWorkouts((prev) => prev.filter((w) => w.workout.id !== item.workout.id));
+            }}
           />
         )}
         ListHeaderComponent={ListHeader}
@@ -220,10 +225,12 @@ function WorkoutCard({
   item,
   expanded,
   onToggle,
+  onDelete,
 }: {
   item: PastWorkout;
   expanded: boolean;
   onToggle: () => void;
+  onDelete: () => Promise<void>;
 }) {
   const { workout, summaries } = item;
   const [expandedSets, setExpandedSets] = useState<WorkoutSet[] | null>(null);
@@ -356,6 +363,18 @@ function WorkoutCard({
               );
             })
           )}
+          <TouchableOpacity
+            onPress={() =>
+              Alert.alert('Delete Workout', 'This will permanently delete this workout and all its sets.', [
+                { text: 'Cancel', style: 'cancel' },
+                { text: 'Delete', style: 'destructive', onPress: onDelete },
+              ])
+            }
+            style={{ marginTop: 4, borderTopWidth: 1, borderTopColor: 'rgba(39,39,42,0.8)', paddingTop: 12, flexDirection: 'row', alignItems: 'center', gap: 8 }}
+          >
+            <Ionicons name="trash-outline" size={15} color="#ef4444" />
+            <Text style={{ color: '#ef4444', fontSize: 13, fontWeight: '600' }}>Delete Workout</Text>
+          </TouchableOpacity>
         </View>
       )}
     </View>

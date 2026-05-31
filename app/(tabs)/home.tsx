@@ -92,12 +92,6 @@ export default function HomeScreen() {
         </View>
       </View>
 
-      {/* Search */}
-      <View style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: '#18181b', borderWidth: 1, borderColor: '#27272a', borderRadius: 16, paddingHorizontal: 16, paddingVertical: 14, marginHorizontal: 24, marginTop: 24, marginBottom: 4 }}>
-        <Ionicons name="search-outline" size={20} color="#71717a" style={{ marginRight: 10 }} />
-        <Text style={{ color: '#52525b', fontSize: 16 }}>Search exercises...</Text>
-      </View>
-
       {/* Start Workout CTA */}
       <TouchableOpacity
         activeOpacity={0.85}

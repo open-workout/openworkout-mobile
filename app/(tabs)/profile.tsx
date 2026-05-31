@@ -1,4 +1,4 @@
-import { View, Text, ScrollView, TouchableOpacity, StatusBar } from "react-native";
+import { View, Text, ScrollView, TouchableOpacity, StatusBar, Alert } from "react-native";
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Image } from 'expo-image';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
@@ -9,6 +9,7 @@ import { useWeightUnit } from '../hooks/useWeightUnit';
 import { useWorkoutPreferences } from '../hooks/useWorkoutPreferences';
 import { compressMuscles } from '../constants/splits';
 import WorkoutPrefsEditor from '../components/WorkoutPrefsEditor';
+import { deleteAllWorkouts } from '../db/workouts';
 
 const prs = [
   { initial: 'B', name: 'Bench Press', type: 'Estimated 1RM', value: '110 kg', change: '+5kg this month', positive: true },
@@ -233,6 +234,39 @@ export default function ProfileScreen() {
             </View>
           </View>
         ))}
+
+        {/* Danger zone */}
+        <Text style={{ color: '#f4f4f5', fontSize: 18, fontWeight: '600', marginTop: 20, marginBottom: 16 }}>Danger Zone</Text>
+        <TouchableOpacity
+          onPress={() =>
+            Alert.alert(
+              'Delete All Workouts',
+              'This will permanently delete all your workout history and sets. This cannot be undone.',
+              [
+                { text: 'Cancel', style: 'cancel' },
+                {
+                  text: 'Delete All',
+                  style: 'destructive',
+                  onPress: () => deleteAllWorkouts(),
+                },
+              ],
+            )
+          }
+          style={{
+            flexDirection: 'row',
+            alignItems: 'center',
+            gap: 12,
+            backgroundColor: 'rgba(239,68,68,0.08)',
+            borderWidth: 1,
+            borderColor: 'rgba(239,68,68,0.25)',
+            borderRadius: 14,
+            padding: 16,
+            marginBottom: 8,
+          }}
+        >
+          <Ionicons name="trash-outline" size={20} color="#ef4444" />
+          <Text style={{ color: '#ef4444', fontSize: 15, fontWeight: '600' }}>Delete All Workouts</Text>
+        </TouchableOpacity>
       </ScrollView>
     </SafeAreaView>
   );

@@ -87,6 +87,15 @@ export async function updateExercise(exercise: Exercise, input: NewExerciseInput
   }
 }
 
+export async function deleteExercise(exercise: Exercise): Promise<void> {
+  const db = await getDb();
+  if (exercise.id) {
+    await db.runAsync(`DELETE FROM exercises WHERE id=?`, exercise.id);
+  } else {
+    await db.runAsync(`DELETE FROM exercises WHERE name=?`, exercise.name);
+  }
+}
+
 export async function getAllExercises(): Promise<Exercise[]> {
   const db = await getDb();
   const rows = await db.getAllAsync<RawRow>(

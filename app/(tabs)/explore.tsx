@@ -4,6 +4,7 @@ import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useState, useMemo } from 'react';
 import { useExercises } from '../hooks/useExercises';
 import AddExerciseModal from '../components/AddExerciseModal';
+import ConfirmModal from '../components/ConfirmModal';
 import type { Exercise } from '../db/exercises';
 
 const categories = ['All', 'Chest', 'Back', 'Legs', 'Arms', 'Shoulders'];
@@ -28,8 +29,9 @@ export default function ExploreScreen() {
   const [search, setSearch] = useState('');
   const [showAdd, setShowAdd] = useState(false);
   const [editingExercise, setEditingExercise] = useState<Exercise | null>(null);
+  const [deletingExercise, setDeletingExercise] = useState<Exercise | null>(null);
   const [expandedKey, setExpandedKey] = useState<string | null>(null);
-  const { exercises, isLoading, createExercise, editExercise } = useExercises();
+  const { exercises, isLoading, createExercise, editExercise, deleteExercise } = useExercises();
 
   const filtered = useMemo(() => {
     const cat = categories[activeCategory];
@@ -134,6 +136,7 @@ export default function ExploreScreen() {
                     expanded={expandedKey === key}
                     onToggle={() => setExpandedKey(expandedKey === key ? null : key)}
                     onEdit={() => setEditingExercise(ex)}
+                    onDelete={() => setDeletingExercise(ex)}
                   />
                 );
               })}
@@ -153,15 +156,28 @@ export default function ExploreScreen() {
         onClose={() => setEditingExercise(null)}
         onSubmit={(input) => editExercise(editingExercise!, input)}
       />
+      <ConfirmModal
+        visible={deletingExercise !== null}
+        title="Delete Exercise"
+        message={`Remove "${deletingExercise?.name}" from your library?`}
+        confirmLabel="Delete"
+        destructive
+        onCancel={() => setDeletingExercise(null)}
+        onConfirm={() => {
+          deleteExercise(deletingExercise!);
+          setDeletingExercise(null);
+        }}
+      />
     </SafeAreaView>
   );
 }
 
-function ExerciseRow({ exercise, expanded, onToggle, onEdit }: {
+function ExerciseRow({ exercise, expanded, onToggle, onEdit, onDelete }: {
   exercise: Exercise;
   expanded: boolean;
   onToggle: () => void;
   onEdit: () => void;
+  onDelete: () => void;
 }) {
   const muscle = exercise.primary_muscles[0] ?? exercise.exercise_type ?? '—';
 
@@ -238,13 +254,22 @@ function ExerciseRow({ exercise, expanded, onToggle, onEdit }: {
             </View>
           )}
 
-          <TouchableOpacity
-            onPress={onEdit}
-            style={{ alignSelf: 'flex-start', flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 4, backgroundColor: '#18181b', borderWidth: 1, borderColor: '#3f3f46', borderRadius: 10, paddingHorizontal: 14, paddingVertical: 8 }}
-          >
-            <Ionicons name="pencil-outline" size={14} color="#a1a1aa" />
-            <Text style={{ color: '#a1a1aa', fontSize: 13, fontWeight: '600' }}>Edit</Text>
-          </TouchableOpacity>
+          <View style={{ flexDirection: 'row', gap: 8, marginTop: 4 }}>
+            <TouchableOpacity
+              onPress={onEdit}
+              style={{ flexDirection: 'row', alignItems: 'center', gap: 6, backgroundColor: '#18181b', borderWidth: 1, borderColor: '#3f3f46', borderRadius: 10, paddingHorizontal: 14, paddingVertical: 8 }}
+            >
+              <Ionicons name="pencil-outline" size={14} color="#a1a1aa" />
+              <Text style={{ color: '#a1a1aa', fontSize: 13, fontWeight: '600' }}>Edit</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={onDelete}
+              style={{ flexDirection: 'row', alignItems: 'center', gap: 6, backgroundColor: '#18181b', borderWidth: 1, borderColor: '#3f3f46', borderRadius: 10, paddingHorizontal: 14, paddingVertical: 8 }}
+            >
+              <Ionicons name="trash-outline" size={14} color="#ef4444" />
+              <Text style={{ color: '#ef4444', fontSize: 13, fontWeight: '600' }}>Delete</Text>
+            </TouchableOpacity>
+          </View>
         </View>
       )}
     </View>

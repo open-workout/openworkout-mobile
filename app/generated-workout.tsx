@@ -1,4 +1,4 @@
-import { View, Text, ScrollView, TouchableOpacity, StatusBar, Modal } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, StatusBar, Modal, TextInput } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
@@ -12,6 +12,8 @@ import { findAlternatives } from './lib/generateWorkout';
 import { compressMuscles } from './constants/splits';
 import type { GeneratedSlot } from './lib/generateWorkout';
 import type { Exercise } from './db/exercises';
+import { getAllExercises } from './db/exercises';
+import AddExerciseModal from './components/AddExerciseModal';
 
 const C = {
   bg: '#0a0a0a',
@@ -32,13 +34,15 @@ const TYPE_LABEL: Record<string, string> = {
 export default function GeneratedWorkoutScreen() {
   const router = useRouter();
   const { unit: weightUnit } = useWeightUnit();
-  const { exercises } = useExercises();
+  const { exercises, createExercise } = useExercises();
 
   const pending = getPendingWorkout();
   const slots: GeneratedSlot[] = pending?.slots ?? [];
 
   const [chosen, setChosen] = useState<Exercise[]>(() => slots.map((s) => s.exercise));
   const [switchingSlot, setSwitchingSlot] = useState<number | null>(null);
+  const [switchSearch, setSwitchSearch] = useState('');
+  const [showCreate, setShowCreate] = useState(false);
   const [starting, setStarting] = useState(false);
 
   useEffect(() => {
@@ -48,9 +52,23 @@ export default function GeneratedWorkoutScreen() {
   const alternatives =
     switchingSlot !== null ? findAlternatives(chosen[switchingSlot], exercises) : [];
 
+  const q = switchSearch.trim().toLowerCase();
+  const switchCandidates = q
+    ? exercises.filter((e) => {
+        const haystack = [e.name, ...(e.alt_names ?? [])].join(' ').toLowerCase();
+        return haystack.includes(q);
+      })
+    : alternatives;
+
   const selectAlternative = (slotIndex: number, exercise: Exercise) => {
     setChosen((prev) => prev.map((e, i) => (i === slotIndex ? exercise : e)));
     setSwitchingSlot(null);
+    setSwitchSearch('');
+  };
+
+  const closeSwitchModal = () => {
+    setSwitchingSlot(null);
+    setSwitchSearch('');
   };
 
   const handleStart = async () => {
@@ -178,28 +196,58 @@ export default function GeneratedWorkoutScreen() {
         visible={switchingSlot !== null}
         animationType="slide"
         presentationStyle="pageSheet"
-        onRequestClose={() => setSwitchingSlot(null)}
+        onRequestClose={closeSwitchModal}
       >
         <SafeAreaView style={{ flex: 1, backgroundColor: C.bg }} edges={['top']}>
           <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16, paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: C.border }}>
             <Text style={{ color: C.text, fontSize: 17, fontWeight: '700' }}>Switch Exercise</Text>
             <TouchableOpacity
-              onPress={() => setSwitchingSlot(null)}
+              onPress={closeSwitchModal}
               style={{ width: 40, height: 40, alignItems: 'center', justifyContent: 'center' }}
             >
               <Ionicons name="close" size={24} color={C.textMuted} />
             </TouchableOpacity>
           </View>
 
-          <ScrollView>
-            {alternatives.length === 0 ? (
+          {/* Search bar */}
+          <View style={{ flexDirection: 'row', alignItems: 'center', margin: 12, paddingHorizontal: 12, backgroundColor: C.card, borderRadius: 12, borderWidth: 1, borderColor: C.border }}>
+            <Ionicons name="search" size={16} color={C.textMuted} style={{ marginRight: 8 }} />
+            <TextInput
+              value={switchSearch}
+              onChangeText={setSwitchSearch}
+              placeholder="Search exercises…"
+              placeholderTextColor={C.textDim}
+              style={{ flex: 1, color: C.text, fontSize: 15, paddingVertical: 10 }}
+              autoCorrect={false}
+              autoCapitalize="none"
+            />
+            {switchSearch.length > 0 && (
+              <TouchableOpacity onPress={() => setSwitchSearch('')}>
+                <Ionicons name="close-circle" size={16} color={C.textMuted} />
+              </TouchableOpacity>
+            )}
+          </View>
+
+          <ScrollView keyboardShouldPersistTaps="handled">
+            {/* Create new exercise */}
+            <TouchableOpacity
+              onPress={() => setShowCreate(true)}
+              style={{ flexDirection: 'row', alignItems: 'center', gap: 10, paddingHorizontal: 20, paddingVertical: 16, borderBottomWidth: 1, borderBottomColor: C.border }}
+            >
+              <View style={{ width: 28, height: 28, borderRadius: 8, backgroundColor: C.card, borderWidth: 1, borderColor: C.borderAlt, alignItems: 'center', justifyContent: 'center' }}>
+                <Ionicons name="add" size={18} color={C.text} />
+              </View>
+              <Text style={{ color: C.text, fontSize: 15, fontWeight: '600' }}>Create Exercise</Text>
+            </TouchableOpacity>
+
+            {switchCandidates.length === 0 ? (
               <View style={{ alignItems: 'center', paddingTop: 48, paddingHorizontal: 32 }}>
                 <Text style={{ color: C.textDim, fontSize: 15, textAlign: 'center' }}>
-                  No similar exercises found in your library
+                  {q ? 'No exercises match your search' : 'No similar exercises found in your library'}
                 </Text>
               </View>
             ) : (
-              alternatives.map((candidate) => {
+              switchCandidates.map((candidate) => {
                 const muscles = candidate.primary_muscles.join(', ');
                 return (
                   <TouchableOpacity
@@ -218,6 +266,19 @@ export default function GeneratedWorkoutScreen() {
           </ScrollView>
         </SafeAreaView>
       </Modal>
+
+      {/* Create exercise modal */}
+      <AddExerciseModal
+        visible={showCreate}
+        onClose={() => setShowCreate(false)}
+        onSubmit={async (input) => {
+          await createExercise(input);
+          const all = await getAllExercises();
+          const fresh = all.find((e) => e.name === input.name);
+          if (fresh && switchingSlot !== null) selectAlternative(switchingSlot, fresh);
+          setShowCreate(false);
+        }}
+      />
     </SafeAreaView>
   );
 }

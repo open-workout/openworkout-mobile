@@ -6,12 +6,15 @@ import { useState, useRef, useEffect, useCallback } from 'react';
 import { useWorkouts } from './hooks/useWorkouts';
 import { useExercises } from './hooks/useExercises';
 import { useWeightUnit } from './hooks/useWeightUnit';
-import { getSetsForWorkout } from './db/sets';
+import { getSetsForWorkout, getLastSetsForExercise } from './db/sets';
 import { getAllExercises } from './db/exercises';
 import { getWorkoutById } from './db/workouts';
 import type { Exercise, NewExerciseInput } from './db/exercises';
 import AddExerciseModal from './components/AddExerciseModal';
 import { SetRow, DraftSetRow, type LocalSet } from './components/SetRows';
+import { OverloadHint } from './components/OverloadHint';
+import { computeProgressSuggestion, type OverloadSuggestion } from './lib/progressiveOverload';
+import { getWorkoutPreferences, type WorkoutPreferences } from './storage';
 
 type ExerciseBlock = {
   blockId: string;
@@ -43,11 +46,24 @@ export default function WorkoutScreen() {
   const [elapsed, setElapsed] = useState(0);
   const [draft, setDraft] = useState({ weight: '', reps: '' });
   const [workoutTitle, setWorkoutTitle] = useState('');
+  const [overloadSuggestion, setOverloadSuggestion] = useState<OverloadSuggestion | null>(null);
+  const [localPrefs, setLocalPrefs] = useState<WorkoutPreferences | null>(null);
   const startedAt = useRef(Date.now());
 
-  // Reset draft whenever a new exercise takes the top spot
+  useEffect(() => { getWorkoutPreferences().then(setLocalPrefs); }, []);
+
+  // Reset draft and load overload suggestion whenever a new exercise takes the top spot
   const topBlockId = blocks[0]?.blockId;
-  useEffect(() => { setDraft({ weight: '', reps: '' }); }, [topBlockId]);
+  useEffect(() => {
+    setDraft({ weight: '', reps: '' });
+    setOverloadSuggestion(null);
+    const block = blocks[0];
+    if (!block || !localPrefs) return;
+    const exerciseRef = block.exercise.id || block.exercise.name;
+    getLastSetsForExercise(exerciseRef).then((sets) => {
+      setOverloadSuggestion(computeProgressSuggestion(sets, block.exercise.exercise_type, localPrefs.progress_reps, weightUnit));
+    });
+  }, [topBlockId, localPrefs]);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -326,6 +342,10 @@ export default function WorkoutScreen() {
                 ))}
                 <View style={{ width: 28 }} />
               </View>
+
+              {blockIndex === 0 && overloadSuggestion && (
+                <OverloadHint label={overloadSuggestion.label} />
+              )}
 
               {blockIndex === 0 && (
                 <DraftSetRow

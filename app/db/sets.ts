@@ -102,3 +102,23 @@ export async function getSetsForWorkout(workoutId: string): Promise<WorkoutSet[]
   );
   return rows;
 }
+
+export async function getLastSetsForExercise(exerciseId: string): Promise<WorkoutSet[]> {
+  const db = await getDb();
+  const workout = await db.getFirstAsync<{ id: string }>(
+    `SELECT w.id FROM workouts w
+     JOIN sets s ON s.workout_id = w.id
+     WHERE s.exercise_id = ? AND w.finished_at IS NOT NULL
+     ORDER BY w.finished_at DESC LIMIT 1`,
+    exerciseId,
+  );
+  if (!workout) return [];
+  return db.getAllAsync<RawSetRow>(
+    `SELECT * FROM sets
+     WHERE workout_id = ? AND exercise_id = ?
+       AND logged_at NOT IN ('seed', 'pending')
+     ORDER BY created_at ASC`,
+    workout.id,
+    exerciseId,
+  );
+}

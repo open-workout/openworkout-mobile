@@ -28,6 +28,21 @@ export default function WorkoutPrefsEditor({ prefs, onChange }: Props) {
     <View style={{ gap: 24 }}>
       <Section label="Exercises per workout" rows={EXERCISE_ROWS} prefs={prefs} onSet={set} />
       <Section label="Sets per exercise" rows={SET_ROWS} prefs={prefs} onSet={set} />
+      <View>
+        <Text style={{ color: '#52525b', fontSize: 10, fontWeight: '700', textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 12 }}>
+          Progressive Overload
+        </Text>
+        <View style={{ backgroundColor: 'rgba(24,24,27,0.6)', borderWidth: 1, borderColor: 'rgba(39,39,42,0.8)', borderRadius: 16, overflow: 'hidden' }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 20, paddingVertical: 14 }}>
+            <Text style={{ color: '#f4f4f5', fontSize: 15, fontWeight: '600' }}>Progress Reps</Text>
+            <Stepper
+              value={prefs.progress_reps}
+              onDecrement={() => onChange({ ...prefs, progress_reps: Math.max(1, prefs.progress_reps - 1) })}
+              onIncrement={() => onChange({ ...prefs, progress_reps: Math.min(20, prefs.progress_reps + 1) })}
+            />
+          </View>
+        </View>
+      </View>
     </View>
   );
 }

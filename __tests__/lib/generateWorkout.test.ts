@@ -38,6 +38,7 @@ const BASE_PREFS: WorkoutPreferences = {
   compound_sets: 4,
   accessory_sets: 3,
   isolation_sets: 3,
+  progress_reps: 8,
 };
 
 function prefs(overrides: Partial<WorkoutPreferences> = {}): WorkoutPreferences {

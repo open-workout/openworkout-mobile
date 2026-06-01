@@ -6,7 +6,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useWorkouts } from './hooks/useWorkouts';
 import { useExercises } from './hooks/useExercises';
 import { useWeightUnit } from './hooks/useWeightUnit';
-import { insertWorkout } from './db/workouts';
+import { insertWorkout, deleteWorkout } from './db/workouts';
 import { insertSet, deleteSetsByExercise, getLastSetsForExercise, getSetsForWorkout } from './db/sets';
 import { getAllExercises } from './db/exercises';
 import { getPendingWorkout, clearPendingWorkout, restorePendingWorkout, updatePendingSlotExercise } from './lib/pendingWorkout';
@@ -86,6 +86,7 @@ export default function GeneratedWorkoutScreen() {
   // Delete confirmations
   const [deletingSet, setDeletingSet] = useState<{ cardId: string; setId: string } | null>(null);
   const [deletingCardId, setDeletingCardId] = useState<string | null>(null);
+  const [showFinishModal, setShowFinishModal] = useState(false);
 
   useEffect(() => {
     if (!pending && !resumeWorkoutId) router.back();
@@ -278,6 +279,15 @@ export default function GeneratedWorkoutScreen() {
     router.back();
   };
 
+  const handleDiscard = async () => {
+    const workoutId = workoutRef.current ? await workoutRef.current : null;
+    if (workoutId) {
+      await deleteWorkout(workoutId);
+    }
+    clearPendingWorkout();
+    router.back();
+  };
+
   // ─── Switch exercise ──────────────────────────────────────────────────────────
 
   const switchingCard = cards.find((c) => c.cardId === switchingCardId) ?? null;
@@ -337,7 +347,7 @@ export default function GeneratedWorkoutScreen() {
       {/* Header */}
       <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16, paddingVertical: 12, backgroundColor: '#0c0c0e', borderBottomWidth: 1, borderBottomColor: C.border }}>
         <TouchableOpacity
-          onPress={handleFinish}
+          onPress={() => setShowFinishModal(true)}
           style={{ width: 40, height: 40, alignItems: 'center', justifyContent: 'center' }}
         >
           <Ionicons name="chevron-down" size={26} color={C.textMuted} />
@@ -352,7 +362,7 @@ export default function GeneratedWorkoutScreen() {
         </View>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
           <TouchableOpacity
-            onPress={handleFinish}
+            onPress={() => setShowFinishModal(true)}
             style={{ backgroundColor: C.text, borderRadius: 8, paddingHorizontal: 14, paddingVertical: 7 }}
           >
             <Text style={{ color: '#09090b', fontWeight: '700', fontSize: 14 }}>Finish</Text>
@@ -627,6 +637,38 @@ export default function GeneratedWorkoutScreen() {
           setShowCreateForAdd(false);
         }}
       />
+
+      {/* Finish / Discard modal */}
+      <Modal visible={showFinishModal} transparent animationType="fade" onRequestClose={() => setShowFinishModal(false)}>
+        <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.6)', alignItems: 'center', justifyContent: 'center', padding: 32 }}>
+          <View style={{ width: '100%', backgroundColor: C.card, borderRadius: 20, borderWidth: 1, borderColor: C.border, overflow: 'hidden' }}>
+            <View style={{ padding: 24, gap: 6 }}>
+              <Text style={{ color: C.text, fontSize: 17, fontWeight: '700' }}>Finish Workout?</Text>
+              <Text style={{ color: C.textMuted, fontSize: 14, lineHeight: 20 }}>Save your progress or discard this session.</Text>
+            </View>
+            <View style={{ borderTopWidth: 1, borderTopColor: C.border }}>
+              <TouchableOpacity
+                onPress={() => { setShowFinishModal(false); handleFinish(); }}
+                style={{ paddingVertical: 16, alignItems: 'center', borderBottomWidth: 1, borderBottomColor: C.border }}
+              >
+                <Text style={{ color: C.text, fontSize: 15, fontWeight: '700' }}>Finish</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => { setShowFinishModal(false); handleDiscard(); }}
+                style={{ paddingVertical: 16, alignItems: 'center', borderBottomWidth: 1, borderBottomColor: C.border }}
+              >
+                <Text style={{ color: '#ef4444', fontSize: 15, fontWeight: '600' }}>Discard</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={() => setShowFinishModal(false)}
+                style={{ paddingVertical: 16, alignItems: 'center' }}
+              >
+                <Text style={{ color: C.textMuted, fontSize: 15, fontWeight: '600' }}>Cancel</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
 
       {/* Delete set confirmation */}
       <ConfirmModal

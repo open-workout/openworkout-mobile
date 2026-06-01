@@ -3,7 +3,7 @@ import type { NewExerciseInput } from '../db/exercises';
 export const SEED_EXERCISES: NewExerciseInput[] = [
   // ─── CHEST ───────────────────────────────────────────────────────────────────
   {
-    name: 'Barbell Bench Press',
+    name: 'Bench Press (Barbell)',
     exercise_type: 'compound',
     primary_muscles: ['chest'],
     secondary_muscles: ['front delts', 'triceps'],
@@ -12,7 +12,7 @@ export const SEED_EXERCISES: NewExerciseInput[] = [
     weight_direction: 1,
   },
   {
-    name: 'Incline Barbell Bench Press',
+    name: 'Incline Bench Press (Barbell)',
     exercise_type: 'compound',
     primary_muscles: ['chest'],
     secondary_muscles: ['front delts', 'triceps'],
@@ -21,7 +21,7 @@ export const SEED_EXERCISES: NewExerciseInput[] = [
     weight_direction: 1,
   },
   {
-    name: 'Decline Barbell Bench Press',
+    name: 'Decline Bench Press (Barbell)',
     exercise_type: 'compound',
     primary_muscles: ['chest'],
     secondary_muscles: ['front delts', 'triceps'],
@@ -194,11 +194,11 @@ export const SEED_EXERCISES: NewExerciseInput[] = [
 
   // ────────────────────────────────────────────────────────────────────────
   {
-    name: 'Barbell Deadlift',
+    name: 'Deadlift',
     exercise_type: 'compound',
-    primary_muscles: ['lower back', 'lats'],
-    secondary_muscles: ['glutes', 'hamstrings', 'traps'],
-    alt_names: ['Deadlift', 'Conventional Deadlift'],
+    primary_muscles: ['lower back', 'glutes', 'hamstrings'],
+    secondary_muscles: ['traps'],
+    alt_names: ['Barbell Deadlift', 'Conventional Deadlift'],
     description: '',
     weight_direction: 1,
   },
@@ -248,7 +248,7 @@ export const SEED_EXERCISES: NewExerciseInput[] = [
     weight_direction: 1,
   },
   {
-    name: 'Barbell Bent-Over Row',
+    name: 'Bent-Over Row (Barbell)',
     exercise_type: 'compound',
     primary_muscles: ['back'],
     secondary_muscles: ['biceps', 'forearms'],
@@ -320,7 +320,7 @@ export const SEED_EXERCISES: NewExerciseInput[] = [
     weight_direction: 1,
   },
   {
-    name: 'Barbell Shrug',
+    name: 'Shrug (Barbell)',
     exercise_type: 'accessory',
     primary_muscles: ['traps'],
     secondary_muscles: [],
@@ -439,7 +439,7 @@ export const SEED_EXERCISES: NewExerciseInput[] = [
 
   // ─── SHOULDERS ────────────────────────────────────────────────────────────────
   {
-    name: 'Barbell Overhead Press',
+    name: 'Overhead Press(Barbell) ',
     exercise_type: 'compound',
     primary_muscles: ['shoulders'],
     secondary_muscles: ['traps', 'triceps'],
@@ -574,7 +574,7 @@ export const SEED_EXERCISES: NewExerciseInput[] = [
     weight_direction: 1,
   },
   {
-    name: 'Barbell Upright Row',
+    name: 'Upright Row (Barbell)',
     exercise_type: 'accessory',
     primary_muscles: ['side delts', 'traps'],
     secondary_muscles: ['front delts', 'biceps'],
@@ -621,7 +621,7 @@ export const SEED_EXERCISES: NewExerciseInput[] = [
 
   // ─── LEGS ─────────────────────────────────────────────────────────────────────
   {
-    name: 'Barbell Back Squat',
+    name: 'Back Squat (Barbell)',
     exercise_type: 'compound',
     primary_muscles: ['legs'],
     secondary_muscles: ['lower back', 'core'],
@@ -711,7 +711,7 @@ export const SEED_EXERCISES: NewExerciseInput[] = [
     weight_direction: 1,
   },
   {
-    name: 'Barbell Lunge',
+    name: 'Lunge (Barbell)',
     exercise_type: 'compound',
     primary_muscles: ['legs'],
     secondary_muscles: ['lower back', 'core'],
@@ -837,7 +837,7 @@ export const SEED_EXERCISES: NewExerciseInput[] = [
     weight_direction: 1,
   },
   {
-    name: 'Barbell Hip Thrust',
+    name: 'Hip Thrust (Barbell)',
     exercise_type: 'compound',
     primary_muscles: ['glutes'],
     secondary_muscles: ['hamstrings'],
@@ -929,7 +929,7 @@ export const SEED_EXERCISES: NewExerciseInput[] = [
 
   // ─── BICEPS ───────────────────────────────────────────────────────────────────
   {
-    name: 'Barbell Curl',
+    name: 'Curl (Barbell)',
     exercise_type: 'isolation',
     primary_muscles: ['biceps'],
     secondary_muscles: ['forearms'],
@@ -1334,7 +1334,7 @@ export const SEED_EXERCISES: NewExerciseInput[] = [
 
   // ─── FULL BODY / POWER ────────────────────────────────────────────────────────
   {
-    name: 'Barbell Clean',
+    name: 'Clean (Barbell)',
     exercise_type: 'compound',
     primary_muscles: ['legs'],
     secondary_muscles: ['traps', 'lower back', 'front delts'],
@@ -1343,7 +1343,7 @@ export const SEED_EXERCISES: NewExerciseInput[] = [
     weight_direction: 1,
   },
   {
-    name: 'Barbell Snatch',
+    name: 'Snatch (Barbell)',
     exercise_type: 'compound',
     primary_muscles: ['legs'],
     secondary_muscles: ['traps', 'lower back', 'front delts'],

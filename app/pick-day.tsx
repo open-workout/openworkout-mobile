@@ -335,8 +335,7 @@ function CustomCard({ onPress }: { onPress: () => void }) {
       }}
     >
       <View style={{ flex: 1 }}>
-        <Text style={{ color: '#a1a1aa', fontSize: 17, fontWeight: '700', marginBottom: 4 }}>Custom workout</Text>
-        <Text style={{ color: '#52525b', fontSize: 13 }}>No specific focus</Text>
+        <Text style={{ color: '#a1a1aa', fontSize: 17, fontWeight: '700' }}>Custom workout</Text>
       </View>
       <Ionicons name="chevron-forward" size={18} color="#52525b" />
     </TouchableOpacity>

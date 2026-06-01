@@ -14,20 +14,13 @@ const EXERCISE_ROWS: { label: string; field: Field }[] = [
   { label: 'Isolation', field: 'isolation_exercises' },
 ];
 
-const SET_ROWS: { label: string; field: Field }[] = [
-  { label: 'Compound', field: 'compound_sets' },
-  { label: 'Accessory', field: 'accessory_sets' },
-  { label: 'Isolation', field: 'isolation_sets' },
-];
-
 export default function WorkoutPrefsEditor({ prefs, onChange }: Props) {
   const set = (field: Field, value: number) =>
-    onChange({ ...prefs, [field]: Math.max(1, Math.min(10, value)) });
+    onChange({ ...prefs, [field]: Math.max(0, Math.min(10, value)) });
 
   return (
     <View style={{ gap: 24 }}>
       <Section label="Exercises per workout" rows={EXERCISE_ROWS} prefs={prefs} onSet={set} />
-      <Section label="Sets per exercise" rows={SET_ROWS} prefs={prefs} onSet={set} />
       <View>
         <Text style={{ color: '#52525b', fontSize: 10, fontWeight: '700', textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 12 }}>
           Progressive Overload

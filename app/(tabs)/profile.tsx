@@ -12,6 +12,7 @@ import { compressMuscles } from '../constants/splits';
 import WorkoutPrefsEditor from '../components/WorkoutPrefsEditor';
 import ConfirmModal from '../components/ConfirmModal';
 import { deleteAllWorkouts } from '../db/workouts';
+import { deleteAllSeedExercises, deleteAllUserExercises } from '../db/exercises';
 
 const prs = [
   { initial: 'B', name: 'Bench Press', type: 'Estimated 1RM', value: '110 kg', change: '+5kg this month', positive: true },
@@ -24,6 +25,8 @@ export default function ProfileScreen() {
   const { unit, update: updateUnit, reload: reloadUnit } = useWeightUnit();
   const { prefs, update: updatePrefs, reload: reloadPrefs } = useWorkoutPreferences();
   const [showDeleteAllModal, setShowDeleteAllModal] = useState(false);
+  const [showDeleteSeedExercisesModal, setShowDeleteSeedExercisesModal] = useState(false);
+  const [showDeleteUserExercisesModal, setShowDeleteUserExercisesModal] = useState(false);
 
   useFocusEffect(useCallback(() => { reload(); reloadUnit(); reloadPrefs(); }, [reload, reloadUnit, reloadPrefs]));
 
@@ -257,6 +260,42 @@ export default function ProfileScreen() {
           <Ionicons name="trash-outline" size={20} color="#ef4444" />
           <Text style={{ color: '#ef4444', fontSize: 15, fontWeight: '600' }}>Delete All Workouts</Text>
         </TouchableOpacity>
+
+        <TouchableOpacity
+          onPress={() => setShowDeleteSeedExercisesModal(true)}
+          style={{
+            flexDirection: 'row',
+            alignItems: 'center',
+            gap: 12,
+            backgroundColor: 'rgba(239,68,68,0.08)',
+            borderWidth: 1,
+            borderColor: 'rgba(239,68,68,0.25)',
+            borderRadius: 14,
+            padding: 16,
+            marginBottom: 8,
+          }}
+        >
+          <Ionicons name="library-outline" size={20} color="#ef4444" />
+          <Text style={{ color: '#ef4444', fontSize: 15, fontWeight: '600' }}>Delete Pre-loaded Exercises</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          onPress={() => setShowDeleteUserExercisesModal(true)}
+          style={{
+            flexDirection: 'row',
+            alignItems: 'center',
+            gap: 12,
+            backgroundColor: 'rgba(239,68,68,0.08)',
+            borderWidth: 1,
+            borderColor: 'rgba(239,68,68,0.25)',
+            borderRadius: 14,
+            padding: 16,
+            marginBottom: 8,
+          }}
+        >
+          <Ionicons name="person-outline" size={20} color="#ef4444" />
+          <Text style={{ color: '#ef4444', fontSize: 15, fontWeight: '600' }}>Delete My Custom Exercises</Text>
+        </TouchableOpacity>
       </ScrollView>
 
       <ConfirmModal
@@ -267,6 +306,26 @@ export default function ProfileScreen() {
         destructive
         onCancel={() => setShowDeleteAllModal(false)}
         onConfirm={() => { setShowDeleteAllModal(false); deleteAllWorkouts(); }}
+      />
+
+      <ConfirmModal
+        visible={showDeleteSeedExercisesModal}
+        title="Delete Pre-loaded Exercises"
+        message="This will permanently delete all built-in exercises. Your custom exercises will not be affected."
+        confirmLabel="Delete"
+        destructive
+        onCancel={() => setShowDeleteSeedExercisesModal(false)}
+        onConfirm={() => { setShowDeleteSeedExercisesModal(false); deleteAllSeedExercises(); }}
+      />
+
+      <ConfirmModal
+        visible={showDeleteUserExercisesModal}
+        title="Delete My Custom Exercises"
+        message="This will permanently delete all exercises you have created. Pre-loaded exercises will not be affected."
+        confirmLabel="Delete"
+        destructive
+        onCancel={() => setShowDeleteUserExercisesModal(false)}
+        onConfirm={() => { setShowDeleteUserExercisesModal(false); deleteAllUserExercises(); }}
       />
     </SafeAreaView>
   );

@@ -18,9 +18,6 @@ export default function OnboardingScreen() {
     compound_exercises: 3,
     accessory_exercises: 3,
     isolation_exercises: 2,
-    compound_sets: 4,
-    accessory_sets: 3,
-    isolation_sets: 3,
     progress_reps: 8,
   });
 

@@ -66,7 +66,7 @@ export default function HomeScreen() {
 
   const handleStartWorkout = () => {
     if (activeWorkout) {
-      router.push(`/workout?workoutId=${activeWorkout.id}`);
+      router.push(`/generated-workout?workoutId=${activeWorkout.id}`);
       return;
     }
     router.push('/pick-day');

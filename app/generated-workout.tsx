@@ -1,15 +1,15 @@
 import { View, Text, ScrollView, TouchableOpacity, StatusBar, Modal, TextInput } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
-import { useRouter } from 'expo-router';
+import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useState, useEffect, useRef } from 'react';
 import { useWorkouts } from './hooks/useWorkouts';
 import { useExercises } from './hooks/useExercises';
 import { useWeightUnit } from './hooks/useWeightUnit';
 import { insertWorkout } from './db/workouts';
-import { insertSet, deleteSetsByExercise, getLastSetsForExercise } from './db/sets';
+import { insertSet, deleteSetsByExercise, getLastSetsForExercise, getSetsForWorkout } from './db/sets';
 import { getAllExercises } from './db/exercises';
-import { getPendingWorkout, clearPendingWorkout } from './lib/pendingWorkout';
+import { getPendingWorkout, clearPendingWorkout, restorePendingWorkout, updatePendingSlotExercise } from './lib/pendingWorkout';
 import { findAlternatives } from './lib/generateWorkout';
 import { compressMuscles } from './constants/splits';
 import type { Exercise, NewExerciseInput } from './db/exercises';
@@ -48,6 +48,7 @@ function mkId() {
 
 export default function GeneratedWorkoutScreen() {
   const router = useRouter();
+  const { workoutId: resumeWorkoutId } = useLocalSearchParams<{ workoutId?: string }>();
   const { unit: weightUnit } = useWeightUnit();
   const { exercises, createExercise } = useExercises();
   const { finishWorkout, editSet, removeSet } = useWorkouts();
@@ -57,7 +58,7 @@ export default function GeneratedWorkoutScreen() {
 
   // Cards — stable cardId keys replace numeric slot indices
   const [cards, setCards] = useState<WorkoutCard[]>(() =>
-    slots.map((s) => ({ cardId: mkId(), slotType: s.type, exercise: s.exercise })),
+    resumeWorkoutId ? [] : slots.map((s) => ({ cardId: mkId(), slotType: s.type, exercise: s.exercise })),
   );
 
   // Per-card state keyed by cardId (stable across add/delete)
@@ -67,8 +68,10 @@ export default function GeneratedWorkoutScreen() {
   const [suggestions, setSuggestions] = useState<Record<string, OverloadSuggestion | null>>({});
   const [localPrefs, setLocalPrefs] = useState<WorkoutPreferences | null>(null);
 
-  // Lazy workout creation
-  const workoutRef = useRef<Promise<string> | null>(null);
+  // Lazy workout creation — pre-wired for resume mode
+  const workoutRef = useRef<Promise<string> | null>(
+    resumeWorkoutId ? Promise.resolve(resumeWorkoutId) : null,
+  );
 
   // Switch modal
   const [switchingCardId, setSwitchingCardId] = useState<string | null>(null);
@@ -85,9 +88,70 @@ export default function GeneratedWorkoutScreen() {
   const [deletingCardId, setDeletingCardId] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!pending) router.back();
+    if (!pending && !resumeWorkoutId) router.back();
     getWorkoutPreferences().then(setLocalPrefs);
   }, []);
+
+  useEffect(() => {
+    if (!resumeWorkoutId) return;
+    Promise.all([getSetsForWorkout(resumeWorkoutId), getAllExercises()]).then(
+      async ([dbSets, allExercises]) => {
+        await restorePendingWorkout(allExercises);
+        // Group DB sets by exercise_id
+        const grouped = new Map<string, typeof dbSets>();
+        for (const s of dbSets) {
+          if (s.logged_at === 'seed') continue;
+          if (!grouped.has(s.exercise_id)) grouped.set(s.exercise_id, []);
+          grouped.get(s.exercise_id)!.push(s);
+        }
+
+        const newCards: WorkoutCard[] = [];
+        const newCardSets: Record<string, LocalSet[]> = {};
+        const newExpanded: Record<string, boolean> = {};
+        const handledExIds = new Set<string>();
+
+        const toLocalSets = (exSets: typeof dbSets): LocalSet[] =>
+          [...exSets]
+            .filter((s) => s.logged_at !== 'pending')
+            .reverse()
+            .map((s) => ({
+              id: s.id,
+              weight: s.weight ? String(s.weight) : '',
+              reps: s.reps ? String(s.reps) : '',
+              unit: s.unit as 'kg' | 'lbs',
+              loggedAt: new Date(s.logged_at),
+            }));
+
+        const addCard = (exercise: Exercise, slotType: string, exId: string) => {
+          const cardId = mkId();
+          const exSets = grouped.get(exId) ?? [];
+          const localSets = toLocalSets(exSets);
+          newCards.push({ cardId, slotType, exercise });
+          newCardSets[cardId] = localSets;
+          if (localSets.length > 0) newExpanded[cardId] = true;
+          handledExIds.add(exId);
+        };
+
+        // First pass: pending slots in their original planned order (preserves generated sequence)
+        for (const slot of getPendingWorkout()?.slots ?? []) {
+          const exId = slot.exercise.id || slot.exercise.name;
+          addCard(slot.exercise, slot.type, exId);
+        }
+
+        // Second pass: exercises that were added manually during the workout (not in pending slots)
+        for (const [exId] of grouped) {
+          if (handledExIds.has(exId)) continue;
+          const exercise = allExercises.find((e) => e.id === exId || e.name === exId);
+          if (!exercise) continue;
+          addCard(exercise, exercise.exercise_type || 'accessory', exId);
+        }
+
+        setCards(newCards);
+        setCardSets(newCardSets);
+        setExpandedCards(newExpanded);
+      },
+    );
+  }, [resumeWorkoutId]);
 
   useEffect(() => {
     if (!localPrefs) return;
@@ -229,12 +293,10 @@ export default function GeneratedWorkoutScreen() {
 
   const selectAlternative = async (cardId: string, exercise: Exercise) => {
     const card = cards.find((c) => c.cardId === cardId);
-    if (workoutRef.current && card && (cardSets[cardId]?.length ?? 0) > 0) {
-      const workoutId = await workoutRef.current;
-      await deleteSetsByExercise(workoutId, card.exercise.id || card.exercise.name);
-    }
+    if (!card) return;
+    const oldExerciseId = card.exercise.id || card.exercise.name;
+    updatePendingSlotExercise(oldExerciseId, exercise);
     setCards((prev) => prev.map((c) => (c.cardId === cardId ? { ...c, exercise } : c)));
-    setCardSets((prev) => { const n = { ...prev }; delete n[cardId]; return n; });
     setDrafts((prev) => { const n = { ...prev }; delete n[cardId]; return n; });
     setSuggestions((prev) => { const n = { ...prev }; delete n[cardId]; return n; });
     setSwitchingCardId(null);
@@ -281,7 +343,9 @@ export default function GeneratedWorkoutScreen() {
           <Ionicons name="chevron-down" size={26} color={C.textMuted} />
         </TouchableOpacity>
         <View style={{ alignItems: 'center' }}>
-          <Text style={{ color: C.text, fontSize: 17, fontWeight: '700' }}>{(pending?.muscles.length ?? 0) > 0 ? 'Generated Workout' : 'Workout'}</Text>
+          <Text style={{ color: C.text, fontSize: 17, fontWeight: '700' }}>
+            {resumeWorkoutId ? 'Resume Workout' : (pending?.muscles.length ?? 0) > 0 ? 'Generated Workout' : 'Workout'}
+          </Text>
           {!!muscleLabel && (
             <Text style={{ color: C.textDim, fontSize: 12, marginTop: 2 }}>{muscleLabel}</Text>
           )}
@@ -335,13 +399,15 @@ export default function GeneratedWorkoutScreen() {
                 </View>
 
                 <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 2 }}>
-                  <TouchableOpacity
-                    onPress={() => setSwitchingCardId(cardId)}
-                    style={{ flexDirection: 'row', alignItems: 'center', gap: 5, backgroundColor: '#141414', borderRadius: 10, borderWidth: 1, borderColor: C.border, paddingHorizontal: 10, paddingVertical: 7 }}
-                  >
-                    <Ionicons name="swap-horizontal-outline" size={15} color={C.textMuted} />
-                    <Text style={{ color: C.textMuted, fontSize: 12, fontWeight: '600' }}>Switch</Text>
-                  </TouchableOpacity>
+                  {(cardSets[cardId]?.length ?? 0) === 0 && (
+                    <TouchableOpacity
+                      onPress={() => setSwitchingCardId(cardId)}
+                      style={{ flexDirection: 'row', alignItems: 'center', gap: 5, backgroundColor: '#141414', borderRadius: 10, borderWidth: 1, borderColor: C.border, paddingHorizontal: 10, paddingVertical: 7 }}
+                    >
+                      <Ionicons name="swap-horizontal-outline" size={15} color={C.textMuted} />
+                      <Text style={{ color: C.textMuted, fontSize: 12, fontWeight: '600' }}>Switch</Text>
+                    </TouchableOpacity>
+                  )}
                   <TouchableOpacity onPress={() => setDeletingCardId(cardId)}>
                     <Ionicons name="trash-outline" size={17} color={C.textDim} />
                   </TouchableOpacity>

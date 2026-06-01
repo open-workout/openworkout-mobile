@@ -35,9 +35,6 @@ const BASE_PREFS: WorkoutPreferences = {
   compound_exercises: 2,
   accessory_exercises: 2,
   isolation_exercises: 1,
-  compound_sets: 4,
-  accessory_sets: 3,
-  isolation_sets: 3,
   progress_reps: 8,
 };
 

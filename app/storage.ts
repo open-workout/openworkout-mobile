@@ -8,9 +8,6 @@ export type WorkoutPreferences = {
   compound_exercises: number;
   accessory_exercises: number;
   isolation_exercises: number;
-  compound_sets: number;
-  accessory_sets: number;
-  isolation_sets: number;
   progress_reps: number;
 };
 
@@ -18,9 +15,6 @@ const DEFAULT_WORKOUT_PREFS: WorkoutPreferences = {
   compound_exercises: 3,
   accessory_exercises: 3,
   isolation_exercises: 2,
-  compound_sets: 4,
-  accessory_sets: 3,
-  isolation_sets: 3,
   progress_reps: 8,
 };
 

@@ -21,13 +21,13 @@ const SET_ROWS: { label: string; field: Field }[] = [
 ];
 
 export default function WorkoutPrefsEditor({ prefs, onChange }: Props) {
-  const set = (field: Field, value: number) =>
-    onChange({ ...prefs, [field]: Math.max(1, Math.min(10, value)) });
+  const set = (field: Field, value: number, min = 1) =>
+    onChange({ ...prefs, [field]: Math.max(min, Math.min(10, value)) });
 
   return (
     <View style={{ gap: 24 }}>
-      <Section label="Exercises per workout" rows={EXERCISE_ROWS} prefs={prefs} onSet={set} />
-      <Section label="Sets per exercise" rows={SET_ROWS} prefs={prefs} onSet={set} />
+      <Section label="Exercises per workout" rows={EXERCISE_ROWS} prefs={prefs} onSet={(f, v) => set(f, v, 0)} />
+      <Section label="Sets per exercise" rows={SET_ROWS} prefs={prefs} onSet={(f, v) => set(f, v, 1)} />
       <View>
         <Text style={{ color: '#52525b', fontSize: 10, fontWeight: '700', textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 12 }}>
           Progressive Overload

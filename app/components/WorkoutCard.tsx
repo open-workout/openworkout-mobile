@@ -126,12 +126,6 @@ export function WorkoutCard({
           <Text style={{ color: '#52525b', fontSize: 11, marginBottom: 4 }}>Volume</Text>
           <Text style={{ color: '#d4d4d8', fontSize: 13, fontWeight: '600' }}>{formatVolume(totalVolume, dominantUnit)}</Text>
         </View>
-        {workout.finished_at && (
-          <View style={{ flex: 1, backgroundColor: '#0a0a0a', borderWidth: 1, borderColor: 'rgba(39,39,42,0.5)', borderRadius: 12, padding: 12, alignItems: 'center' }}>
-            <Text style={{ color: '#52525b', fontSize: 11, marginBottom: 4 }}>Time</Text>
-            <Text style={{ color: '#d4d4d8', fontSize: 13, fontWeight: '600' }}>{formatDuration(workout.started_at, workout.finished_at)}</Text>
-          </View>
-        )}
       </View>
 
       {/* Exercise preview */}

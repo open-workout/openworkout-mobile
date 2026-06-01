@@ -46,14 +46,6 @@ function mkId() {
   return Math.random().toString(36).slice(2);
 }
 
-function formatElapsed(seconds: number): string {
-  const h = Math.floor(seconds / 3600);
-  const m = Math.floor((seconds % 3600) / 60);
-  const s = seconds % 60;
-  if (h > 0) return `${h}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
-  return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
-}
-
 export default function GeneratedWorkoutScreen() {
   const router = useRouter();
   const { unit: weightUnit } = useWeightUnit();
@@ -77,11 +69,6 @@ export default function GeneratedWorkoutScreen() {
 
   // Lazy workout creation
   const workoutRef = useRef<Promise<string> | null>(null);
-  const startedAtRef = useRef<number | null>(null);
-
-  // Timer
-  const [elapsed, setElapsed] = useState(0);
-  const [timerRunning, setTimerRunning] = useState(false);
 
   // Switch modal
   const [switchingCardId, setSwitchingCardId] = useState<string | null>(null);
@@ -117,24 +104,11 @@ export default function GeneratedWorkoutScreen() {
     });
   }, [localPrefs]);
 
-  useEffect(() => {
-    if (!timerRunning) return;
-    const interval = setInterval(() => {
-      setElapsed(Math.floor((Date.now() - startedAtRef.current!) / 1000));
-    }, 1000);
-    return () => clearInterval(interval);
-  }, [timerRunning]);
-
   // ─── Workout lazy creation ──────────────────────────────────────────────────
 
   const ensureWorkout = (): Promise<string> => {
     if (!workoutRef.current) {
-      workoutRef.current = insertWorkout({ title: '', started_at: new Date().toISOString() })
-        .then((id) => {
-          startedAtRef.current = Date.now();
-          setTimerRunning(true);
-          return id;
-        });
+      workoutRef.current = insertWorkout({ title: '', started_at: new Date().toISOString() });
     }
     return workoutRef.current;
   };
@@ -313,11 +287,6 @@ export default function GeneratedWorkoutScreen() {
           )}
         </View>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
-          {timerRunning && (
-            <Text style={{ color: '#34d399', fontFamily: 'monospace', fontSize: 15, fontWeight: '600', letterSpacing: 1.5 }}>
-              {formatElapsed(elapsed)}
-            </Text>
-          )}
           <TouchableOpacity
             onPress={handleFinish}
             style={{ backgroundColor: C.text, borderRadius: 8, paddingHorizontal: 14, paddingVertical: 7 }}

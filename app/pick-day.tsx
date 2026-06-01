@@ -6,7 +6,6 @@ import { useRouter } from 'expo-router';
 import { useSplit } from './hooks/useSplit';
 import { useExercises } from './hooks/useExercises';
 import { useWorkoutPreferences } from './hooks/useWorkoutPreferences';
-import { insertWorkout } from './db/workouts';
 import { getAllExerciseStats } from './db/exerciseStats';
 import { generateWorkout } from './lib/generateWorkout';
 import { setPendingWorkout } from './lib/pendingWorkout';
@@ -34,9 +33,9 @@ export default function PickDayScreen() {
     : expandMuscles(selectedMuscles);
   const canGenerate = activeMuscles.length > 0 && exercises.length > 0 && prefs !== null;
 
-  const handleSelect = async (title: string) => {
-    const id = await insertWorkout({ title, started_at: new Date().toISOString() });
-    router.replace(`/workout?workoutId=${id}`);
+  const handleManual = (muscles: string[]) => {
+    setPendingWorkout([], muscles);
+    router.push('/generated-workout');
   };
 
   const handleGenerate = async () => {
@@ -95,7 +94,7 @@ export default function PickDayScreen() {
           )}
           <TouchableOpacity
             activeOpacity={0.85}
-            onPress={() => handleSelect('')}
+            onPress={() => handleManual(activeMuscles)}
             style={{ backgroundColor: '#f4f4f5', borderRadius: 14, paddingVertical: 16, alignItems: 'center' }}
           >
             <Text style={{ color: '#09090b', fontSize: 16, fontWeight: '700' }}>
@@ -174,7 +173,7 @@ export default function PickDayScreen() {
 
             <TouchableOpacity
               activeOpacity={0.8}
-              onPress={() => handleSelect('Manual Workout')}
+              onPress={() => handleManual([])}
               style={{ backgroundColor: '#18181b', borderWidth: 1, borderColor: '#27272a', borderRadius: 16, paddingHorizontal: 20, paddingVertical: 18, flexDirection: 'row', alignItems: 'center', gap: 14 }}
             >
               <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: '#27272a', alignItems: 'center', justifyContent: 'center' }}>

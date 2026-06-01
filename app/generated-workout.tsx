@@ -307,7 +307,7 @@ export default function GeneratedWorkoutScreen() {
           <Ionicons name="chevron-down" size={26} color={C.textMuted} />
         </TouchableOpacity>
         <View style={{ alignItems: 'center' }}>
-          <Text style={{ color: C.text, fontSize: 17, fontWeight: '700' }}>Generated Workout</Text>
+          <Text style={{ color: C.text, fontSize: 17, fontWeight: '700' }}>{(pending?.muscles.length ?? 0) > 0 ? 'Generated Workout' : 'Workout'}</Text>
           {!!muscleLabel && (
             <Text style={{ color: C.textDim, fontSize: 12, marginTop: 2 }}>{muscleLabel}</Text>
           )}

@@ -1,14 +1,16 @@
-import { View, Text, ScrollView, TouchableOpacity, StatusBar, Alert } from "react-native";
+import { View, Text, ScrollView, TouchableOpacity, StatusBar } from "react-native";
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Image } from 'expo-image';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useRouter, useFocusEffect } from 'expo-router';
+import { useState } from 'react';
 import { useCallback } from 'react';
 import { useSplit } from '../hooks/useSplit';
 import { useWeightUnit } from '../hooks/useWeightUnit';
 import { useWorkoutPreferences } from '../hooks/useWorkoutPreferences';
 import { compressMuscles } from '../constants/splits';
 import WorkoutPrefsEditor from '../components/WorkoutPrefsEditor';
+import ConfirmModal from '../components/ConfirmModal';
 import { deleteAllWorkouts } from '../db/workouts';
 
 const prs = [
@@ -21,6 +23,7 @@ export default function ProfileScreen() {
   const { split, reload } = useSplit();
   const { unit, update: updateUnit, reload: reloadUnit } = useWeightUnit();
   const { prefs, update: updatePrefs, reload: reloadPrefs } = useWorkoutPreferences();
+  const [showDeleteAllModal, setShowDeleteAllModal] = useState(false);
 
   useFocusEffect(useCallback(() => { reload(); reloadUnit(); reloadPrefs(); }, [reload, reloadUnit, reloadPrefs]));
 
@@ -238,20 +241,7 @@ export default function ProfileScreen() {
         {/* Danger zone */}
         <Text style={{ color: '#f4f4f5', fontSize: 18, fontWeight: '600', marginTop: 20, marginBottom: 16 }}>Danger Zone</Text>
         <TouchableOpacity
-          onPress={() =>
-            Alert.alert(
-              'Delete All Workouts',
-              'This will permanently delete all your workout history and sets. This cannot be undone.',
-              [
-                { text: 'Cancel', style: 'cancel' },
-                {
-                  text: 'Delete All',
-                  style: 'destructive',
-                  onPress: () => deleteAllWorkouts(),
-                },
-              ],
-            )
-          }
+          onPress={() => setShowDeleteAllModal(true)}
           style={{
             flexDirection: 'row',
             alignItems: 'center',
@@ -268,6 +258,16 @@ export default function ProfileScreen() {
           <Text style={{ color: '#ef4444', fontSize: 15, fontWeight: '600' }}>Delete All Workouts</Text>
         </TouchableOpacity>
       </ScrollView>
+
+      <ConfirmModal
+        visible={showDeleteAllModal}
+        title="Delete All Workouts"
+        message="This will permanently delete all your workout history and sets. This cannot be undone."
+        confirmLabel="Delete All"
+        destructive
+        onCancel={() => setShowDeleteAllModal(false)}
+        onConfirm={() => { setShowDeleteAllModal(false); deleteAllWorkouts(); }}
+      />
     </SafeAreaView>
   );
 }

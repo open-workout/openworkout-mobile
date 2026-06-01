@@ -21,6 +21,7 @@ export default function OnboardingScreen() {
     compound_sets: 4,
     accessory_sets: 3,
     isolation_sets: 3,
+    progress_reps: 8,
   });
 
   async function handleSplitSave(name: string, days: SplitDay[]) {

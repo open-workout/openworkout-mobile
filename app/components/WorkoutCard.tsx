@@ -1,8 +1,9 @@
-import { View, Text, TouchableOpacity, ActivityIndicator, Alert } from "react-native";
+import { View, Text, TouchableOpacity, ActivityIndicator } from "react-native";
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useState } from 'react';
 import { type Workout, type WorkoutExerciseSummary } from '../db/workouts';
 import { getSetsForWorkout, type WorkoutSet } from '../db/sets';
+import ConfirmModal from './ConfirmModal';
 
 export type PastWorkout = {
   workout: Workout;
@@ -49,6 +50,7 @@ export function WorkoutCard({
   const { workout, summaries } = item;
   const [expandedSets, setExpandedSets] = useState<WorkoutSet[] | null>(null);
   const [loadingSets, setLoadingSets] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
 
   const totalSets = summaries.reduce((acc, s) => acc + s.set_count, 0);
   const totalVolume = summaries.reduce((acc, s) => acc + s.total_volume, 0);
@@ -126,12 +128,6 @@ export function WorkoutCard({
           <Text style={{ color: '#52525b', fontSize: 11, marginBottom: 4 }}>Volume</Text>
           <Text style={{ color: '#d4d4d8', fontSize: 13, fontWeight: '600' }}>{formatVolume(totalVolume, dominantUnit)}</Text>
         </View>
-        {workout.finished_at && (
-          <View style={{ flex: 1, backgroundColor: '#0a0a0a', borderWidth: 1, borderColor: 'rgba(39,39,42,0.5)', borderRadius: 12, padding: 12, alignItems: 'center' }}>
-            <Text style={{ color: '#52525b', fontSize: 11, marginBottom: 4 }}>Time</Text>
-            <Text style={{ color: '#d4d4d8', fontSize: 13, fontWeight: '600' }}>{formatDuration(workout.started_at, workout.finished_at)}</Text>
-          </View>
-        )}
       </View>
 
       {/* Exercise preview */}
@@ -141,6 +137,16 @@ export function WorkoutCard({
           <Text style={{ color: '#71717a', fontSize: 13, flex: 1 }} numberOfLines={1}>{exercisePreview}</Text>
         </View>
       )}
+
+      <ConfirmModal
+        visible={showDeleteModal}
+        title="Delete Workout"
+        message="This will permanently delete this workout and all its sets."
+        confirmLabel="Delete"
+        destructive
+        onCancel={() => setShowDeleteModal(false)}
+        onConfirm={() => { setShowDeleteModal(false); onDelete(); }}
+      />
 
       {/* Expanded set details */}
       {expanded && (
@@ -173,12 +179,7 @@ export function WorkoutCard({
             })
           )}
           <TouchableOpacity
-            onPress={() =>
-              Alert.alert('Delete Workout', 'This will permanently delete this workout and all its sets.', [
-                { text: 'Cancel', style: 'cancel' },
-                { text: 'Delete', style: 'destructive', onPress: onDelete },
-              ])
-            }
+            onPress={() => setShowDeleteModal(true)}
             style={{ marginTop: 4, borderTopWidth: 1, borderTopColor: 'rgba(39,39,42,0.8)', paddingTop: 12, flexDirection: 'row', alignItems: 'center', gap: 8 }}
           >
             <Ionicons name="trash-outline" size={15} color="#ef4444" />

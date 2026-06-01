@@ -7,15 +7,18 @@ import { useWorkouts } from './hooks/useWorkouts';
 import { useExercises } from './hooks/useExercises';
 import { useWeightUnit } from './hooks/useWeightUnit';
 import { insertWorkout } from './db/workouts';
-import { insertSet, deleteSetsByExercise } from './db/sets';
+import { insertSet, deleteSetsByExercise, getLastSetsForExercise } from './db/sets';
 import { getAllExercises } from './db/exercises';
 import { getPendingWorkout, clearPendingWorkout } from './lib/pendingWorkout';
 import { findAlternatives } from './lib/generateWorkout';
 import { compressMuscles } from './constants/splits';
 import type { Exercise, NewExerciseInput } from './db/exercises';
 import { SetRow, DraftSetRow, type LocalSet } from './components/SetRows';
+import { OverloadHint } from './components/OverloadHint';
 import AddExerciseModal from './components/AddExerciseModal';
 import ConfirmModal from './components/ConfirmModal';
+import { computeProgressSuggestion, type OverloadSuggestion } from './lib/progressiveOverload';
+import { getWorkoutPreferences, type WorkoutPreferences } from './storage';
 
 const C = {
   bg: '#0a0a0a',
@@ -43,14 +46,6 @@ function mkId() {
   return Math.random().toString(36).slice(2);
 }
 
-function formatElapsed(seconds: number): string {
-  const h = Math.floor(seconds / 3600);
-  const m = Math.floor((seconds % 3600) / 60);
-  const s = seconds % 60;
-  if (h > 0) return `${h}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
-  return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
-}
-
 export default function GeneratedWorkoutScreen() {
   const router = useRouter();
   const { unit: weightUnit } = useWeightUnit();
@@ -69,14 +64,11 @@ export default function GeneratedWorkoutScreen() {
   const [expandedCards, setExpandedCards] = useState<Record<string, boolean>>({});
   const [cardSets, setCardSets] = useState<Record<string, LocalSet[]>>({});
   const [drafts, setDrafts] = useState<Record<string, { weight: string; reps: string }>>({});
+  const [suggestions, setSuggestions] = useState<Record<string, OverloadSuggestion | null>>({});
+  const [localPrefs, setLocalPrefs] = useState<WorkoutPreferences | null>(null);
 
   // Lazy workout creation
   const workoutRef = useRef<Promise<string> | null>(null);
-  const startedAtRef = useRef<number | null>(null);
-
-  // Timer
-  const [elapsed, setElapsed] = useState(0);
-  const [timerRunning, setTimerRunning] = useState(false);
 
   // Switch modal
   const [switchingCardId, setSwitchingCardId] = useState<string | null>(null);
@@ -94,26 +86,29 @@ export default function GeneratedWorkoutScreen() {
 
   useEffect(() => {
     if (!pending) router.back();
+    getWorkoutPreferences().then(setLocalPrefs);
   }, []);
 
   useEffect(() => {
-    if (!timerRunning) return;
-    const interval = setInterval(() => {
-      setElapsed(Math.floor((Date.now() - startedAtRef.current!) / 1000));
-    }, 1000);
-    return () => clearInterval(interval);
-  }, [timerRunning]);
+    if (!localPrefs) return;
+    Promise.all(
+      cards.map(async (card) => {
+        const exerciseRef = card.exercise.id || card.exercise.name;
+        const sets = await getLastSetsForExercise(exerciseRef);
+        return { cardId: card.cardId, suggestion: computeProgressSuggestion(sets, card.exercise.exercise_type, localPrefs.progress_reps, weightUnit) };
+      }),
+    ).then((results) => {
+      const map: Record<string, OverloadSuggestion | null> = {};
+      for (const { cardId, suggestion } of results) map[cardId] = suggestion;
+      setSuggestions(map);
+    });
+  }, [localPrefs]);
 
   // ─── Workout lazy creation ──────────────────────────────────────────────────
 
   const ensureWorkout = (): Promise<string> => {
     if (!workoutRef.current) {
-      workoutRef.current = insertWorkout({ title: '', started_at: new Date().toISOString() })
-        .then((id) => {
-          startedAtRef.current = Date.now();
-          setTimerRunning(true);
-          return id;
-        });
+      workoutRef.current = insertWorkout({ title: '', started_at: new Date().toISOString() });
     }
     return workoutRef.current;
   };
@@ -182,6 +177,12 @@ export default function GeneratedWorkoutScreen() {
     setCards((prev) => [...prev, newCard]);
     setShowPicker(false);
     setPickerSearch('');
+    if (localPrefs) {
+      const exerciseRef = exercise.id || exercise.name;
+      getLastSetsForExercise(exerciseRef).then((sets) => {
+        setSuggestions((prev) => ({ ...prev, [newCard.cardId]: computeProgressSuggestion(sets, exercise.exercise_type, localPrefs.progress_reps, weightUnit) }));
+      });
+    }
   };
 
   const confirmDeleteCard = async () => {
@@ -198,6 +199,7 @@ export default function GeneratedWorkoutScreen() {
     setCardSets((prev) => { const n = { ...prev }; delete n[deletingCardId!]; return n; });
     setDrafts((prev) => { const n = { ...prev }; delete n[deletingCardId!]; return n; });
     setExpandedCards((prev) => { const n = { ...prev }; delete n[deletingCardId!]; return n; });
+    setSuggestions((prev) => { const n = { ...prev }; delete n[deletingCardId!]; return n; });
     setDeletingCardId(null);
   };
 
@@ -234,8 +236,15 @@ export default function GeneratedWorkoutScreen() {
     setCards((prev) => prev.map((c) => (c.cardId === cardId ? { ...c, exercise } : c)));
     setCardSets((prev) => { const n = { ...prev }; delete n[cardId]; return n; });
     setDrafts((prev) => { const n = { ...prev }; delete n[cardId]; return n; });
+    setSuggestions((prev) => { const n = { ...prev }; delete n[cardId]; return n; });
     setSwitchingCardId(null);
     setSwitchSearch('');
+    if (localPrefs) {
+      const exerciseRef = exercise.id || exercise.name;
+      getLastSetsForExercise(exerciseRef).then((sets) => {
+        setSuggestions((prev) => ({ ...prev, [cardId]: computeProgressSuggestion(sets, exercise.exercise_type, localPrefs.progress_reps, weightUnit) }));
+      });
+    }
   };
 
   const closeSwitchModal = () => {
@@ -272,17 +281,12 @@ export default function GeneratedWorkoutScreen() {
           <Ionicons name="chevron-down" size={26} color={C.textMuted} />
         </TouchableOpacity>
         <View style={{ alignItems: 'center' }}>
-          <Text style={{ color: C.text, fontSize: 17, fontWeight: '700' }}>Generated Workout</Text>
+          <Text style={{ color: C.text, fontSize: 17, fontWeight: '700' }}>{(pending?.muscles.length ?? 0) > 0 ? 'Generated Workout' : 'Workout'}</Text>
           {!!muscleLabel && (
             <Text style={{ color: C.textDim, fontSize: 12, marginTop: 2 }}>{muscleLabel}</Text>
           )}
         </View>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
-          {timerRunning && (
-            <Text style={{ color: '#34d399', fontFamily: 'monospace', fontSize: 15, fontWeight: '600', letterSpacing: 1.5 }}>
-              {formatElapsed(elapsed)}
-            </Text>
-          )}
           <TouchableOpacity
             onPress={handleFinish}
             style={{ backgroundColor: C.text, borderRadius: 8, paddingHorizontal: 14, paddingVertical: 7 }}
@@ -358,6 +362,10 @@ export default function GeneratedWorkoutScreen() {
                     ))}
                     <View style={{ width: 28 }} />
                   </View>
+
+                  {suggestions[cardId] && (
+                    <OverloadHint label={suggestions[cardId]!.label} />
+                  )}
 
                   <DraftSetRow
                     weight={draft.weight}

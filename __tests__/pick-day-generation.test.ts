@@ -27,6 +27,7 @@ const DEFAULT_PREFS: WorkoutPreferences = {
   compound_sets: 4,
   accessory_sets: 3,
   isolation_sets: 3,
+  progress_reps: 8,
 };
 
 /** Returns the expanded muscle list for a named day in a named preset split. */

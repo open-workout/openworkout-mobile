@@ -11,6 +11,7 @@ export type WorkoutPreferences = {
   compound_sets: number;
   accessory_sets: number;
   isolation_sets: number;
+  progress_reps: number;
 };
 
 const DEFAULT_WORKOUT_PREFS: WorkoutPreferences = {
@@ -20,6 +21,7 @@ const DEFAULT_WORKOUT_PREFS: WorkoutPreferences = {
   compound_sets: 4,
   accessory_sets: 3,
   isolation_sets: 3,
+  progress_reps: 8,
 };
 
 export async function markOnboardingDone(): Promise<void> {

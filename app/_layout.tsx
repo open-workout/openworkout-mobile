@@ -2,6 +2,7 @@ import { Stack } from "expo-router";
 import { SQLiteProvider, type SQLiteDatabase } from 'expo-sqlite';
 import '@/global.css';
 import { setDb } from './db/database';
+import { SEED_EXERCISES } from './constants/exerciseData';
 
 async function initializeDb(database: SQLiteDatabase) {
   setDb(database);
@@ -74,6 +75,33 @@ async function initializeDb(database: SQLiteDatabase) {
       unit               TEXT    NOT NULL DEFAULT 'kg'
     );
   `);
+
+  const row = await database.getFirstAsync<{ count: number }>(
+    'SELECT COUNT(*) as count FROM exercises',
+  );
+  if ((row?.count ?? 0) === 0) {
+    const now = Date.now();
+    await database.withTransactionAsync(async () => {
+      for (const ex of SEED_EXERCISES) {
+        const id = `seed_${Math.random().toString(36).slice(2, 10)}`;
+        await database.runAsync(
+          `INSERT INTO exercises
+             (id, name, exercise_type, primary_muscles, secondary_muscles,
+              alt_names, description, weight_direction, created_at)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+          id,
+          ex.name,
+          ex.exercise_type,
+          JSON.stringify(ex.primary_muscles),
+          JSON.stringify(ex.secondary_muscles),
+          JSON.stringify(ex.alt_names),
+          ex.description,
+          ex.weight_direction,
+          now,
+        );
+      }
+    });
+  }
 }
 
 export default function RootLayout() {

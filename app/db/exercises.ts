@@ -96,6 +96,16 @@ export async function deleteExercise(exercise: Exercise): Promise<void> {
   }
 }
 
+export async function deleteAllSeedExercises(): Promise<void> {
+  const db = await getDb();
+  await db.runAsync(`DELETE FROM exercises WHERE id LIKE 'seed_%'`);
+}
+
+export async function deleteAllUserExercises(): Promise<void> {
+  const db = await getDb();
+  await db.runAsync(`DELETE FROM exercises WHERE id NOT LIKE 'seed_%'`);
+}
+
 export async function getAllExercises(): Promise<Exercise[]> {
   const db = await getDb();
   const rows = await db.getAllAsync<RawRow>(

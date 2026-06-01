@@ -1,8 +1,9 @@
-import { View, Text, TouchableOpacity, ActivityIndicator, Alert } from "react-native";
+import { View, Text, TouchableOpacity, ActivityIndicator } from "react-native";
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useState } from 'react';
 import { type Workout, type WorkoutExerciseSummary } from '../db/workouts';
 import { getSetsForWorkout, type WorkoutSet } from '../db/sets';
+import ConfirmModal from './ConfirmModal';
 
 export type PastWorkout = {
   workout: Workout;
@@ -49,6 +50,7 @@ export function WorkoutCard({
   const { workout, summaries } = item;
   const [expandedSets, setExpandedSets] = useState<WorkoutSet[] | null>(null);
   const [loadingSets, setLoadingSets] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
 
   const totalSets = summaries.reduce((acc, s) => acc + s.set_count, 0);
   const totalVolume = summaries.reduce((acc, s) => acc + s.total_volume, 0);
@@ -136,6 +138,16 @@ export function WorkoutCard({
         </View>
       )}
 
+      <ConfirmModal
+        visible={showDeleteModal}
+        title="Delete Workout"
+        message="This will permanently delete this workout and all its sets."
+        confirmLabel="Delete"
+        destructive
+        onCancel={() => setShowDeleteModal(false)}
+        onConfirm={() => { setShowDeleteModal(false); onDelete(); }}
+      />
+
       {/* Expanded set details */}
       {expanded && (
         <View style={{ borderTopWidth: 1, borderTopColor: 'rgba(39,39,42,0.8)', marginTop: 12, paddingTop: 12 }}>
@@ -167,12 +179,7 @@ export function WorkoutCard({
             })
           )}
           <TouchableOpacity
-            onPress={() =>
-              Alert.alert('Delete Workout', 'This will permanently delete this workout and all its sets.', [
-                { text: 'Cancel', style: 'cancel' },
-                { text: 'Delete', style: 'destructive', onPress: onDelete },
-              ])
-            }
+            onPress={() => setShowDeleteModal(true)}
             style={{ marginTop: 4, borderTopWidth: 1, borderTopColor: 'rgba(39,39,42,0.8)', paddingTop: 12, flexDirection: 'row', alignItems: 'center', gap: 8 }}
           >
             <Ionicons name="trash-outline" size={15} color="#ef4444" />

@@ -8,6 +8,7 @@ import ConfirmModal from './ConfirmModal';
 export type PastWorkout = {
   workout: Workout;
   summaries: WorkoutExerciseSummary[];
+  prCount: number;
 };
 
 export function formatWorkoutDate(startedAt: string): string {
@@ -47,7 +48,7 @@ export function WorkoutCard({
   onToggle: () => void;
   onDelete: () => Promise<void>;
 }) {
-  const { workout, summaries } = item;
+  const { workout, summaries, prCount } = item;
   const [expandedSets, setExpandedSets] = useState<WorkoutSet[] | null>(null);
   const [loadingSets, setLoadingSets] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -108,10 +109,12 @@ export function WorkoutCard({
             {formatWorkoutDate(workout.started_at)}
           </Text>
         </View>
-        {/* PR badge placeholder */}
-        <View style={{ backgroundColor: '#27272a', borderWidth: 1, borderColor: '#3f3f46', borderRadius: 6, paddingHorizontal: 8, paddingVertical: 4 }}>
-          <Text style={{ color: '#52525b', fontSize: 11, fontWeight: '700' }}>-- PRs</Text>
-        </View>
+        {/* PR badge */}
+        {prCount > 0 && (
+          <View style={{ backgroundColor: 'rgba(245,158,11,0.15)', borderWidth: 1, borderColor: '#f59e0b', borderRadius: 6, paddingHorizontal: 8, paddingVertical: 4 }}>
+            <Text style={{ color: '#f59e0b', fontSize: 11, fontWeight: '700' }}>{prCount} {prCount === 1 ? 'PR' : 'PRs'}</Text>
+          </View>
+        )}
         {/* Expand toggle */}
         <TouchableOpacity onPress={handleToggle} style={{ padding: 4 }}>
           <Ionicons name={expanded ? 'chevron-up' : 'chevron-down'} size={18} color="#52525b" />

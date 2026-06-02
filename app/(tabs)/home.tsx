@@ -6,6 +6,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useRouter, useFocusEffect } from 'expo-router';
 import { useState, useCallback, useRef } from 'react';
 import { getAllWorkouts, getFinishedWorkoutsPaginated, getWorkoutExerciseSummariesBatch, deleteWorkout, type Workout, type WorkoutExerciseSummary } from '../db/workouts';
+import { getWorkoutPRCountsBatch } from '../db/sets';
 import { WorkoutCard, type PastWorkout } from '../components/WorkoutCard';
 
 const PAGE_SIZE = 10;
@@ -26,7 +27,11 @@ export default function HomeScreen() {
     setIsLoadingMore(true);
     try {
       const workouts = await getFinishedWorkoutsPaginated(offset, PAGE_SIZE);
-      const allSummaries = await getWorkoutExerciseSummariesBatch(workouts.map((w) => w.id));
+      const workoutIds = workouts.map((w) => w.id);
+      const [allSummaries, prCounts] = await Promise.all([
+        getWorkoutExerciseSummariesBatch(workoutIds),
+        getWorkoutPRCountsBatch(workoutIds),
+      ]);
       const summaryMap: Record<string, WorkoutExerciseSummary[]> = {};
       for (const s of allSummaries) {
         if (!summaryMap[s.workout_id]) summaryMap[s.workout_id] = [];
@@ -35,6 +40,7 @@ export default function HomeScreen() {
       const withSummaries = workouts.map((w) => ({
         workout: w,
         summaries: summaryMap[w.id] ?? [],
+        prCount: prCounts[w.id] ?? 0,
       }));
       if (replace) {
         setPastWorkouts(withSummaries);

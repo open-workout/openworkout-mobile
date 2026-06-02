@@ -13,10 +13,10 @@ import { getPendingWorkout, clearPendingWorkout, restorePendingWorkout, updatePe
 import { findAlternatives } from './lib/generateWorkout';
 import { compressMuscles } from './constants/splits';
 import type { Exercise, NewExerciseInput } from './db/exercises';
-import { SetRow, DraftSetRow, type LocalSet } from './components/SetRows';
-import { OverloadHint } from './components/OverloadHint';
+import { type LocalSet } from './components/SetRows';
 import AddExerciseModal from './components/AddExerciseModal';
 import ConfirmModal from './components/ConfirmModal';
+import { ExerciseCard } from './components/ExerciseCard';
 import { computeProgressSuggestion, type OverloadSuggestion } from './lib/progressiveOverload';
 import { getWorkoutPreferences, type WorkoutPreferences } from './storage';
 
@@ -28,12 +28,6 @@ const C = {
   text: '#f4f4f5',
   textMuted: '#71717a',
   textDim: '#52525b',
-};
-
-const TYPE_LABEL: Record<string, string> = {
-  compound: 'Compound',
-  accessory: 'Accessory',
-  isolation: 'Isolation',
 };
 
 type WorkoutCard = {
@@ -377,93 +371,29 @@ export default function GeneratedWorkoutScreen() {
         keyboardShouldPersistTaps="handled"
       >
         {cards.map((card) => {
-          const { cardId, slotType, exercise } = card;
-          const muscles = exercise.primary_muscles.join(', ');
-          const isExpanded = !!expandedCards[cardId];
-          const sets = cardSets[cardId] ?? [];
+          const { cardId } = card;
           const draft = drafts[cardId] ?? { weight: '', reps: '' };
-
           return (
-            <View
+            <ExerciseCard
               key={cardId}
-              style={{ backgroundColor: C.card, borderRadius: 16, borderWidth: 1, borderColor: isExpanded ? C.borderAlt : C.border, marginBottom: 12, overflow: 'hidden' }}
-            >
-              {/* Card header */}
-              <TouchableOpacity
-                onPress={() => setExpandedCards((prev) => ({ ...prev, [cardId]: !isExpanded }))}
-                activeOpacity={0.7}
-                style={{ flexDirection: 'row', alignItems: 'flex-start', padding: 16, gap: 12 }}
-              >
-                <View style={{ flex: 1 }}>
-                  <Text style={{ color: C.textDim, fontSize: 10, fontWeight: '700', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 6 }}>
-                    {TYPE_LABEL[slotType] ?? slotType}
-                  </Text>
-                  <Text style={{ color: C.text, fontSize: 18, fontWeight: '700', marginBottom: 4 }}>
-                    {exercise.name}
-                  </Text>
-                  {!!muscles && (
-                    <Text style={{ color: C.textMuted, fontSize: 13, textTransform: 'capitalize' }}>
-                      {muscles}
-                    </Text>
-                  )}
-                </View>
-
-                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 2 }}>
-                  {(cardSets[cardId]?.length ?? 0) === 0 && (
-                    <TouchableOpacity
-                      onPress={() => setSwitchingCardId(cardId)}
-                      style={{ flexDirection: 'row', alignItems: 'center', gap: 5, backgroundColor: '#141414', borderRadius: 10, borderWidth: 1, borderColor: C.border, paddingHorizontal: 10, paddingVertical: 7 }}
-                    >
-                      <Ionicons name="swap-horizontal-outline" size={15} color={C.textMuted} />
-                      <Text style={{ color: C.textMuted, fontSize: 12, fontWeight: '600' }}>Switch</Text>
-                    </TouchableOpacity>
-                  )}
-                  <TouchableOpacity onPress={() => setDeletingCardId(cardId)}>
-                    <Ionicons name="trash-outline" size={17} color={C.textDim} />
-                  </TouchableOpacity>
-                  <Ionicons
-                    name={isExpanded ? 'chevron-up' : 'chevron-down'}
-                    size={18}
-                    color={C.textMuted}
-                  />
-                </View>
-              </TouchableOpacity>
-
-              {/* Expanded set panel */}
-              {isExpanded && (
-                <View style={{ borderTopWidth: 1, borderTopColor: C.border }}>
-                  <View style={{ flexDirection: 'row', paddingHorizontal: 16, paddingVertical: 10, gap: 8 }}>
-                    {[weightUnit.toUpperCase(), 'REPS'].map((h) => (
-                      <Text key={h} style={{ flex: 1, textAlign: 'center', color: C.textDim, fontSize: 11, fontWeight: '700', letterSpacing: 0.8 }}>{h}</Text>
-                    ))}
-                    <View style={{ width: 28 }} />
-                  </View>
-
-                  {suggestions[cardId] && (
-                    <OverloadHint label={suggestions[cardId]!.label} />
-                  )}
-
-                  <DraftSetRow
-                    weight={draft.weight}
-                    reps={draft.reps}
-                    onWeightChange={(v) => setDrafts((prev) => ({ ...prev, [cardId]: { ...draft, weight: v } }))}
-                    onRepsChange={(v) => setDrafts((prev) => ({ ...prev, [cardId]: { ...draft, reps: v } }))}
-                    onConfirm={() => confirmDraft(cardId)}
-                  />
-
-                  {sets.map((set) => (
-                    <SetRow
-                      key={set.id}
-                      set={set}
-                      onWeightChange={(v) => updateSetField(cardId, set.id, 'weight', v)}
-                      onRepsChange={(v) => updateSetField(cardId, set.id, 'reps', v)}
-                      onBlur={() => saveSet(cardId, set.id)}
-                      onDelete={() => setDeletingSet({ cardId, setId: set.id })}
-                    />
-                  ))}
-                </View>
-              )}
-            </View>
+              slotType={card.slotType}
+              exercise={card.exercise}
+              isExpanded={!!expandedCards[cardId]}
+              sets={cardSets[cardId] ?? []}
+              draft={draft}
+              suggestion={suggestions[cardId] ?? null}
+              weightUnit={weightUnit}
+              onToggleExpand={() => setExpandedCards((prev) => ({ ...prev, [cardId]: !expandedCards[cardId] }))}
+              onSwitch={() => setSwitchingCardId(cardId)}
+              onDelete={() => setDeletingCardId(cardId)}
+              onDraftWeightChange={(v) => setDrafts((prev) => ({ ...prev, [cardId]: { ...draft, weight: v } }))}
+              onDraftRepsChange={(v) => setDrafts((prev) => ({ ...prev, [cardId]: { ...draft, reps: v } }))}
+              onConfirmDraft={() => confirmDraft(cardId)}
+              onSetWeightChange={(setId, v) => updateSetField(cardId, setId, 'weight', v)}
+              onSetRepsChange={(setId, v) => updateSetField(cardId, setId, 'reps', v)}
+              onSetBlur={(setId) => saveSet(cardId, setId)}
+              onSetDelete={(setId) => setDeletingSet({ cardId, setId })}
+            />
           );
         })}
 

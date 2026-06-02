@@ -10,6 +10,7 @@ export type WorkoutSet = {
   unit: string;
   logged_at: string;
   created_at: number;
+  is_pr: number;
 };
 
 export type NewSetInput = {
@@ -40,6 +41,7 @@ type RawSetRow = {
   unit: string;
   logged_at: string;
   created_at: number;
+  is_pr: number;
 };
 
 function generateId(): string {
@@ -121,4 +123,91 @@ export async function getLastSetsForExercise(exerciseId: string): Promise<Workou
     workout.id,
     exerciseId,
   );
+}
+
+export async function detectAndMarkPRs(workoutId: string): Promise<number> {
+  const db = await getDb();
+
+  type SetRow = { id: string; exercise_id: string; weight: number; reps: number };
+  const workoutSets = await db.getAllAsync<SetRow>(
+    `SELECT id, exercise_id, weight, reps FROM sets
+     WHERE workout_id = ? AND logged_at NOT IN ('seed', 'pending')`,
+    workoutId,
+  );
+
+  const exerciseIds = [...new Set(workoutSets.map((s) => s.exercise_id))];
+  let prCount = 0;
+
+  for (const exerciseId of exerciseIds) {
+    const hist = await db.getFirstAsync<{ max_weight: number | null }>(
+      `SELECT MAX(s.weight) AS max_weight
+       FROM sets s
+       JOIN workouts w ON s.workout_id = w.id
+       WHERE s.exercise_id = ?
+         AND w.finished_at IS NOT NULL
+         AND s.workout_id != ?
+         AND s.logged_at NOT IN ('seed', 'pending')`,
+      exerciseId,
+      workoutId,
+    );
+    const maxWeight = hist?.max_weight ?? 0;
+
+    let maxRepsAtMaxWeight = 0;
+    if (maxWeight > 0) {
+      const repsRow = await db.getFirstAsync<{ max_reps: number }>(
+        `SELECT MAX(s.reps) AS max_reps
+         FROM sets s
+         JOIN workouts w ON s.workout_id = w.id
+         WHERE s.exercise_id = ?
+           AND s.weight = ?
+           AND w.finished_at IS NOT NULL
+           AND s.workout_id != ?
+           AND s.logged_at NOT IN ('seed', 'pending')`,
+        exerciseId,
+        maxWeight,
+        workoutId,
+      );
+      maxRepsAtMaxWeight = repsRow?.max_reps ?? 0;
+    }
+
+    // Find the single best set in this workout for this exercise
+    const setsForExercise = workoutSets.filter((s) => s.exercise_id === exerciseId);
+    const bestSet = setsForExercise.reduce<SetRow | null>((best, s) => {
+      if (!best) return s;
+      if (s.weight > best.weight) return s;
+      if (s.weight === best.weight && s.reps > best.reps) return s;
+      return best;
+    }, null);
+
+    if (!bestSet) continue;
+
+    const isPR =
+      bestSet.weight > maxWeight ||
+      (bestSet.weight === maxWeight && bestSet.reps > maxRepsAtMaxWeight);
+
+    if (isPR) {
+      await db.runAsync(`UPDATE sets SET is_pr = 1 WHERE id = ?`, bestSet.id);
+      prCount++;
+    }
+  }
+
+  return prCount;
+}
+
+export async function getWorkoutPRCountsBatch(
+  workoutIds: string[],
+): Promise<Record<string, number>> {
+  if (workoutIds.length === 0) return {};
+  const db = await getDb();
+  const placeholders = workoutIds.map(() => '?').join(', ');
+  const rows = await db.getAllAsync<{ workout_id: string; pr_count: number }>(
+    `SELECT workout_id, COUNT(DISTINCT exercise_id) AS pr_count
+     FROM sets
+     WHERE workout_id IN (${placeholders}) AND is_pr = 1
+     GROUP BY workout_id`,
+    ...workoutIds,
+  );
+  const result: Record<string, number> = {};
+  for (const row of rows) result[row.workout_id] = row.pr_count;
+  return result;
 }

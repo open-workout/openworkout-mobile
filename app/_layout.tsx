@@ -22,6 +22,12 @@ async function initializeDb(database: SQLiteDatabase) {
     await database.execAsync(`ALTER TABLE exercise_stats ADD COLUMN unit TEXT NOT NULL DEFAULT 'kg';`);
   }
 
+  // Migration: add is_pr column to sets if missing
+  const setCols = await database.getAllAsync<{ name: string }>('PRAGMA table_info(sets)');
+  if (setCols.length > 0 && !setCols.find((c) => c.name === 'is_pr')) {
+    await database.execAsync('ALTER TABLE sets ADD COLUMN is_pr INTEGER NOT NULL DEFAULT 0;');
+  }
+
   await database.execAsync(`
     CREATE TABLE IF NOT EXISTS exercises (
       id                TEXT PRIMARY KEY,
@@ -54,7 +60,8 @@ async function initializeDb(database: SQLiteDatabase) {
       weight      REAL    NOT NULL DEFAULT 0,
       unit        TEXT    NOT NULL DEFAULT 'kg',
       logged_at   TEXT    NOT NULL,
-      created_at  INTEGER NOT NULL
+      created_at  INTEGER NOT NULL,
+      is_pr       INTEGER NOT NULL DEFAULT 0
     );
   `);
   await database.execAsync(`

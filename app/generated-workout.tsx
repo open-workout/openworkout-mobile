@@ -276,7 +276,7 @@ export default function GeneratedWorkoutScreen() {
       await finishWorkout(workoutId, new Date().toISOString());
     }
     clearPendingWorkout();
-    router.back();
+    router.replace('/(tabs)/home');
   };
 
   const handleDiscard = async () => {

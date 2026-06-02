@@ -132,7 +132,7 @@ export default function WorkoutScreen() {
     if (workoutId) {
       await finishWorkout(workoutId, new Date().toISOString());
     }
-    router.back();
+    router.replace('/(tabs)/home');
   };
 
   const handleTitleBlur = useCallback(

@@ -1,4 +1,4 @@
-import { View, Text, ScrollView, TouchableOpacity, StatusBar, Modal, TextInput } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, StatusBar, Modal, TextInput, Linking } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter, useLocalSearchParams } from 'expo-router';
@@ -392,7 +392,7 @@ export default function GeneratedWorkoutScreen() {
               <TouchableOpacity
                 onPress={() => setExpandedCards((prev) => ({ ...prev, [cardId]: !isExpanded }))}
                 activeOpacity={0.7}
-                style={{ flexDirection: 'row', alignItems: 'flex-start', padding: 16, gap: 12 }}
+                style={{ flexDirection: 'row', alignItems: 'flex-start', padding: 16, paddingBottom: 8, gap: 12 }}
               >
                 <View style={{ flex: 1 }}>
                   <Text style={{ color: C.textDim, fontSize: 10, fontWeight: '700', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 6 }}>
@@ -428,6 +428,16 @@ export default function GeneratedWorkoutScreen() {
                   />
                 </View>
               </TouchableOpacity>
+
+              <View style={{ flexDirection: 'row', justifyContent: 'flex-end', paddingHorizontal: 12, paddingBottom: 10 }}>
+                <TouchableOpacity
+                  onPress={() => Linking.openURL(`https://www.google.com/search?q=${encodeURIComponent(exercise.name + ' exercise')}`)}
+                  style={{ flexDirection: 'row', alignItems: 'center', gap: 5, paddingHorizontal: 8, paddingVertical: 4 }}
+                >
+                  <Ionicons name="search-outline" size={13} color={C.textDim} />
+                  <Text style={{ color: C.textDim, fontSize: 12, fontWeight: '600' }}>Search</Text>
+                </TouchableOpacity>
+              </View>
 
               {/* Expanded set panel */}
               {isExpanded && (

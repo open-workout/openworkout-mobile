@@ -1,4 +1,4 @@
-import { View, Text, ScrollView, TouchableOpacity, TextInput, StatusBar, Modal, Alert } from "react-native";
+import { View, Text, ScrollView, TouchableOpacity, TextInput, StatusBar, Modal, Alert, Linking } from "react-native";
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter, useLocalSearchParams } from 'expo-router';
@@ -367,6 +367,16 @@ export default function WorkoutScreen() {
                   onDelete={() => handleDeleteSet(blockIndex, set.id)}
                 />
               ))}
+
+              <View style={{ flexDirection: 'row', justifyContent: 'flex-end', paddingHorizontal: 12, paddingVertical: 8, borderTopWidth: 1, borderTopColor: 'rgba(39,39,42,0.5)' }}>
+                <TouchableOpacity
+                  onPress={() => Linking.openURL(`https://www.google.com/search?q=${encodeURIComponent(block.exercise.name + ' exercise')}`)}
+                  style={{ flexDirection: 'row', alignItems: 'center', gap: 5, paddingHorizontal: 10, paddingVertical: 5 }}
+                >
+                  <Ionicons name="search-outline" size={14} color="#52525b" />
+                  <Text style={{ color: '#52525b', fontSize: 12, fontWeight: '600' }}>Search</Text>
+                </TouchableOpacity>
+              </View>
             </View>
           </View>
         ))}

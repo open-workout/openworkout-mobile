@@ -6,7 +6,7 @@
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "mobile",
+    "scheme": "openworkout",
     "userInterfaceStyle": "automatic",
     "backgroundColor": "#0a0a0a",
     "newArchEnabled": true,
@@ -23,7 +23,7 @@
       "backgroundColor": "#0a0a0a",
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
-      "package": "com.anonymous.mobile"
+      "package": "com.openworkout.app"
     },
     "web": {
       "output": "static",

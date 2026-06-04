@@ -1,12 +1,16 @@
 import { View, Text, Image } from "react-native";
 
+const now = new Date();
+const dayOfWeek = now.toLocaleDateString("en-US", { weekday: "long" });
+const monthDay = now.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+
 export default function DashboardHeader() {
   return (
     <View className="pt-8 px-5 bg-zinc-950">
       <View className="flex-row justify-between items-center">
         <View>
-          <Text className="text-zinc-400 text-[15px] mb-0.5">Thursday, Oct 15</Text>
-          <Text className="text-white text-[22px] font-bold">Ready to lift, Marcus?</Text>
+          <Text className="text-zinc-400 text-[15px] mb-0.5">{dayOfWeek}, {monthDay}</Text>
+          <Text className="text-white text-[22px] font-bold">Ready to lift?</Text>
         </View>
         <View className="relative">
           <Image

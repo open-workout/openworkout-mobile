@@ -50,17 +50,12 @@ export default function ExploreScreen() {
       <View style={{ paddingHorizontal: 24, paddingTop: 8, paddingBottom: 0 }}>
         <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
           <Text style={{ color: '#fff', fontSize: 24, fontWeight: '700', letterSpacing: -0.3 }}>Library</Text>
-          <View style={{ flexDirection: 'row', gap: 8 }}>
-            <TouchableOpacity
-              onPress={() => setShowAdd(true)}
-              style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: '#18181b', alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: '#27272a' }}
-            >
-              <Ionicons name="add" size={22} color="#f4f4f5" />
-            </TouchableOpacity>
-            <TouchableOpacity style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: '#18181b', alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: '#27272a' }}>
-              <Ionicons name="options-outline" size={20} color="#a1a1aa" />
-            </TouchableOpacity>
-          </View>
+          <TouchableOpacity
+            onPress={() => setShowAdd(true)}
+            style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: '#18181b', alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: '#27272a' }}
+          >
+            <Ionicons name="add" size={22} color="#f4f4f5" />
+          </TouchableOpacity>
         </View>
 
         {/* Search */}

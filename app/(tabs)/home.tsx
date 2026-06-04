@@ -1,6 +1,5 @@
 import { View, Text, FlatList, StatusBar, TouchableOpacity, ActivityIndicator } from "react-native";
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter, useFocusEffect } from 'expo-router';
@@ -86,20 +85,8 @@ export default function HomeScreen() {
     <View>
       {/* Header */}
       <View style={{ paddingHorizontal: 24, paddingTop: 8, paddingBottom: 16, borderBottomWidth: 0.5, borderBottomColor: '#18181b' }}>
-        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-          <View>
-            <Text style={{ color: '#71717a', fontSize: 14, fontWeight: '500', marginBottom: 4 }}>{todayLabel}</Text>
-            <Text style={{ color: '#fff', fontSize: 24, fontWeight: '800', letterSpacing: -0.5 }}>Ready to lift?</Text>
-          </View>
-          <View style={{ position: 'relative' }}>
-            <Image
-              source={{ uri: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&h=150&q=80' }}
-              style={{ width: 48, height: 48, borderRadius: 24, borderWidth: 2, borderColor: '#3f3f46' }}
-              contentFit="cover"
-            />
-            <View style={{ position: 'absolute', right: 0, bottom: 0, width: 14, height: 14, borderRadius: 7, backgroundColor: '#10b981', borderWidth: 2, borderColor: '#0a0a0a' }} />
-          </View>
-        </View>
+        <Text style={{ color: '#71717a', fontSize: 14, fontWeight: '500', marginBottom: 4 }}>{todayLabel}</Text>
+        <Text style={{ color: '#fff', fontSize: 24, fontWeight: '800', letterSpacing: -0.5 }}>Ready to lift?</Text>
       </View>
 
       {/* Start Workout CTA */}
@@ -139,11 +126,8 @@ export default function HomeScreen() {
       </TouchableOpacity>
 
       {/* Section header */}
-      <View style={{ marginTop: 32, paddingHorizontal: 24, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
+      <View style={{ marginTop: 32, paddingHorizontal: 24, marginBottom: 20 }}>
         <Text style={{ color: '#f4f4f5', fontSize: 18, fontWeight: '600' }}>Recent Activity</Text>
-        <TouchableOpacity>
-          <Text style={{ color: '#71717a', fontSize: 14, fontWeight: '500' }}>View History</Text>
-        </TouchableOpacity>
       </View>
     </View>
   );

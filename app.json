@@ -1,5 +1,6 @@
 {
   "expo": {
+    "owner": "openworkout",
     "name": "openworkout",
     "slug": "openworkout",
     "version": "1.0.0",

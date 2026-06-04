@@ -4,7 +4,7 @@ import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter, useFocusEffect } from 'expo-router';
-import { useState, useCallback, useRef } from 'react';
+import { useState, useCallback, useRef, useMemo } from 'react';
 import { getAllWorkouts, getFinishedWorkoutsPaginated, getWorkoutExerciseSummariesBatch, deleteWorkout, type Workout, type WorkoutExerciseSummary } from '../db/workouts';
 import { getWorkoutPRCountsBatch } from '../db/sets';
 import { WorkoutCard, type PastWorkout } from '../components/WorkoutCard';
@@ -78,14 +78,18 @@ export default function HomeScreen() {
     router.push('/pick-day');
   };
 
+  const todayLabel = useMemo(() => {
+    return new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' });
+  }, []);
+
   const ListHeader = (
     <View>
       {/* Header */}
       <View style={{ paddingHorizontal: 24, paddingTop: 8, paddingBottom: 16, borderBottomWidth: 0.5, borderBottomColor: '#18181b' }}>
         <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
           <View>
-            <Text style={{ color: '#71717a', fontSize: 14, fontWeight: '500', marginBottom: 4 }}>Thursday, Oct 15</Text>
-            <Text style={{ color: '#fff', fontSize: 24, fontWeight: '800', letterSpacing: -0.5 }}>Ready to lift, Marcus?</Text>
+            <Text style={{ color: '#71717a', fontSize: 14, fontWeight: '500', marginBottom: 4 }}>{todayLabel}</Text>
+            <Text style={{ color: '#fff', fontSize: 24, fontWeight: '800', letterSpacing: -0.5 }}>Ready to lift?</Text>
           </View>
           <View style={{ position: 'relative' }}>
             <Image

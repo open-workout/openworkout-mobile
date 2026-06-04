@@ -65,6 +65,14 @@ export async function deleteAllWorkouts(): Promise<void> {
   await db.runAsync(`DELETE FROM workouts`);
 }
 
+export async function getFinishedWorkoutCount(): Promise<number> {
+  const db = await getDb();
+  const row = await db.getFirstAsync<{ count: number }>(
+    `SELECT COUNT(*) as count FROM workouts WHERE finished_at IS NOT NULL`,
+  );
+  return row?.count ?? 0;
+}
+
 export async function getAllWorkouts(): Promise<Workout[]> {
   const db = await getDb();
   const rows = await db.getAllAsync<RawWorkoutRow>(

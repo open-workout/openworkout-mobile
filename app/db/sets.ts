@@ -194,6 +194,18 @@ export async function detectAndMarkPRs(workoutId: string): Promise<number> {
   return prCount;
 }
 
+export async function getTotalVolume(): Promise<number> {
+  const db = await getDb();
+  const row = await db.getFirstAsync<{ total: number }>(
+    `SELECT COALESCE(SUM(weight * reps), 0) AS total
+     FROM sets s
+     JOIN workouts w ON s.workout_id = w.id
+     WHERE w.finished_at IS NOT NULL
+       AND s.logged_at NOT IN ('seed', 'pending')`,
+  );
+  return row?.total ?? 0;
+}
+
 export async function getWorkoutPRCountsBatch(
   workoutIds: string[],
 ): Promise<Record<string, number>> {

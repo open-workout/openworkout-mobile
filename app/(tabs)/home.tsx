@@ -126,11 +126,8 @@ export default function HomeScreen() {
       </TouchableOpacity>
 
       {/* Section header */}
-      <View style={{ marginTop: 32, paddingHorizontal: 24, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
+      <View style={{ marginTop: 32, paddingHorizontal: 24, marginBottom: 20 }}>
         <Text style={{ color: '#f4f4f5', fontSize: 18, fontWeight: '600' }}>Recent Activity</Text>
-        <TouchableOpacity>
-          <Text style={{ color: '#71717a', fontSize: 14, fontWeight: '500' }}>View History</Text>
-        </TouchableOpacity>
       </View>
     </View>
   );

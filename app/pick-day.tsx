@@ -6,9 +6,12 @@ import { useRouter } from 'expo-router';
 import { useSplit } from './hooks/useSplit';
 import { useExercises } from './hooks/useExercises';
 import { useWorkoutPreferences } from './hooks/useWorkoutPreferences';
+import { useRoutines } from './hooks/useRoutines';
 import { getAllExerciseStats } from './db/exerciseStats';
-import { generateWorkout } from './lib/generateWorkout';
+import { generateWorkout, type GeneratedSlot } from './lib/generateWorkout';
 import { setPendingWorkout } from './lib/pendingWorkout';
+import type { Routine } from './db/routines';
+import type { Exercise } from './db/exercises';
 import {
   compressMuscles,
   expandMuscles,
@@ -19,11 +22,15 @@ import {
   type SuperState,
 } from './constants/splits';
 
+type Tab = 'workout' | 'routines';
+
 export default function PickDayScreen() {
   const router = useRouter();
   const { split, isLoading } = useSplit();
   const { exercises } = useExercises();
   const { prefs } = useWorkoutPreferences();
+  const { routines } = useRoutines();
+  const [activeTab, setActiveTab] = useState<Tab>('workout');
   const [selectedDay, setSelectedDay] = useState<string | null>(null);
   const [showMusclePicker, setShowMusclePicker] = useState(false);
   const [selectedMuscles, setSelectedMuscles] = useState<string[]>([]);
@@ -35,6 +42,18 @@ export default function PickDayScreen() {
 
   const handleManual = (muscles: string[]) => {
     setPendingWorkout([], muscles);
+    router.push('/generated-workout');
+  };
+
+  const handleRoutine = (routine: Routine) => {
+    const orderedExercises = routine.exercise_ids
+      .map((id) => exercises.find((e) => e.id === id))
+      .filter(Boolean) as Exercise[];
+    const slots: GeneratedSlot[] = orderedExercises.map((ex) => ({
+      type: (ex.exercise_type || 'accessory') as GeneratedSlot['type'],
+      exercise: ex,
+    }));
+    setPendingWorkout(slots, []);
     router.push('/generated-workout');
   };
 
@@ -52,12 +71,12 @@ export default function PickDayScreen() {
     );
   };
 
+  // Muscle picker sub-screen (only reachable from workout tab)
   if (showMusclePicker) {
     return (
       <SafeAreaView style={{ flex: 1, backgroundColor: '#0a0a0a' }} edges={['top', 'bottom']}>
         <StatusBar barStyle="light-content" backgroundColor="#0a0a0a" />
 
-        {/* Header */}
         <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 20, paddingTop: 16, paddingBottom: 20 }}>
           <TouchableOpacity
             onPress={() => setShowMusclePicker(false)}
@@ -80,7 +99,6 @@ export default function PickDayScreen() {
           <MuscleGrid selected={selectedMuscles} onToggle={toggleMuscle} />
         </ScrollView>
 
-        {/* Footer buttons */}
         <View style={{ paddingHorizontal: 20, paddingBottom: 16, paddingTop: 8, borderTopWidth: 1, borderTopColor: '#18181b', gap: 10 }}>
           {canGenerate && (
             <TouchableOpacity
@@ -111,7 +129,7 @@ export default function PickDayScreen() {
       <StatusBar barStyle="light-content" backgroundColor="#0a0a0a" />
 
       {/* Header */}
-      <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 20, paddingTop: 16, paddingBottom: 20 }}>
+      <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 20, paddingTop: 16, paddingBottom: 16 }}>
         <TouchableOpacity
           onPress={() => router.back()}
           hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
@@ -125,70 +143,128 @@ export default function PickDayScreen() {
         <View style={{ width: 36 }} />
       </View>
 
-      <ScrollView
-        style={{ flex: 1 }}
-        contentContainerStyle={{ paddingHorizontal: 20, paddingBottom: 32 }}
-        showsVerticalScrollIndicator={false}
-      >
-        {isLoading ? (
-          <ActivityIndicator color="#71717a" style={{ marginTop: 48 }} />
-        ) : (
-          <>
-            {split?.days.map((day, index) => (
-              <DayCard
-                key={index}
-                day={day}
-                selected={selectedDay === day.name}
-                onPress={() => setSelectedDay(day.name)}
-              />
-            ))}
+      {/* Tab switcher */}
+      <View style={{ flexDirection: 'row', marginHorizontal: 20, marginBottom: 20, backgroundColor: '#18181b', borderRadius: 12, padding: 4, borderWidth: 1, borderColor: '#27272a' }}>
+        <TabButton label="Workout" active={activeTab === 'workout'} onPress={() => setActiveTab('workout')} />
+        <TabButton label="Routines" active={activeTab === 'routines'} onPress={() => setActiveTab('routines')} />
+      </View>
 
-            {!split && (
-              <Text style={{ color: '#52525b', fontSize: 14, textAlign: 'center', marginBottom: 24, marginTop: 8 }}>
-                No split configured · set one up in Profile
-              </Text>
-            )}
+      {activeTab === 'workout' ? (
+        <ScrollView
+          style={{ flex: 1 }}
+          contentContainerStyle={{ paddingHorizontal: 20, paddingBottom: 32 }}
+          showsVerticalScrollIndicator={false}
+        >
+          {isLoading ? (
+            <ActivityIndicator color="#71717a" style={{ marginTop: 48 }} />
+          ) : (
+            <>
+              {split?.days.map((day, index) => (
+                <DayCard
+                  key={index}
+                  day={day}
+                  selected={selectedDay === day.name}
+                  onPress={() => setSelectedDay(day.name)}
+                />
+              ))}
 
-            <CustomCard onPress={() => setShowMusclePicker(true)} />
-
-            <View style={{ height: 1, backgroundColor: '#18181b', marginVertical: 24 }} />
-
-            <TouchableOpacity
-              activeOpacity={0.8}
-              onPress={handleGenerate}
-              disabled={!canGenerate}
-              style={{ backgroundColor: canGenerate ? '#1c1c1f' : '#18181b', borderWidth: 1, borderColor: canGenerate ? '#3f3f46' : '#27272a', borderRadius: 16, paddingHorizontal: 20, paddingVertical: 18, flexDirection: 'row', alignItems: 'center', gap: 14, marginBottom: 12 }}
-            >
-              <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: '#27272a', alignItems: 'center', justifyContent: 'center' }}>
-                <Ionicons name="sparkles" size={17} color={canGenerate ? '#f4f4f5' : '#a1a1aa'} />
-              </View>
-              <View style={{ flex: 1 }}>
-                <Text style={{ color: canGenerate ? '#f4f4f5' : '#71717a', fontSize: 16, fontWeight: '700' }}>Generate workout</Text>
-                <Text style={{ color: '#71717a', fontSize: 13, marginTop: 2 }}>
-                  {canGenerate ? 'Based on selected muscles' : 'Select a day above to enable'}
+              {!split && (
+                <Text style={{ color: '#52525b', fontSize: 14, textAlign: 'center', marginBottom: 24, marginTop: 8 }}>
+                  No split configured · set one up in Profile
                 </Text>
-              </View>
-              <Ionicons name="chevron-forward" size={18} color="#52525b" />
-            </TouchableOpacity>
+              )}
 
-            <TouchableOpacity
-              activeOpacity={0.8}
-              onPress={() => handleManual([])}
-              style={{ backgroundColor: '#18181b', borderWidth: 1, borderColor: '#27272a', borderRadius: 16, paddingHorizontal: 20, paddingVertical: 18, flexDirection: 'row', alignItems: 'center', gap: 14 }}
-            >
-              <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: '#27272a', alignItems: 'center', justifyContent: 'center' }}>
-                <Ionicons name="list" size={17} color="#a1a1aa" />
-              </View>
-              <View style={{ flex: 1 }}>
-                <Text style={{ color: '#f4f4f5', fontSize: 16, fontWeight: '700' }}>Manual mode</Text>
-                <Text style={{ color: '#71717a', fontSize: 13, marginTop: 2 }}>Build your workout from scratch</Text>
-              </View>
-              <Ionicons name="chevron-forward" size={18} color="#52525b" />
-            </TouchableOpacity>
-          </>
-        )}
-      </ScrollView>
+              <CustomCard onPress={() => setShowMusclePicker(true)} />
+
+              <View style={{ height: 1, backgroundColor: '#18181b', marginVertical: 24 }} />
+
+              <TouchableOpacity
+                activeOpacity={0.8}
+                onPress={handleGenerate}
+                disabled={!canGenerate}
+                style={{ backgroundColor: canGenerate ? '#1c1c1f' : '#18181b', borderWidth: 1, borderColor: canGenerate ? '#3f3f46' : '#27272a', borderRadius: 16, paddingHorizontal: 20, paddingVertical: 18, flexDirection: 'row', alignItems: 'center', gap: 14, marginBottom: 12 }}
+              >
+                <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: '#27272a', alignItems: 'center', justifyContent: 'center' }}>
+                  <Ionicons name="sparkles" size={17} color={canGenerate ? '#f4f4f5' : '#a1a1aa'} />
+                </View>
+                <View style={{ flex: 1 }}>
+                  <Text style={{ color: canGenerate ? '#f4f4f5' : '#71717a', fontSize: 16, fontWeight: '700' }}>Generate workout</Text>
+                  <Text style={{ color: '#71717a', fontSize: 13, marginTop: 2 }}>
+                    {canGenerate ? 'Based on selected muscles' : 'Select a day above to enable'}
+                  </Text>
+                </View>
+                <Ionicons name="chevron-forward" size={18} color="#52525b" />
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                activeOpacity={0.8}
+                onPress={() => handleManual([])}
+                style={{ backgroundColor: '#18181b', borderWidth: 1, borderColor: '#27272a', borderRadius: 16, paddingHorizontal: 20, paddingVertical: 18, flexDirection: 'row', alignItems: 'center', gap: 14 }}
+              >
+                <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: '#27272a', alignItems: 'center', justifyContent: 'center' }}>
+                  <Ionicons name="list" size={17} color="#a1a1aa" />
+                </View>
+                <View style={{ flex: 1 }}>
+                  <Text style={{ color: '#f4f4f5', fontSize: 16, fontWeight: '700' }}>Manual mode</Text>
+                  <Text style={{ color: '#71717a', fontSize: 13, marginTop: 2 }}>Build your workout from scratch</Text>
+                </View>
+                <Ionicons name="chevron-forward" size={18} color="#52525b" />
+              </TouchableOpacity>
+            </>
+          )}
+        </ScrollView>
+      ) : (
+        <ScrollView
+          style={{ flex: 1 }}
+          contentContainerStyle={{ paddingHorizontal: 20, paddingBottom: 32, flexGrow: 1 }}
+          showsVerticalScrollIndicator={false}
+        >
+          {routines.length === 0 ? (
+            <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', paddingTop: 80 }}>
+              <Ionicons name="list-outline" size={44} color="#3f3f46" style={{ marginBottom: 14 }} />
+              <Text style={{ color: '#f4f4f5', fontSize: 17, fontWeight: '700', marginBottom: 8 }}>No routines yet</Text>
+              <Text style={{ color: '#71717a', fontSize: 14, textAlign: 'center', lineHeight: 20, marginBottom: 24 }}>
+                Create a routine to save a set of exercises and start from it next time.
+              </Text>
+              <TouchableOpacity
+                onPress={() => router.push('/edit-routine')}
+                style={{ backgroundColor: '#f4f4f5', borderRadius: 14, paddingVertical: 13, paddingHorizontal: 24 }}
+              >
+                <Text style={{ color: '#09090b', fontSize: 15, fontWeight: '700' }}>Create routine</Text>
+              </TouchableOpacity>
+            </View>
+          ) : (
+            routines.map((routine) => (
+              <RoutineCard
+                key={routine.id}
+                routine={routine}
+                onPress={() => handleRoutine(routine)}
+              />
+            ))
+          )}
+        </ScrollView>
+      )}
     </SafeAreaView>
+  );
+}
+
+function TabButton({ label, active, onPress }: { label: string; active: boolean; onPress: () => void }) {
+  return (
+    <TouchableOpacity
+      onPress={onPress}
+      activeOpacity={0.7}
+      style={{
+        flex: 1,
+        paddingVertical: 9,
+        alignItems: 'center',
+        borderRadius: 9,
+        backgroundColor: active ? '#f4f4f5' : 'transparent',
+      }}
+    >
+      <Text style={{ fontSize: 14, fontWeight: '700', color: active ? '#09090b' : '#71717a' }}>
+        {label}
+      </Text>
+    </TouchableOpacity>
   );
 }
 
@@ -312,6 +388,35 @@ function DayCard({ day, selected, onPress }: { day: SplitDay; selected: boolean;
         ? <Ionicons name="checkmark-circle" size={22} color="#f4f4f5" />
         : <Ionicons name="chevron-forward" size={18} color="#52525b" />
       }
+    </TouchableOpacity>
+  );
+}
+
+function RoutineCard({ routine, onPress }: { routine: Routine; onPress: () => void }) {
+  const count = routine.exercise_ids.length;
+  return (
+    <TouchableOpacity
+      activeOpacity={0.75}
+      onPress={onPress}
+      style={{
+        backgroundColor: '#18181b',
+        borderWidth: 1,
+        borderColor: '#27272a',
+        borderRadius: 16,
+        paddingHorizontal: 20,
+        paddingVertical: 18,
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginBottom: 12,
+      }}
+    >
+      <View style={{ flex: 1 }}>
+        <Text style={{ color: '#f4f4f5', fontSize: 17, fontWeight: '700', marginBottom: 4 }}>{routine.name}</Text>
+        <Text style={{ color: '#71717a', fontSize: 13 }}>
+          {count === 0 ? 'No exercises' : count === 1 ? '1 exercise' : `${count} exercises`}
+        </Text>
+      </View>
+      <Ionicons name="chevron-forward" size={18} color="#52525b" />
     </TouchableOpacity>
   );
 }

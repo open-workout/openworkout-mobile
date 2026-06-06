@@ -73,6 +73,14 @@ async function initializeDb(database: SQLiteDatabase) {
     );
   `);
   await database.execAsync(`
+    CREATE TABLE IF NOT EXISTS routines (
+      id           TEXT    PRIMARY KEY,
+      name         TEXT    NOT NULL,
+      exercise_ids TEXT    NOT NULL DEFAULT '[]',
+      created_at   INTEGER NOT NULL
+    );
+  `);
+  await database.execAsync(`
     CREATE TABLE IF NOT EXISTS exercise_stats (
       exercise_id        TEXT    NOT NULL PRIMARY KEY,
       last_performed_at  INTEGER,
@@ -121,6 +129,7 @@ export default function RootLayout() {
         <Stack.Screen name="onboarding" options={{ headerShown: false, gestureEnabled: false, animation: 'none' }} />
         <Stack.Screen name="pick-day" options={{ headerShown: false, presentation: 'modal' }} />
         <Stack.Screen name="edit-split" options={{ headerShown: false, presentation: 'modal' }} />
+        <Stack.Screen name="edit-routine" options={{ headerShown: false, presentation: 'fullScreenModal' }} />
         <Stack.Screen name="workout" options={{ presentation: 'fullScreenModal' }} />
         <Stack.Screen name="generated-workout" options={{ headerShown: false, presentation: 'fullScreenModal' }} />
       </Stack>

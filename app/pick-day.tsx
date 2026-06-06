@@ -234,13 +234,19 @@ export default function PickDayScreen() {
               </TouchableOpacity>
             </View>
           ) : (
-            routines.map((routine) => (
-              <RoutineCard
-                key={routine.id}
-                routine={routine}
-                onPress={() => handleRoutine(routine)}
-              />
-            ))
+            routines.map((routine) => {
+              const exerciseNames = routine.exercise_ids
+                .map((id) => exercises.find((e) => e.id === id)?.name)
+                .filter(Boolean) as string[];
+              return (
+                <RoutineCard
+                  key={routine.id}
+                  routine={routine}
+                  exerciseNames={exerciseNames}
+                  onPress={() => handleRoutine(routine)}
+                />
+              );
+            })
           )}
         </ScrollView>
       )}
@@ -392,8 +398,7 @@ function DayCard({ day, selected, onPress }: { day: SplitDay; selected: boolean;
   );
 }
 
-function RoutineCard({ routine, onPress }: { routine: Routine; onPress: () => void }) {
-  const count = routine.exercise_ids.length;
+function RoutineCard({ routine, exerciseNames, onPress }: { routine: Routine; exerciseNames: string[]; onPress: () => void }) {
   return (
     <TouchableOpacity
       activeOpacity={0.75}
@@ -405,18 +410,36 @@ function RoutineCard({ routine, onPress }: { routine: Routine; onPress: () => vo
         borderRadius: 16,
         paddingHorizontal: 20,
         paddingVertical: 18,
-        flexDirection: 'row',
-        alignItems: 'center',
         marginBottom: 12,
       }}
     >
-      <View style={{ flex: 1 }}>
-        <Text style={{ color: '#f4f4f5', fontSize: 17, fontWeight: '700', marginBottom: 4 }}>{routine.name}</Text>
-        <Text style={{ color: '#71717a', fontSize: 13 }}>
-          {count === 0 ? 'No exercises' : count === 1 ? '1 exercise' : `${count} exercises`}
-        </Text>
+      <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: exerciseNames.length > 0 ? 10 : 0 }}>
+        <Text style={{ color: '#f4f4f5', fontSize: 17, fontWeight: '700', flex: 1 }}>{routine.name}</Text>
+        <Ionicons name="chevron-forward" size={18} color="#52525b" />
       </View>
-      <Ionicons name="chevron-forward" size={18} color="#52525b" />
+      {exerciseNames.length > 0 ? (
+        <View style={{ flexDirection: 'row', overflow: 'hidden' }}>
+          {exerciseNames.map((name, i) => (
+            <View
+              key={i}
+              style={{
+                backgroundColor: '#27272a',
+                borderRadius: 6,
+                paddingHorizontal: 8,
+                paddingVertical: 4,
+                marginRight: 6,
+                flexShrink: 0,
+              }}
+            >
+              <Text style={{ color: '#a1a1aa', fontSize: 12, fontWeight: '600' }} numberOfLines={1}>
+                {name}
+              </Text>
+            </View>
+          ))}
+        </View>
+      ) : (
+        <Text style={{ color: '#52525b', fontSize: 13 }}>No exercises</Text>
+      )}
     </TouchableOpacity>
   );
 }

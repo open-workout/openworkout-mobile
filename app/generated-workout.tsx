@@ -1,4 +1,4 @@
-import { View, Text, ScrollView, TouchableOpacity, StatusBar, Modal, TextInput } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, StatusBar, Modal, TextInput, KeyboardAvoidingView, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter, useLocalSearchParams } from 'expo-router';
@@ -364,6 +364,10 @@ export default function GeneratedWorkoutScreen() {
         </View>
       </View>
 
+      <KeyboardAvoidingView
+        style={{ flex: 1 }}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      >
       <ScrollView
         style={{ flex: 1 }}
         contentContainerStyle={{ padding: 16, paddingBottom: 48 }}
@@ -406,6 +410,7 @@ export default function GeneratedWorkoutScreen() {
           <Text style={{ color: C.textDim, fontWeight: '600', fontSize: 15 }}>Add Exercise</Text>
         </TouchableOpacity>
       </ScrollView>
+      </KeyboardAvoidingView>
 
       {/* Switch modal */}
       <Modal

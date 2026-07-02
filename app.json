@@ -3,7 +3,7 @@
     "owner": "openworkout",
     "name": "openworkout",
     "slug": "openworkout",
-    "version": "1.0.0",
+    "version": "0.1.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "openworkout",
@@ -11,6 +11,7 @@
     "backgroundColor": "#0a0a0a",
     "newArchEnabled": true,
     "ios": {
+      "bundleIdentifier": "com.openworkout.app",
       "supportsTablet": true
     },
     "android": {

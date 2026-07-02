@@ -87,10 +87,6 @@ export default function WorkoutScreen() {
         setWorkoutTitle(workout.title);
       }
 
-      console.log('[resume] sets:', dbSets.length, '| exercises in lib:', allExercises.length);
-      console.log('[resume] set exercise_ids:', dbSets.map((s) => s.exercise_id));
-      console.log('[resume] exercise ids/names:', allExercises.map((e) => ({ id: e.id, name: e.name })));
-
       if (dbSets.length === 0) return;
 
       // Group sets by exercise_id, preserving insertion order
@@ -104,7 +100,6 @@ export default function WorkoutScreen() {
       const reconstructed: ExerciseBlock[] = [];
       for (const [exId, exSets] of grouped) {
         const exercise = allExercises.find((e) => e.id === exId || e.name === exId);
-        console.log('[resume] exId:', exId, '| matched exercise:', exercise?.name, '| sets:', exSets.length);
         if (!exercise) continue;
         const seedSetId = exSets.find((s) => s.logged_at === 'seed')?.id ?? null;
         const localSets: LocalSet[] = [...exSets].reverse().filter((s) => s.logged_at !== 'seed').map((s) => ({
@@ -123,7 +118,6 @@ export default function WorkoutScreen() {
       }
 
       reconstructed.reverse();
-      console.log('[resume] reconstructed:', reconstructed.map((b) => ({ ex: b.exercise.name, sets: b.sets.length })));
       setBlocks(reconstructed);
     });
   }, [workoutId]);
@@ -194,7 +188,6 @@ export default function WorkoutScreen() {
         logged_at: now.toISOString(),
       });
     }
-    console.log('[set] created:', newId, 'exercise:', exerciseRef, 'weight:', draft.weight, 'reps:', draft.reps);
     const saved: LocalSet = { id: newId, weight: draft.weight, reps: draft.reps, unit: weightUnit, loggedAt: now };
     setBlocks((prev) => prev.map((b, i) => (i === 0 ? { ...b, sets: [saved, ...b.sets] } : b)));
     setDraft({ weight: '', reps: '' });
@@ -233,7 +226,6 @@ export default function WorkoutScreen() {
         text: 'Delete',
         style: 'destructive',
         onPress: async () => {
-          console.log('[set] deleted:', setId);
           await removeSet(setId);
           setBlocks((prev) =>
             prev.map((b, i) => (i === blockIndex ? { ...b, sets: b.sets.filter((s) => s.id !== setId) } : b)),

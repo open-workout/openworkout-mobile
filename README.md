@@ -1,6 +1,6 @@
 # OpenWorkout
 
-**OpenWorkout** is a free, open-source workout tracking app for iOS, Android, and web. Build a training split, log your sets, and let the app suggest progressive overload as you get stronger — all stored locally on your device.
+**OpenWorkout** is a free, open-source workout tracking app for Android. Build a training split, log your sets, and let the app suggest progressive overload as you get stronger — all stored locally on your device.
 
 Website: [openworkout.org](https://openworkout.org)
 
@@ -27,7 +27,7 @@ Website: [openworkout.org](https://openworkout.org)
 
 - [Node.js](https://nodejs.org) (LTS recommended)
 - npm
-- [Expo Go](https://expo.dev/go) app on your phone, or an iOS/Android simulator, to run the app
+- [Expo Go](https://expo.dev/go) app on your phone, or an Android simulator, to run the app
 
 ### Installation
 

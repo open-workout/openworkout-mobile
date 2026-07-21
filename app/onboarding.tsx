@@ -4,7 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { insertSplit } from './db/splits';
-import { markOnboardingDone, setWeightUnit, setWorkoutPreferences, getWorkoutPreferences, type WorkoutPreferences } from './storage';
+import { markOnboardingDone, setWeightUnit, setWorkoutPreferences, getWorkoutPreferences, DEFAULT_WORKOUT_PREFS, type WorkoutPreferences } from './storage';
 import type { SplitDay } from './constants/splits';
 import SplitEditor from './components/SplitEditor';
 import WorkoutPrefsEditor from './components/WorkoutPrefsEditor';
@@ -14,12 +14,7 @@ export default function OnboardingScreen() {
   const [step, setStep] = useState<'unit' | 'split' | 'preferences'>('unit');
   const [unit, setUnit] = useState<'kg' | 'lbs'>('kg');
   const [pendingSplit, setPendingSplit] = useState<{ name: string; days: SplitDay[] } | null>(null);
-  const [prefs, setPrefs] = useState<WorkoutPreferences>({
-    compound_exercises: 3,
-    accessory_exercises: 3,
-    isolation_exercises: 2,
-    progress_reps: 8,
-  });
+  const [prefs, setPrefs] = useState<WorkoutPreferences>({ ...DEFAULT_WORKOUT_PREFS });
 
   async function handleSplitSave(name: string, days: SplitDay[]) {
     setPendingSplit({ name, days });

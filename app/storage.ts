@@ -11,10 +11,10 @@ export type WorkoutPreferences = {
   progress_reps: number;
 };
 
-const DEFAULT_WORKOUT_PREFS: WorkoutPreferences = {
-  compound_exercises: 3,
-  accessory_exercises: 3,
-  isolation_exercises: 2,
+export const DEFAULT_WORKOUT_PREFS: WorkoutPreferences = {
+  compound_exercises: 1,
+  accessory_exercises: 1,
+  isolation_exercises: 1,
   progress_reps: 8,
 };
 

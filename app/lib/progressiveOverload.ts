@@ -19,7 +19,9 @@ export function computeProgressSuggestion(
   weightUnit: 'kg' | 'lbs',
 ): OverloadSuggestion | null {
   if (sets.length === 0) return null;
-  const best = sets.reduce((a, b) => (a.weight * a.reps >= b.weight * b.reps ? a : b));
+  const best = sets.reduce((a, b) =>
+    a.weight > b.weight || (a.weight === b.weight && a.reps >= b.reps) ? a : b,
+  );
   const inc = INCREMENT[exerciseType] ?? 2.5;
   const weight = best.reps >= progressReps ? best.weight + inc : best.weight;
   const reps = best.reps >= progressReps ? best.reps : best.reps + 2;

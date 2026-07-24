@@ -9,6 +9,7 @@ import {
   Platform,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import {
   PRESET_SPLITS,
   PRESET_DESCRIPTIONS,
@@ -159,6 +160,7 @@ function PresetPickerView({
   onConfirm: () => void;
   saveLabel: string;
 }) {
+  const insets = useSafeAreaInsets();
   return (
     <View style={{ flex: 1 }}>
       <ScrollView
@@ -227,7 +229,7 @@ function PresetPickerView({
 
       <View style={{
         position: 'absolute', bottom: 0, left: 0, right: 0,
-        paddingHorizontal: 20, paddingBottom: 32, paddingTop: 16,
+        paddingHorizontal: 20, paddingBottom: Math.max(insets.bottom, 16) + 16, paddingTop: 16,
         backgroundColor: C.bg, borderTopWidth: 1, borderTopColor: C.border,
       }}>
         <TouchableOpacity
@@ -263,6 +265,7 @@ function CustomBuilderView({
   onConfirm: () => void;
   saveLabel: string;
 }) {
+  const insets = useSafeAreaInsets();
   const [panelOpen, setPanelOpen] = useState(false);
   const [addMode, setAddMode] = useState<AddDayMode>('templates');
   const [pendingName, setPendingName] = useState('');
@@ -451,7 +454,7 @@ function CustomBuilderView({
 
       <View style={{
         position: 'absolute', bottom: 0, left: 0, right: 0,
-        paddingHorizontal: 20, paddingBottom: 32, paddingTop: 16,
+        paddingHorizontal: 20, paddingBottom: Math.max(insets.bottom, 16) + 16, paddingTop: 16,
         backgroundColor: C.bg, borderTopWidth: 1, borderTopColor: C.border,
       }}>
         <TouchableOpacity

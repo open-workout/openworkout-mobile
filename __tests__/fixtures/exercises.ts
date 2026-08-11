@@ -1,0 +1,87 @@
+import type { Exercise } from '../../app/db/exercises';
+
+// Ordered so the three "cable" matches are interleaved with non-matches, and
+// "Cable Curl" is deliberately last — it's the item that regresses if a
+// search result list truncates, drops, or hides its tail.
+export const FIXTURE_EXERCISES: Exercise[] = [
+  {
+    id: 'ex-bench',
+    name: 'Bench Press',
+    exercise_type: 'compound',
+    primary_muscles: ['chest'],
+    secondary_muscles: ['triceps'],
+    alt_names: [],
+    description: '',
+    weight_direction: 1,
+    created_at: 1,
+  },
+  {
+    id: 'ex-squat',
+    name: 'Squat',
+    exercise_type: 'compound',
+    primary_muscles: ['legs'],
+    secondary_muscles: [],
+    alt_names: [],
+    description: '',
+    weight_direction: 1,
+    created_at: 2,
+  },
+  {
+    id: 'ex-cable-fly',
+    name: 'Cable Fly',
+    exercise_type: 'isolation',
+    primary_muscles: ['chest'],
+    secondary_muscles: [],
+    alt_names: ['Cable Crossover'],
+    description: '',
+    weight_direction: 1,
+    created_at: 3,
+  },
+  {
+    id: 'ex-deadlift',
+    name: 'Deadlift',
+    exercise_type: 'compound',
+    primary_muscles: ['back'],
+    secondary_muscles: [],
+    alt_names: [],
+    description: '',
+    weight_direction: 1,
+    created_at: 4,
+  },
+  {
+    id: 'ex-cable-row',
+    name: 'Seated Cable Row',
+    exercise_type: 'compound',
+    primary_muscles: ['back'],
+    secondary_muscles: ['biceps'],
+    alt_names: [],
+    description: '',
+    weight_direction: 1,
+    created_at: 5,
+  },
+  {
+    id: 'ex-pushup',
+    name: 'Push-up',
+    exercise_type: 'compound',
+    primary_muscles: ['chest'],
+    secondary_muscles: [],
+    alt_names: [],
+    description: '',
+    weight_direction: 1,
+    created_at: 6,
+  },
+  {
+    id: 'ex-cable-curl',
+    name: 'Cable Curl',
+    exercise_type: 'isolation',
+    primary_muscles: ['biceps'],
+    secondary_muscles: [],
+    alt_names: [],
+    description: '',
+    weight_direction: 1,
+    created_at: 7,
+  },
+];
+
+export const LAST_CABLE_MATCH = 'Cable Curl';
+export const CABLE_MATCHES = ['Cable Fly', 'Seated Cable Row', 'Cable Curl'];

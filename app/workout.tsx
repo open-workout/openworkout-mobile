@@ -1,4 +1,4 @@
-import { View, Text, ScrollView, TouchableOpacity, TextInput, StatusBar, Modal, Alert, Linking } from "react-native";
+import { View, Text, ScrollView, TouchableOpacity, TextInput, StatusBar, Modal, Alert, Linking, KeyboardAvoidingView, Platform } from "react-native";
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter, useLocalSearchParams } from 'expo-router';
@@ -415,35 +415,37 @@ export default function WorkoutScreen() {
             <Text style={{ color: '#71717a', fontSize: 15, fontWeight: '600' }}>New exercise</Text>
           </TouchableOpacity>
 
-          <ScrollView keyboardShouldPersistTaps="handled">
-            {filtered.length === 0 ? (
-              <View style={{ alignItems: 'center', paddingTop: 48, paddingHorizontal: 24 }}>
-                <Text style={{ color: '#52525b', fontSize: 16, marginBottom: 16 }}>No exercises found</Text>
-                {search.trim().length > 0 && (
-                  <TouchableOpacity
-                    onPress={() => setAddExerciseVisible(true)}
-                    style={{ flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: '#18181b', borderWidth: 1, borderColor: '#27272a', borderRadius: 12, paddingHorizontal: 16, paddingVertical: 12 }}
-                  >
-                    <Ionicons name="add-circle-outline" size={18} color="#a1a1aa" />
-                    <Text style={{ color: '#a1a1aa', fontSize: 15, fontWeight: '600' }}>{`Create "${search.trim()}"`}</Text>
-                  </TouchableOpacity>
-                )}
-              </View>
-            ) : (
-              filtered.map((item) => (
-                <TouchableOpacity
-                  key={item.id ?? item.name}
-                  onPress={() => pickExercise(item)}
-                  style={{ paddingHorizontal: 24, paddingVertical: 16, borderBottomWidth: 1, borderBottomColor: '#18181b' }}
-                >
-                  <Text style={{ color: '#f4f4f5', fontSize: 16, fontWeight: '600' }}>{item.name}</Text>
-                  {item.primary_muscles?.length > 0 && (
-                    <Text style={{ color: '#52525b', fontSize: 13, marginTop: 2 }}>{item.primary_muscles.join(', ')}</Text>
+          <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+            <ScrollView keyboardShouldPersistTaps="handled">
+              {filtered.length === 0 ? (
+                <View style={{ alignItems: 'center', paddingTop: 48, paddingHorizontal: 24 }}>
+                  <Text style={{ color: '#52525b', fontSize: 16, marginBottom: 16 }}>No exercises found</Text>
+                  {search.trim().length > 0 && (
+                    <TouchableOpacity
+                      onPress={() => setAddExerciseVisible(true)}
+                      style={{ flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: '#18181b', borderWidth: 1, borderColor: '#27272a', borderRadius: 12, paddingHorizontal: 16, paddingVertical: 12 }}
+                    >
+                      <Ionicons name="add-circle-outline" size={18} color="#a1a1aa" />
+                      <Text style={{ color: '#a1a1aa', fontSize: 15, fontWeight: '600' }}>{`Create "${search.trim()}"`}</Text>
+                    </TouchableOpacity>
                   )}
-                </TouchableOpacity>
-              ))
-            )}
-          </ScrollView>
+                </View>
+              ) : (
+                filtered.map((item) => (
+                  <TouchableOpacity
+                    key={item.id ?? item.name}
+                    onPress={() => pickExercise(item)}
+                    style={{ paddingHorizontal: 24, paddingVertical: 16, borderBottomWidth: 1, borderBottomColor: '#18181b' }}
+                  >
+                    <Text style={{ color: '#f4f4f5', fontSize: 16, fontWeight: '600' }}>{item.name}</Text>
+                    {item.primary_muscles?.length > 0 && (
+                      <Text style={{ color: '#52525b', fontSize: 13, marginTop: 2 }}>{item.primary_muscles.join(', ')}</Text>
+                    )}
+                  </TouchableOpacity>
+                ))
+              )}
+            </ScrollView>
+          </KeyboardAvoidingView>
         </SafeAreaView>
       </Modal>
     </SafeAreaView>

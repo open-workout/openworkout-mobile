@@ -1,4 +1,4 @@
-import { View, Text, ScrollView, TouchableOpacity, StatusBar, Modal, TextInput } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, StatusBar, Modal, TextInput, KeyboardAvoidingView, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter, useLocalSearchParams } from 'expo-router';
@@ -243,40 +243,42 @@ export default function EditRoutineScreen() {
             )}
           </View>
 
-          <ScrollView keyboardShouldPersistTaps="handled">
-            <TouchableOpacity
-              onPress={() => { setShowPicker(false); setShowCreate(true); }}
-              style={{ flexDirection: 'row', alignItems: 'center', gap: 10, paddingHorizontal: 20, paddingVertical: 16, borderBottomWidth: 1, borderBottomColor: C.border }}
-            >
-              <View style={{ width: 28, height: 28, borderRadius: 8, backgroundColor: C.card, borderWidth: 1, borderColor: C.borderAlt, alignItems: 'center', justifyContent: 'center' }}>
-                <Ionicons name="add" size={18} color={C.text} />
-              </View>
-              <Text style={{ color: C.text, fontSize: 15, fontWeight: '600' }}>Create Exercise</Text>
-            </TouchableOpacity>
+          <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+            <ScrollView keyboardShouldPersistTaps="handled">
+              <TouchableOpacity
+                onPress={() => { setShowPicker(false); setShowCreate(true); }}
+                style={{ flexDirection: 'row', alignItems: 'center', gap: 10, paddingHorizontal: 20, paddingVertical: 16, borderBottomWidth: 1, borderBottomColor: C.border }}
+              >
+                <View style={{ width: 28, height: 28, borderRadius: 8, backgroundColor: C.card, borderWidth: 1, borderColor: C.borderAlt, alignItems: 'center', justifyContent: 'center' }}>
+                  <Ionicons name="add" size={18} color={C.text} />
+                </View>
+                <Text style={{ color: C.text, fontSize: 15, fontWeight: '600' }}>Create Exercise</Text>
+              </TouchableOpacity>
 
-            {pickerCandidates.length === 0 && pickerSearch.length > 0 ? (
-              <View style={{ alignItems: 'center', paddingTop: 48, paddingHorizontal: 32 }}>
-                <Text style={{ color: C.textDim, fontSize: 15, textAlign: 'center' }}>
-                  No exercises match your search
-                </Text>
-              </View>
-            ) : (
-              pickerCandidates.map((candidate) => (
-                <TouchableOpacity
-                  key={candidate.id ?? candidate.name}
-                  onPress={() => addExercise(candidate)}
-                  style={{ paddingHorizontal: 20, paddingVertical: 16, borderBottomWidth: 1, borderBottomColor: C.border }}
-                >
-                  <Text style={{ color: C.text, fontSize: 16, fontWeight: '600' }}>{candidate.name}</Text>
-                  {candidate.primary_muscles.length > 0 && (
-                    <Text style={{ color: C.textDim, fontSize: 13, marginTop: 2, textTransform: 'capitalize' }}>
-                      {candidate.primary_muscles.join(', ')}
-                    </Text>
-                  )}
-                </TouchableOpacity>
-              ))
-            )}
-          </ScrollView>
+              {pickerCandidates.length === 0 && pickerSearch.length > 0 ? (
+                <View style={{ alignItems: 'center', paddingTop: 48, paddingHorizontal: 32 }}>
+                  <Text style={{ color: C.textDim, fontSize: 15, textAlign: 'center' }}>
+                    No exercises match your search
+                  </Text>
+                </View>
+              ) : (
+                pickerCandidates.map((candidate) => (
+                  <TouchableOpacity
+                    key={candidate.id ?? candidate.name}
+                    onPress={() => addExercise(candidate)}
+                    style={{ paddingHorizontal: 20, paddingVertical: 16, borderBottomWidth: 1, borderBottomColor: C.border }}
+                  >
+                    <Text style={{ color: C.text, fontSize: 16, fontWeight: '600' }}>{candidate.name}</Text>
+                    {candidate.primary_muscles.length > 0 && (
+                      <Text style={{ color: C.textDim, fontSize: 13, marginTop: 2, textTransform: 'capitalize' }}>
+                        {candidate.primary_muscles.join(', ')}
+                      </Text>
+                    )}
+                  </TouchableOpacity>
+                ))
+              )}
+            </ScrollView>
+          </KeyboardAvoidingView>
         </SafeAreaView>
       </Modal>
 

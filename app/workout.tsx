@@ -1,4 +1,4 @@
-import { View, Text, ScrollView, TouchableOpacity, TextInput, StatusBar, Modal, Alert, Linking } from "react-native";
+import { View, Text, ScrollView, TouchableOpacity, TextInput, StatusBar, Modal, Alert, Linking, Platform } from "react-native";
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter, useLocalSearchParams } from 'expo-router';
@@ -6,6 +6,7 @@ import { useState, useRef, useEffect, useCallback } from 'react';
 import { useWorkouts } from './hooks/useWorkouts';
 import { useExercises } from './hooks/useExercises';
 import { useWeightUnit } from './hooks/useWeightUnit';
+import { useKeyboardHeight } from './hooks/useKeyboardHeight';
 import { getSetsForWorkout, getLastSetsForExercise } from './db/sets';
 import { getAllExercises } from './db/exercises';
 import { getWorkoutById } from './db/workouts';
@@ -38,6 +39,10 @@ export default function WorkoutScreen() {
   const { finishWorkout, renameWorkout, addSet: persistSet, editSet, removeSet } = useWorkouts();
   const { exercises, createExercise } = useExercises();
   const { unit: weightUnit } = useWeightUnit();
+  const keyboardHeight = useKeyboardHeight();
+  // Android's Modal already resizes for the keyboard natively (SOFT_INPUT_ADJUST_RESIZE);
+  // only iOS needs the list to pad itself to clear the keyboard.
+  const pickerListBottomPadding = Platform.OS === 'ios' ? keyboardHeight + 24 : 24;
 
   const [blocks, setBlocks] = useState<ExerciseBlock[]>([]);
   const [pickerVisible, setPickerVisible] = useState(false);
@@ -415,7 +420,11 @@ export default function WorkoutScreen() {
             <Text style={{ color: '#71717a', fontSize: 15, fontWeight: '600' }}>New exercise</Text>
           </TouchableOpacity>
 
-          <ScrollView keyboardShouldPersistTaps="handled">
+          <ScrollView
+            style={{ flex: 1 }}
+            keyboardShouldPersistTaps="handled"
+            contentContainerStyle={{ paddingBottom: pickerListBottomPadding }}
+          >
             {filtered.length === 0 ? (
               <View style={{ alignItems: 'center', paddingTop: 48, paddingHorizontal: 24 }}>
                 <Text style={{ color: '#52525b', fontSize: 16, marginBottom: 16 }}>No exercises found</Text>

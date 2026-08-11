@@ -6,6 +6,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useWorkouts } from './hooks/useWorkouts';
 import { useExercises } from './hooks/useExercises';
 import { useWeightUnit } from './hooks/useWeightUnit';
+import { useKeyboardHeight } from './hooks/useKeyboardHeight';
 import { insertWorkout, deleteWorkout } from './db/workouts';
 import { insertSet, deleteSetsByExercise, getLastSetsForExercise, getSetsForWorkout } from './db/sets';
 import { getAllExercises } from './db/exercises';
@@ -44,6 +45,10 @@ export default function GeneratedWorkoutScreen() {
   const router = useRouter();
   const { workoutId: resumeWorkoutId } = useLocalSearchParams<{ workoutId?: string }>();
   const { unit: weightUnit } = useWeightUnit();
+  const keyboardHeight = useKeyboardHeight();
+  // Android's Modal already resizes for the keyboard natively (SOFT_INPUT_ADJUST_RESIZE);
+  // only iOS needs the list to pad itself to clear the keyboard.
+  const pickerListBottomPadding = Platform.OS === 'ios' ? keyboardHeight + 24 : 24;
   const { exercises, createExercise } = useExercises();
   const { finishWorkout, editSet, removeSet } = useWorkouts();
 
@@ -445,7 +450,11 @@ export default function GeneratedWorkoutScreen() {
             )}
           </View>
 
-          <ScrollView keyboardShouldPersistTaps="handled">
+          <ScrollView
+            style={{ flex: 1 }}
+            keyboardShouldPersistTaps="handled"
+            contentContainerStyle={{ paddingBottom: pickerListBottomPadding }}
+          >
             <TouchableOpacity
               onPress={() => setShowCreate(true)}
               style={{ flexDirection: 'row', alignItems: 'center', gap: 10, paddingHorizontal: 20, paddingVertical: 16, borderBottomWidth: 1, borderBottomColor: C.border }}
@@ -518,7 +527,11 @@ export default function GeneratedWorkoutScreen() {
             )}
           </View>
 
-          <ScrollView keyboardShouldPersistTaps="handled">
+          <ScrollView
+            style={{ flex: 1 }}
+            keyboardShouldPersistTaps="handled"
+            contentContainerStyle={{ paddingBottom: pickerListBottomPadding }}
+          >
             <TouchableOpacity
               onPress={() => setShowCreateForAdd(true)}
               style={{ flexDirection: 'row', alignItems: 'center', gap: 10, paddingHorizontal: 20, paddingVertical: 16, borderBottomWidth: 1, borderBottomColor: C.border }}

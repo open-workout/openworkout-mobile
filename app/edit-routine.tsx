@@ -1,10 +1,11 @@
-import { View, Text, ScrollView, TouchableOpacity, StatusBar, Modal, TextInput } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, StatusBar, Modal, TextInput, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useState, useEffect, useMemo } from 'react';
 import { getAllRoutines, insertRoutine, updateRoutine } from './db/routines';
 import { useExercises } from './hooks/useExercises';
+import { useKeyboardHeight } from './hooks/useKeyboardHeight';
 import FormField from './components/FormField';
 import AddExerciseModal from './components/AddExerciseModal';
 import type { Exercise, NewExerciseInput } from './db/exercises';
@@ -25,6 +26,10 @@ export default function EditRoutineScreen() {
   const router = useRouter();
   const { routineId } = useLocalSearchParams<{ routineId?: string }>();
   const { exercises, createExercise } = useExercises();
+  const keyboardHeight = useKeyboardHeight();
+  // Android's Modal already resizes for the keyboard natively (SOFT_INPUT_ADJUST_RESIZE);
+  // only iOS needs the list to pad itself to clear the keyboard.
+  const pickerListBottomPadding = Platform.OS === 'ios' ? keyboardHeight + 24 : 24;
 
   const [name, setName] = useState('');
   const [nameError, setNameError] = useState('');
@@ -243,7 +248,11 @@ export default function EditRoutineScreen() {
             )}
           </View>
 
-          <ScrollView keyboardShouldPersistTaps="handled">
+          <ScrollView
+            style={{ flex: 1 }}
+            keyboardShouldPersistTaps="handled"
+            contentContainerStyle={{ paddingBottom: pickerListBottomPadding }}
+          >
             <TouchableOpacity
               onPress={() => { setShowPicker(false); setShowCreate(true); }}
               style={{ flexDirection: 'row', alignItems: 'center', gap: 10, paddingHorizontal: 20, paddingVertical: 16, borderBottomWidth: 1, borderBottomColor: C.border }}

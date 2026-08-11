@@ -304,6 +304,7 @@ export default function WorkoutScreen() {
         {/* Add exercise */}
         <View style={{ paddingHorizontal: 24, paddingTop: 8, paddingBottom: 16 }}>
           <TouchableOpacity
+            testID="workout-add-exercise-trigger"
             onPress={() => setPickerVisible(true)}
             style={{ paddingVertical: 16, borderRadius: 12, borderWidth: 2, borderColor: '#27272a', borderStyle: 'dashed', alignItems: 'center', flexDirection: 'row', justifyContent: 'center', gap: 8 }}
           >
@@ -421,6 +422,7 @@ export default function WorkoutScreen() {
           </TouchableOpacity>
 
           <ScrollView
+            testID="workout-exercise-picker-list"
             style={{ flex: 1 }}
             keyboardShouldPersistTaps="handled"
             contentContainerStyle={{ paddingBottom: pickerListBottomPadding }}

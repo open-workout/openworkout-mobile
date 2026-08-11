@@ -192,6 +192,7 @@ export default function EditRoutineScreen() {
           )}
 
           <TouchableOpacity
+            testID="routine-add-exercise-trigger"
             onPress={() => setShowPicker(true)}
             style={{
               paddingVertical: 16,
@@ -249,6 +250,7 @@ export default function EditRoutineScreen() {
           </View>
 
           <ScrollView
+            testID="routine-exercise-picker-list"
             style={{ flex: 1 }}
             keyboardShouldPersistTaps="handled"
             contentContainerStyle={{ paddingBottom: pickerListBottomPadding }}

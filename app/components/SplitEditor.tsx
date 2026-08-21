@@ -10,9 +10,9 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useTranslation } from 'react-i18next';
 import {
   PRESET_SPLITS,
-  PRESET_DESCRIPTIONS,
   DAY_TEMPLATES,
   MUSCLE_SECTIONS_SPLIT,
   SUPER_MUSCLE_MAP,
@@ -22,6 +22,8 @@ import {
   type SplitDay,
   type SuperState,
 } from '../constants/splits';
+import { getMuscleLabel, getMuscleLabels } from '../lib/exerciseTranslations';
+import { getPresetName, getPresetDescription, getDayNameLabel } from '../lib/splitTranslations';
 
 // ─── Palette ──────────────────────────────────────────────────────────────────
 
@@ -56,9 +58,10 @@ function SectionLabel({ children }: { children: string }) {
 }
 
 function MuscleChip({
-  muscle, isSelected, isSuper, superState, onPress,
+  muscle, label, isSelected, isSuper, superState, onPress,
 }: {
   muscle: string;
+  label: string;
   isSelected: boolean;
   isSuper: boolean;
   superState?: SuperState;
@@ -93,15 +96,17 @@ function MuscleChip({
         fontSize: 13,
         fontWeight: '600',
         color: effectiveSelected ? C.activeDark : C.text,
-        textTransform: 'capitalize',
       }}>
-        {muscle}
+        {label}
       </Text>
     </TouchableOpacity>
   );
 }
 
 function MuscleGrid({ selected, onToggle }: { selected: string[]; onToggle: (m: string) => void }) {
+  const { t: tExplore, i18n } = useTranslation('explore');
+  const locale = i18n.language;
+
   function handleSuperToggle(superKey: string) {
     const children = SUPER_MUSCLE_MAP[superKey];
     const state = getSuperState(superKey, selected);
@@ -115,8 +120,8 @@ function MuscleGrid({ selected, onToggle }: { selected: string[]; onToggle: (m: 
   return (
     <View>
       {MUSCLE_SECTIONS_SPLIT.map((section) => (
-        <View key={section.label} style={{ marginBottom: 12 }}>
-          <SectionLabel>{section.label}</SectionLabel>
+        <View key={section.id} style={{ marginBottom: 12 }}>
+          <SectionLabel>{tExplore(`addExerciseModal.muscleSections.${section.id}`)}</SectionLabel>
           <View style={{ flexDirection: 'row', flexWrap: 'wrap' }}>
             {section.muscles.map((muscle) => {
               if (section.isSuper) {
@@ -125,6 +130,7 @@ function MuscleGrid({ selected, onToggle }: { selected: string[]; onToggle: (m: 
                   <MuscleChip
                     key={muscle}
                     muscle={muscle}
+                    label={getMuscleLabel(muscle, locale)}
                     isSelected={false}
                     isSuper
                     superState={state}
@@ -136,6 +142,7 @@ function MuscleGrid({ selected, onToggle }: { selected: string[]; onToggle: (m: 
                 <MuscleChip
                   key={muscle}
                   muscle={muscle}
+                  label={getMuscleLabel(muscle, locale)}
                   isSelected={selected.includes(muscle)}
                   isSuper={false}
                   onPress={() => onToggle(muscle)}
@@ -161,6 +168,7 @@ function PresetPickerView({
   saveLabel: string;
 }) {
   const insets = useSafeAreaInsets();
+  const { t } = useTranslation('routines');
   return (
     <View style={{ flex: 1 }}>
       <ScrollView
@@ -169,7 +177,7 @@ function PresetPickerView({
         showsVerticalScrollIndicator={false}
       >
         <Text style={{ color: C.text, fontSize: 28, fontWeight: '800', letterSpacing: -0.5, paddingTop: 24, marginBottom: 20 }}>
-          What's your split?
+          {t('whatsYourSplit')}
         </Text>
         <View style={{ flexDirection: 'row', flexWrap: 'wrap', marginHorizontal: -5 }}>
           {PRESET_SPLITS.map((split) => {
@@ -190,10 +198,10 @@ function PresetPickerView({
                 >
                   <View style={{ padding: 14 }}>
                     <Text style={{ color: C.text, fontSize: 15, fontWeight: '700', marginBottom: 4 }}>
-                      {split.name}
+                      {getPresetName(split.id, t)}
                     </Text>
                     <Text style={{ color: C.textMuted, fontSize: 12, lineHeight: 17 }}>
-                      {PRESET_DESCRIPTIONS[split.id]}
+                      {getPresetDescription(split.id, t)}
                     </Text>
                   </View>
                 </TouchableOpacity>
@@ -220,8 +228,8 @@ function PresetPickerView({
               }}
             >
               <Ionicons name="construct-outline" size={22} color={C.textMuted} />
-              <Text style={{ color: C.text, fontSize: 15, fontWeight: '700' }}>Custom</Text>
-              <Text style={{ color: C.textMuted, fontSize: 12, textAlign: 'center' }}>Build your own</Text>
+              <Text style={{ color: C.text, fontSize: 15, fontWeight: '700' }}>{t('custom')}</Text>
+              <Text style={{ color: C.textMuted, fontSize: 12, textAlign: 'center' }}>{t('buildYourOwn')}</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -266,6 +274,8 @@ function CustomBuilderView({
   saveLabel: string;
 }) {
   const insets = useSafeAreaInsets();
+  const { t, i18n } = useTranslation('routines');
+  const locale = i18n.language;
   const [panelOpen, setPanelOpen] = useState(false);
   const [addMode, setAddMode] = useState<AddDayMode>('templates');
   const [pendingName, setPendingName] = useState('');
@@ -282,7 +292,7 @@ function CustomBuilderView({
 
   function confirmManualDay() {
     if (pendingMuscles.length === 0) return;
-    onAddDay({ name: pendingName.trim() || `Day ${days.length + 1}`, muscles: pendingMuscles });
+    onAddDay({ name: pendingName.trim() || t('dayPlaceholder', { n: days.length + 1 }), muscles: pendingMuscles });
     resetPanel();
   }
 
@@ -308,12 +318,12 @@ function CustomBuilderView({
             style={{ flexDirection: 'row', alignItems: 'center', gap: 4, paddingTop: 20, marginBottom: 20 }}
           >
             <Ionicons name="chevron-back" size={18} color={C.textMuted} />
-            <Text style={{ color: C.textMuted, fontSize: 15 }}>Presets</Text>
+            <Text style={{ color: C.textMuted, fontSize: 15 }}>{t('presets')}</Text>
           </TouchableOpacity>
 
-          <Text style={{ color: C.text, fontSize: 28, fontWeight: '800', marginBottom: 8 }}>Custom Split</Text>
+          <Text style={{ color: C.text, fontSize: 28, fontWeight: '800', marginBottom: 8 }}>{t('customSplit')}</Text>
           <Text style={{ color: C.textMuted, fontSize: 15, marginBottom: 16 }}>
-            Add days and choose which muscles to train.
+            {t('addDaysHint')}
           </Text>
 
           {panelOpen ? (
@@ -322,7 +332,7 @@ function CustomBuilderView({
               borderWidth: 1, borderColor: C.borderAlt, padding: 16,
             }}>
               <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>
-                <Text style={{ color: C.text, fontSize: 15, fontWeight: '700' }}>Add Day</Text>
+                <Text style={{ color: C.text, fontSize: 15, fontWeight: '700' }}>{t('addDay')}</Text>
                 <TouchableOpacity onPress={resetPanel}>
                   <Ionicons name="close" size={20} color={C.textMuted} />
                 </TouchableOpacity>
@@ -341,9 +351,9 @@ function CustomBuilderView({
                   >
                     <Text style={{
                       color: addMode === mode ? C.activeDark : C.textMuted,
-                      fontSize: 13, fontWeight: '600', textTransform: 'capitalize',
+                      fontSize: 13, fontWeight: '600',
                     }}>
-                      {mode === 'templates' ? 'Quick Add' : 'Manual'}
+                      {mode === 'templates' ? t('quickAdd') : t('manual')}
                     </Text>
                   </TouchableOpacity>
                 ))}
@@ -361,8 +371,8 @@ function CustomBuilderView({
                         backgroundColor: C.cardAlt, borderWidth: 1, borderColor: C.border,
                       }}
                     >
-                      <Text style={{ color: C.text, fontSize: 14, fontWeight: '600' }}>{tpl.name}</Text>
-                      <Text style={{ color: C.textDim, fontSize: 11, marginTop: 2 }}>{tpl.muscles.length} muscles</Text>
+                      <Text style={{ color: C.text, fontSize: 14, fontWeight: '600' }}>{getDayNameLabel(tpl.name, t)}</Text>
+                      <Text style={{ color: C.textDim, fontSize: 11, marginTop: 2 }}>{t('musclesCount', { count: tpl.muscles.length })}</Text>
                     </TouchableOpacity>
                   ))}
                 </View>
@@ -371,7 +381,7 @@ function CustomBuilderView({
                   <TextInput
                     value={pendingName}
                     onChangeText={setPendingName}
-                    placeholder={`Day ${days.length + 1}`}
+                    placeholder={t('dayPlaceholder', { n: days.length + 1 })}
                     placeholderTextColor={C.textDim}
                     style={{
                       backgroundColor: C.cardAlt, borderWidth: 1, borderColor: C.border,
@@ -393,7 +403,7 @@ function CustomBuilderView({
                       color: pendingMuscles.length > 0 ? C.activeDark : C.textDim,
                       fontSize: 14, fontWeight: '700',
                     }}>
-                      Add Day
+                      {t('addDay')}
                     </Text>
                   </TouchableOpacity>
                   <MuscleGrid selected={pendingMuscles} onToggle={togglePendingMuscle} />
@@ -411,7 +421,7 @@ function CustomBuilderView({
               }}
             >
               <Ionicons name="add-circle-outline" size={20} color={C.textMuted} />
-              <Text style={{ color: C.textMuted, fontSize: 14, fontWeight: '600' }}>Add Day</Text>
+              <Text style={{ color: C.textMuted, fontSize: 14, fontWeight: '600' }}>{t('addDay')}</Text>
             </TouchableOpacity>
           )}
 
@@ -434,13 +444,13 @@ function CustomBuilderView({
                     </TouchableOpacity>
                   </View>
                   <View style={{ flexDirection: 'row', flexWrap: 'wrap', marginTop: 10 }}>
-                    {compressMuscles(day.muscles).map((m) => (
-                      <View key={m} style={{
+                    {getMuscleLabels(compressMuscles(day.muscles), locale).map((label, mi) => (
+                      <View key={mi} style={{
                         backgroundColor: C.cardAlt, borderRadius: 20,
                         paddingHorizontal: 10, paddingVertical: 4, marginRight: 6, marginBottom: 6,
                       }}>
-                        <Text style={{ color: C.textMuted, fontSize: 12, fontWeight: '500', textTransform: 'capitalize' }}>
-                          {m}
+                        <Text style={{ color: C.textMuted, fontSize: 12, fontWeight: '500' }}>
+                          {label}
                         </Text>
                       </View>
                     ))}
@@ -489,9 +499,11 @@ export default function SplitEditor({
   initialPreset = null,
   initialDays = [],
   startInCustom = false,
-  saveLabel = 'Save',
+  saveLabel,
   onSave,
 }: SplitEditorProps) {
+  const { t } = useTranslation('common');
+  const resolvedSaveLabel = saveLabel ?? t('save');
   const [view, setView] = useState<'presets' | 'custom'>(startInCustom ? 'custom' : 'presets');
   const [selectedPreset, setSelectedPreset] = useState<Split | null>(initialPreset);
   const [customDays, setCustomDays] = useState<SplitDay[]>(initialDays);
@@ -524,7 +536,7 @@ export default function SplitEditor({
         onSelect={setSelectedPreset}
         onCustom={() => { setCustomDays([]); setView('custom'); }}
         onConfirm={handlePresetConfirm}
-        saveLabel={saving ? 'Saving…' : saveLabel}
+        saveLabel={saving ? t('routines:saving') : resolvedSaveLabel}
       />
     );
   }
@@ -537,7 +549,7 @@ export default function SplitEditor({
       onRemoveDay={(idx) => setCustomDays(prev => prev.filter((_, i) => i !== idx))}
       onRenameDay={(idx, name) => setCustomDays(prev => prev.map((d, i) => i === idx ? { ...d, name } : d))}
       onConfirm={handleCustomConfirm}
-      saveLabel={saving ? 'Saving…' : saveLabel}
+      saveLabel={saving ? t('routines:saving') : resolvedSaveLabel}
     />
   );
 }

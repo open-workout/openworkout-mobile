@@ -1,0 +1,16 @@
+{
+  "whichUnit": "Which unit do you use?",
+  "unitHint": "You can change this at any time in your profile.",
+  "kilograms": "Kilograms",
+  "pounds": "Pounds",
+  "continue": "Continue",
+  "workoutStructure": "Workout structure",
+  "workoutStructureHint": "How do you usually structure your sessions? You can change this later.",
+  "getStarted": "Get Started",
+  "appTagline": "Track your training, built around\nyour schedule.",
+  "featureSplit": "Structure your week with a training split",
+  "featureLogSets": "Log sets and track personal records",
+  "featureProgress": "Watch your progress over time",
+  "startSetup": "Start Setup",
+  "skipForNow": "Skip for now"
+}

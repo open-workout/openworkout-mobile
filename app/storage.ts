@@ -3,6 +3,7 @@ import * as SecureStore from 'expo-secure-store';
 const ONBOARDING_DONE_KEY = 'onboarding_done';
 const WEIGHT_UNIT_KEY = 'weight_unit';
 const WORKOUT_PREFS_KEY = 'workout_preferences';
+const LANGUAGE_KEY = 'app_language';
 
 export type WorkoutPreferences = {
   compound_exercises: number;
@@ -33,6 +34,14 @@ export async function getWeightUnit(): Promise<'kg' | 'lbs'> {
 
 export async function setWeightUnit(unit: 'kg' | 'lbs'): Promise<void> {
   await SecureStore.setItemAsync(WEIGHT_UNIT_KEY, unit);
+}
+
+export async function getLanguage(): Promise<string | null> {
+  return SecureStore.getItemAsync(LANGUAGE_KEY);
+}
+
+export async function setLanguage(lang: string): Promise<void> {
+  await SecureStore.setItemAsync(LANGUAGE_KEY, lang);
 }
 
 export async function getWorkoutPreferences(): Promise<WorkoutPreferences> {

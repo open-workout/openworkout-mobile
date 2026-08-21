@@ -1,4 +1,5 @@
 import { Modal, View, Text, TouchableOpacity } from 'react-native';
+import { useTranslation } from 'react-i18next';
 
 type Props = {
   visible: boolean;
@@ -8,6 +9,7 @@ type Props = {
 };
 
 export default function InfoModal({ visible, title, message, onClose }: Props) {
+  const { t } = useTranslation('common');
   return (
     <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
       <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.6)', alignItems: 'center', justifyContent: 'center', padding: 32 }}>
@@ -21,7 +23,7 @@ export default function InfoModal({ visible, title, message, onClose }: Props) {
               onPress={onClose}
               style={{ flex: 1, alignItems: 'center', justifyContent: 'center', paddingVertical: 16 }}
             >
-              <Text style={{ color: '#f4f4f5', fontSize: 15, fontWeight: '700' }}>Got it</Text>
+              <Text style={{ color: '#f4f4f5', fontSize: 15, fontWeight: '700' }}>{t('gotIt')}</Text>
             </TouchableOpacity>
           </View>
         </View>

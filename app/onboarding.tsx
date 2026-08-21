@@ -3,6 +3,7 @@ import { View, Text, TouchableOpacity, StatusBar, ScrollView } from 'react-nativ
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import { useTranslation } from 'react-i18next';
 import { insertSplit } from './db/splits';
 import { markOnboardingDone, setWeightUnit, setWorkoutPreferences, getWorkoutPreferences, DEFAULT_WORKOUT_PREFS, type WorkoutPreferences } from './storage';
 import type { SplitDay } from './constants/splits';
@@ -10,6 +11,7 @@ import SplitEditor from './components/SplitEditor';
 import WorkoutPrefsEditor from './components/WorkoutPrefsEditor';
 
 export default function OnboardingScreen() {
+  const { t } = useTranslation('onboarding');
   const router = useRouter();
   const [step, setStep] = useState<'unit' | 'split' | 'preferences'>('unit');
   const [unit, setUnit] = useState<'kg' | 'lbs'>('kg');
@@ -36,10 +38,10 @@ export default function OnboardingScreen() {
 
           <View style={{ gap: 12 }}>
             <Text style={{ color: '#f4f4f5', fontSize: 28, fontWeight: '900', letterSpacing: -0.5 }}>
-              Which unit do you use?
+              {t('whichUnit')}
             </Text>
             <Text style={{ color: '#71717a', fontSize: 15, lineHeight: 22 }}>
-              You can change this at any time in your profile.
+              {t('unitHint')}
             </Text>
           </View>
 
@@ -65,7 +67,7 @@ export default function OnboardingScreen() {
                 >
                   <View>
                     <Text style={{ color: selected ? '#09090b' : '#f4f4f5', fontSize: 20, fontWeight: '800' }}>
-                      {u === 'kg' ? 'Kilograms' : 'Pounds'}
+                      {u === 'kg' ? t('kilograms') : t('pounds')}
                     </Text>
                     <Text style={{ color: selected ? '#3f3f46' : '#52525b', fontSize: 13, marginTop: 3 }}>
                       {u}
@@ -85,7 +87,7 @@ export default function OnboardingScreen() {
             activeOpacity={0.85}
             style={{ backgroundColor: '#f4f4f5', borderRadius: 14, paddingVertical: 17, alignItems: 'center' }}
           >
-            <Text style={{ color: '#09090b', fontSize: 16, fontWeight: '700' }}>Continue</Text>
+            <Text style={{ color: '#09090b', fontSize: 16, fontWeight: '700' }}>{t('continue')}</Text>
           </TouchableOpacity>
 
         </View>
@@ -98,7 +100,7 @@ export default function OnboardingScreen() {
       <SafeAreaView style={{ flex: 1, backgroundColor: '#0a0a0a' }} edges={['top', 'bottom']}>
         <StatusBar barStyle="light-content" />
         <View style={{ flex: 1, paddingTop: 16 }}>
-          <SplitEditor saveLabel="Continue" onSave={handleSplitSave} />
+          <SplitEditor saveLabel={t('continue')} onSave={handleSplitSave} />
         </View>
       </SafeAreaView>
     );
@@ -115,10 +117,10 @@ export default function OnboardingScreen() {
         >
           <View style={{ gap: 8, marginBottom: 40 }}>
             <Text style={{ color: '#f4f4f5', fontSize: 28, fontWeight: '900', letterSpacing: -0.5 }}>
-              Workout structure
+              {t('workoutStructure')}
             </Text>
             <Text style={{ color: '#71717a', fontSize: 15, lineHeight: 22 }}>
-              How do you usually structure your sessions? You can change this later.
+              {t('workoutStructureHint')}
             </Text>
           </View>
           <WorkoutPrefsEditor prefs={prefs} onChange={setPrefs} />
@@ -130,7 +132,7 @@ export default function OnboardingScreen() {
             activeOpacity={0.85}
             style={{ backgroundColor: '#f4f4f5', borderRadius: 14, paddingVertical: 17, alignItems: 'center' }}
           >
-            <Text style={{ color: '#09090b', fontSize: 16, fontWeight: '700' }}>Get Started</Text>
+            <Text style={{ color: '#09090b', fontSize: 16, fontWeight: '700' }}>{t('getStarted')}</Text>
           </TouchableOpacity>
         </View>
       </View>

@@ -1,4 +1,5 @@
 import { Modal, View, Text, TouchableOpacity } from 'react-native';
+import { useTranslation } from 'react-i18next';
 
 type Props = {
   visible: boolean;
@@ -14,11 +15,12 @@ export default function ConfirmModal({
   visible,
   title,
   message,
-  confirmLabel = 'Confirm',
+  confirmLabel,
   destructive = false,
   onConfirm,
   onCancel,
 }: Props) {
+  const { t } = useTranslation('common');
   return (
     <Modal visible={visible} transparent animationType="fade" onRequestClose={onCancel}>
       <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.6)', alignItems: 'center', justifyContent: 'center', padding: 32 }}>
@@ -32,14 +34,14 @@ export default function ConfirmModal({
               onPress={onCancel}
               style={{ flex: 1, alignItems: 'center', justifyContent: 'center', paddingVertical: 16, borderRightWidth: 1, borderRightColor: '#27272a' }}
             >
-              <Text style={{ color: '#a1a1aa', fontSize: 15, fontWeight: '600' }}>Cancel</Text>
+              <Text style={{ color: '#a1a1aa', fontSize: 15, fontWeight: '600' }}>{t('cancel')}</Text>
             </TouchableOpacity>
             <TouchableOpacity
               onPress={onConfirm}
               style={{ flex: 1, alignItems: 'center', justifyContent: 'center', paddingVertical: 16 }}
             >
               <Text style={{ color: destructive ? '#ef4444' : '#f4f4f5', fontSize: 15, fontWeight: '700' }}>
-                {confirmLabel}
+                {confirmLabel ?? t('confirm')}
               </Text>
             </TouchableOpacity>
           </View>

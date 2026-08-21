@@ -1,0 +1,54 @@
+{
+  "title": "Bibliotecă",
+  "searchPlaceholder": "Caută un exercițiu...",
+  "noExercisesFound": "Niciun exercițiu găsit",
+  "exerciseCount_one": "{{count}} exercițiu",
+  "exerciseCount_few": "{{count}} exerciții",
+  "exerciseCount_other": "{{count}} de exerciții",
+  "type": "Tip",
+  "primary": "Principal",
+  "secondary": "Secundar",
+  "notes": "Note",
+  "exercise": "exercițiu",
+  "exerciseType": {
+    "compound": "Compus",
+    "isolation": "Izolare"
+  },
+  "deleteExercise": "Șterge exercițiul",
+  "deleteExerciseMessage": "Elimini „{{name}}” din bibliotecă?",
+  "addExerciseModal": {
+    "editExercise": "Editează exercițiul",
+    "newExercise": "Exercițiu nou",
+    "saving": "Se salvează…",
+    "nameSectionHeader": "Nume",
+    "namePlaceholder": "ex. Împins din culcat cu bara",
+    "nameRequired": "Numele este obligatoriu",
+    "exerciseTypeSectionHeader": "Tip de exercițiu",
+    "exerciseTypes": {
+      "compound": { "label": "Compus", "description": "Multi-articular" },
+      "accessory": { "label": "Auxiliar", "description": "Mișcare de sprijin" },
+      "isolation": { "label": "Izolare", "description": "O singură articulație" }
+    },
+    "primaryMusclesSectionHeader": "Mușchi principali",
+    "secondaryMusclesSectionHeader": "Mușchi secundari",
+    "altNamesSectionHeader": "Nume alternative",
+    "altNamePlaceholder": "ex. Împins plat",
+    "descriptionSectionHeader": "Descriere (opțional)",
+    "descriptionPlaceholder": "Adaugă note despre tehnică, indicii sau variații…",
+    "settingsSectionHeader": "Setări",
+    "weightDirectionLabel": "Direcția greutății",
+    "weightDirectionHint": "Cum se schimbă dificultatea odată cu creșterea greutății",
+    "weightDirectionNormal": "Normal",
+    "weightDirectionNormalSub": "Mai greu cu mai multă greutate",
+    "weightDirectionAssisted": "Asistat",
+    "weightDirectionAssistedSub": "Mai ușor cu mai multă greutate",
+    "muscleSections": {
+      "superMuscles": "Grupe mari",
+      "chestArms": "Piept și brațe",
+      "core": "Trunchi",
+      "legs": "Picioare",
+      "back": "Spate",
+      "shoulders": "Umeri"
+    }
+  }
+}

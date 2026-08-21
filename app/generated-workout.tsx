@@ -3,6 +3,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useState, useEffect, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useWorkouts } from './hooks/useWorkouts';
 import { useExercises } from './hooks/useExercises';
 import { useWeightUnit } from './hooks/useWeightUnit';
@@ -20,6 +21,7 @@ import ConfirmModal from './components/ConfirmModal';
 import { ExerciseCard } from './components/ExerciseCard';
 import { computeProgressSuggestion, type OverloadSuggestion } from './lib/progressiveOverload';
 import { getWorkoutPreferences, type WorkoutPreferences } from './storage';
+import { exerciseMatchesQuery, getExerciseDisplayName, getMuscleLabels } from './lib/exerciseTranslations';
 
 const C = {
   bg: '#0a0a0a',
@@ -42,6 +44,8 @@ function mkId() {
 }
 
 export default function GeneratedWorkoutScreen() {
+  const { t, i18n } = useTranslation('workout');
+  const locale = i18n.language;
   const router = useRouter();
   const { workoutId: resumeWorkoutId } = useLocalSearchParams<{ workoutId?: string }>();
   const { unit: weightUnit } = useWeightUnit();
@@ -159,7 +163,7 @@ export default function GeneratedWorkoutScreen() {
       cards.map(async (card) => {
         const exerciseRef = card.exercise.id || card.exercise.name;
         const sets = await getLastSetsForExercise(exerciseRef);
-        return { cardId: card.cardId, suggestion: computeProgressSuggestion(sets, card.exercise.exercise_type, localPrefs.progress_reps, weightUnit) };
+        return { cardId: card.cardId, suggestion: computeProgressSuggestion(sets, card.exercise.exercise_type, localPrefs.progress_reps, weightUnit, t) };
       }),
     ).then((results) => {
       const map: Record<string, OverloadSuggestion | null> = {};
@@ -244,7 +248,7 @@ export default function GeneratedWorkoutScreen() {
     if (localPrefs) {
       const exerciseRef = exercise.id || exercise.name;
       getLastSetsForExercise(exerciseRef).then((sets) => {
-        setSuggestions((prev) => ({ ...prev, [newCard.cardId]: computeProgressSuggestion(sets, exercise.exercise_type, localPrefs.progress_reps, weightUnit) }));
+        setSuggestions((prev) => ({ ...prev, [newCard.cardId]: computeProgressSuggestion(sets, exercise.exercise_type, localPrefs.progress_reps, weightUnit, t) }));
       });
     }
   };
@@ -292,12 +296,9 @@ export default function GeneratedWorkoutScreen() {
   const switchingCard = cards.find((c) => c.cardId === switchingCardId) ?? null;
   const alternatives = switchingCard ? findAlternatives(switchingCard.exercise, exercises) : [];
 
-  const q = switchSearch.trim().toLowerCase();
+  const q = switchSearch.trim();
   const switchCandidates = q
-    ? exercises.filter((e) => {
-        const haystack = [e.name, ...(e.alt_names ?? [])].join(' ').toLowerCase();
-        return haystack.includes(q);
-      })
+    ? exercises.filter((e) => exerciseMatchesQuery(e, q, locale))
     : alternatives;
 
   const selectAlternative = async (cardId: string, exercise: Exercise) => {
@@ -313,7 +314,7 @@ export default function GeneratedWorkoutScreen() {
     if (localPrefs) {
       const exerciseRef = exercise.id || exercise.name;
       getLastSetsForExercise(exerciseRef).then((sets) => {
-        setSuggestions((prev) => ({ ...prev, [cardId]: computeProgressSuggestion(sets, exercise.exercise_type, localPrefs.progress_reps, weightUnit) }));
+        setSuggestions((prev) => ({ ...prev, [cardId]: computeProgressSuggestion(sets, exercise.exercise_type, localPrefs.progress_reps, weightUnit, t) }));
       });
     }
   };
@@ -325,18 +326,13 @@ export default function GeneratedWorkoutScreen() {
 
   // ─── Picker search ───────────────────────────────────────────────────────────
 
-  const pq = pickerSearch.trim().toLowerCase();
+  const pq = pickerSearch.trim();
   const pickerCandidates = pq
-    ? exercises.filter((e) => {
-        const haystack = [e.name, ...(e.alt_names ?? [])].join(' ').toLowerCase();
-        return haystack.includes(pq);
-      })
+    ? exercises.filter((e) => exerciseMatchesQuery(e, pq, locale))
     : exercises;
 
   const muscleLabel = pending?.muscles
-    ? compressMuscles(pending.muscles)
-        .map((m) => m.charAt(0).toUpperCase() + m.slice(1))
-        .join(' · ')
+    ? getMuscleLabels(compressMuscles(pending.muscles), locale).join(' · ')
     : '';
 
   return (
@@ -353,7 +349,7 @@ export default function GeneratedWorkoutScreen() {
         </TouchableOpacity>
         <View style={{ alignItems: 'center' }}>
           <Text style={{ color: C.text, fontSize: 17, fontWeight: '700' }}>
-            {resumeWorkoutId ? 'Resume Workout' : (pending?.muscles.length ?? 0) > 0 ? 'Generated Workout' : 'Workout'}
+            {resumeWorkoutId ? t('resumeWorkout') : (pending?.muscles.length ?? 0) > 0 ? t('generatedWorkout') : t('workoutFallbackTitle')}
           </Text>
           {!!muscleLabel && (
             <Text style={{ color: C.textDim, fontSize: 12, marginTop: 2 }}>{muscleLabel}</Text>
@@ -364,7 +360,7 @@ export default function GeneratedWorkoutScreen() {
             onPress={() => setShowFinishModal(true)}
             style={{ backgroundColor: C.text, borderRadius: 8, paddingHorizontal: 14, paddingVertical: 7 }}
           >
-            <Text style={{ color: '#09090b', fontWeight: '700', fontSize: 14 }}>Finish</Text>
+            <Text style={{ color: '#09090b', fontWeight: '700', fontSize: 14 }}>{t('finish')}</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -412,7 +408,7 @@ export default function GeneratedWorkoutScreen() {
           style={{ paddingVertical: 16, borderRadius: 12, borderWidth: 2, borderColor: C.border, borderStyle: 'dashed', alignItems: 'center', flexDirection: 'row', justifyContent: 'center', gap: 8, marginTop: 4 }}
         >
           <Ionicons name="add" size={18} color={C.textDim} />
-          <Text style={{ color: C.textDim, fontWeight: '600', fontSize: 15 }}>Add Exercise</Text>
+          <Text style={{ color: C.textDim, fontWeight: '600', fontSize: 15 }}>{t('routines:addExercise')}</Text>
         </TouchableOpacity>
       </ScrollView>
       </KeyboardAvoidingView>
@@ -426,7 +422,7 @@ export default function GeneratedWorkoutScreen() {
       >
         <SafeAreaView style={{ flex: 1, backgroundColor: C.bg }} edges={['top']}>
           <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16, paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: C.border }}>
-            <Text style={{ color: C.text, fontSize: 17, fontWeight: '700' }}>Switch Exercise</Text>
+            <Text style={{ color: C.text, fontSize: 17, fontWeight: '700' }}>{t('switchExercise')}</Text>
             <TouchableOpacity onPress={closeSwitchModal} style={{ width: 40, height: 40, alignItems: 'center', justifyContent: 'center' }}>
               <Ionicons name="close" size={24} color={C.textMuted} />
             </TouchableOpacity>
@@ -437,7 +433,7 @@ export default function GeneratedWorkoutScreen() {
             <TextInput
               value={switchSearch}
               onChangeText={setSwitchSearch}
-              placeholder="Search exercises…"
+              placeholder={t('routines:searchExercisesPlaceholder')}
               placeholderTextColor={C.textDim}
               style={{ flex: 1, color: C.text, fontSize: 15, paddingVertical: 10 }}
               autoCorrect={false}
@@ -462,13 +458,13 @@ export default function GeneratedWorkoutScreen() {
               <View style={{ width: 28, height: 28, borderRadius: 8, backgroundColor: C.card, borderWidth: 1, borderColor: C.borderAlt, alignItems: 'center', justifyContent: 'center' }}>
                 <Ionicons name="add" size={18} color={C.text} />
               </View>
-              <Text style={{ color: C.text, fontSize: 15, fontWeight: '600' }}>Create Exercise</Text>
+              <Text style={{ color: C.text, fontSize: 15, fontWeight: '600' }}>{t('routines:createExercise')}</Text>
             </TouchableOpacity>
 
             {switchCandidates.length === 0 ? (
               <View style={{ alignItems: 'center', paddingTop: 48, paddingHorizontal: 32 }}>
                 <Text style={{ color: C.textDim, fontSize: 15, textAlign: 'center' }}>
-                  {q ? 'No exercises match your search' : 'No similar exercises found in your library'}
+                  {q ? t('routines:noExercisesMatchSearch') : t('noSimilarExercisesFound')}
                 </Text>
               </View>
             ) : (
@@ -478,10 +474,10 @@ export default function GeneratedWorkoutScreen() {
                   onPress={() => selectAlternative(switchingCardId!, candidate)}
                   style={{ paddingHorizontal: 20, paddingVertical: 16, borderBottomWidth: 1, borderBottomColor: C.border }}
                 >
-                  <Text style={{ color: C.text, fontSize: 16, fontWeight: '600' }}>{candidate.name}</Text>
+                  <Text style={{ color: C.text, fontSize: 16, fontWeight: '600' }}>{getExerciseDisplayName(candidate, locale)}</Text>
                   {candidate.primary_muscles.length > 0 && (
-                    <Text style={{ color: C.textDim, fontSize: 13, marginTop: 2, textTransform: 'capitalize' }}>
-                      {candidate.primary_muscles.join(', ')}
+                    <Text style={{ color: C.textDim, fontSize: 13, marginTop: 2 }}>
+                      {getMuscleLabels(candidate.primary_muscles, locale).join(', ')}
                     </Text>
                   )}
                 </TouchableOpacity>
@@ -500,7 +496,7 @@ export default function GeneratedWorkoutScreen() {
       >
         <SafeAreaView style={{ flex: 1, backgroundColor: C.bg }} edges={['top']}>
           <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16, paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: C.border }}>
-            <Text style={{ color: C.text, fontSize: 17, fontWeight: '700' }}>Add Exercise</Text>
+            <Text style={{ color: C.text, fontSize: 17, fontWeight: '700' }}>{t('routines:addExercise')}</Text>
             <TouchableOpacity
               onPress={() => { setShowPicker(false); setPickerSearch(''); }}
               style={{ width: 40, height: 40, alignItems: 'center', justifyContent: 'center' }}
@@ -514,7 +510,7 @@ export default function GeneratedWorkoutScreen() {
             <TextInput
               value={pickerSearch}
               onChangeText={setPickerSearch}
-              placeholder="Search exercises…"
+              placeholder={t('routines:searchExercisesPlaceholder')}
               placeholderTextColor={C.textDim}
               style={{ flex: 1, color: C.text, fontSize: 15, paddingVertical: 10 }}
               autoCorrect={false}
@@ -539,7 +535,7 @@ export default function GeneratedWorkoutScreen() {
               <View style={{ width: 28, height: 28, borderRadius: 8, backgroundColor: C.card, borderWidth: 1, borderColor: C.borderAlt, alignItems: 'center', justifyContent: 'center' }}>
                 <Ionicons name="add" size={18} color={C.text} />
               </View>
-              <Text style={{ color: C.text, fontSize: 15, fontWeight: '600' }}>Create Exercise</Text>
+              <Text style={{ color: C.text, fontSize: 15, fontWeight: '600' }}>{t('routines:createExercise')}</Text>
             </TouchableOpacity>
 
             {pickerCandidates.map((candidate) => (
@@ -548,10 +544,10 @@ export default function GeneratedWorkoutScreen() {
                 onPress={() => addCard(candidate)}
                 style={{ paddingHorizontal: 20, paddingVertical: 16, borderBottomWidth: 1, borderBottomColor: C.border }}
               >
-                <Text style={{ color: C.text, fontSize: 16, fontWeight: '600' }}>{candidate.name}</Text>
+                <Text style={{ color: C.text, fontSize: 16, fontWeight: '600' }}>{getExerciseDisplayName(candidate, locale)}</Text>
                 {candidate.primary_muscles.length > 0 && (
-                  <Text style={{ color: C.textDim, fontSize: 13, marginTop: 2, textTransform: 'capitalize' }}>
-                    {candidate.primary_muscles.join(', ')}
+                  <Text style={{ color: C.textDim, fontSize: 13, marginTop: 2 }}>
+                    {getMuscleLabels(candidate.primary_muscles, locale).join(', ')}
                   </Text>
                 )}
               </TouchableOpacity>
@@ -591,27 +587,27 @@ export default function GeneratedWorkoutScreen() {
         <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.6)', alignItems: 'center', justifyContent: 'center', padding: 32 }}>
           <View style={{ width: '100%', backgroundColor: C.card, borderRadius: 20, borderWidth: 1, borderColor: C.border, overflow: 'hidden' }}>
             <View style={{ padding: 24, gap: 6 }}>
-              <Text style={{ color: C.text, fontSize: 17, fontWeight: '700' }}>Finish Workout?</Text>
-              <Text style={{ color: C.textMuted, fontSize: 14, lineHeight: 20 }}>Save your progress or discard this session.</Text>
+              <Text style={{ color: C.text, fontSize: 17, fontWeight: '700' }}>{t('finishWorkoutTitle')}</Text>
+              <Text style={{ color: C.textMuted, fontSize: 14, lineHeight: 20 }}>{t('finishWorkoutMessage')}</Text>
             </View>
             <View style={{ borderTopWidth: 1, borderTopColor: C.border }}>
               <TouchableOpacity
                 onPress={() => { setShowFinishModal(false); handleFinish(); }}
                 style={{ paddingVertical: 16, alignItems: 'center', borderBottomWidth: 1, borderBottomColor: C.border }}
               >
-                <Text style={{ color: C.text, fontSize: 15, fontWeight: '700' }}>Finish</Text>
+                <Text style={{ color: C.text, fontSize: 15, fontWeight: '700' }}>{t('finish')}</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 onPress={() => { setShowFinishModal(false); handleDiscard(); }}
                 style={{ paddingVertical: 16, alignItems: 'center', borderBottomWidth: 1, borderBottomColor: C.border }}
               >
-                <Text style={{ color: '#ef4444', fontSize: 15, fontWeight: '600' }}>Discard</Text>
+                <Text style={{ color: '#ef4444', fontSize: 15, fontWeight: '600' }}>{t('discard')}</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 onPress={() => setShowFinishModal(false)}
                 style={{ paddingVertical: 16, alignItems: 'center' }}
               >
-                <Text style={{ color: C.textMuted, fontSize: 15, fontWeight: '600' }}>Cancel</Text>
+                <Text style={{ color: C.textMuted, fontSize: 15, fontWeight: '600' }}>{t('common:cancel')}</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -621,9 +617,9 @@ export default function GeneratedWorkoutScreen() {
       {/* Delete set confirmation */}
       <ConfirmModal
         visible={deletingSet !== null}
-        title="Delete Set"
-        message="Remove this set?"
-        confirmLabel="Delete"
+        title={t('deleteSetTitle')}
+        message={t('deleteSetMessage')}
+        confirmLabel={t('common:delete')}
         destructive
         onCancel={() => setDeletingSet(null)}
         onConfirm={confirmDeleteSet}
@@ -632,9 +628,14 @@ export default function GeneratedWorkoutScreen() {
       {/* Delete card confirmation */}
       <ConfirmModal
         visible={deletingCardId !== null}
-        title="Remove Exercise"
-        message={`Remove "${cards.find((c) => c.cardId === deletingCardId)?.exercise.name ?? ''}" from this workout?`}
-        confirmLabel="Remove"
+        title={t('removeExerciseTitle')}
+        message={t('removeExerciseMessage', {
+          name: (() => {
+            const c = cards.find((c) => c.cardId === deletingCardId);
+            return c ? getExerciseDisplayName(c.exercise, locale) : '';
+          })(),
+        })}
+        confirmLabel={t('remove')}
         destructive
         onCancel={() => setDeletingCardId(null)}
         onConfirm={confirmDeleteCard}

@@ -1,8 +1,12 @@
+import { useEffect } from 'react';
 import { Stack } from "expo-router";
 import { SQLiteProvider, type SQLiteDatabase } from 'expo-sqlite';
+import { I18nextProvider } from 'react-i18next';
 import '@/global.css';
 import { setDb } from './db/database';
 import { SEED_EXERCISES } from './constants/exerciseData';
+import i18n from './i18n';
+import { getLanguage } from './storage';
 
 async function initializeDb(database: SQLiteDatabase) {
   setDb(database);
@@ -120,19 +124,27 @@ async function initializeDb(database: SQLiteDatabase) {
 }
 
 export default function RootLayout() {
+  useEffect(() => {
+    getLanguage().then((lang) => {
+      if (lang && lang !== i18n.language) i18n.changeLanguage(lang);
+    });
+  }, []);
+
   return (
-    <SQLiteProvider databaseName="openworkout.db" onInit={initializeDb}>
-      <Stack screenOptions={{ headerShown: false }}>
-        <Stack.Screen name="index" />
-        <Stack.Screen name="(tabs)" />
-        <Stack.Screen name="welcome" options={{ headerShown: false, gestureEnabled: false, animation: 'none' }} />
-        <Stack.Screen name="onboarding" options={{ headerShown: false, gestureEnabled: false, animation: 'none' }} />
-        <Stack.Screen name="pick-day" options={{ headerShown: false, presentation: 'modal' }} />
-        <Stack.Screen name="edit-split" options={{ headerShown: false, presentation: 'modal' }} />
-        <Stack.Screen name="edit-routine" options={{ headerShown: false, presentation: 'fullScreenModal' }} />
-        <Stack.Screen name="workout" options={{ presentation: 'fullScreenModal' }} />
-        <Stack.Screen name="generated-workout" options={{ headerShown: false, presentation: 'fullScreenModal' }} />
-      </Stack>
-    </SQLiteProvider>
+    <I18nextProvider i18n={i18n}>
+      <SQLiteProvider databaseName="openworkout.db" onInit={initializeDb}>
+        <Stack screenOptions={{ headerShown: false }}>
+          <Stack.Screen name="index" />
+          <Stack.Screen name="(tabs)" />
+          <Stack.Screen name="welcome" options={{ headerShown: false, gestureEnabled: false, animation: 'none' }} />
+          <Stack.Screen name="onboarding" options={{ headerShown: false, gestureEnabled: false, animation: 'none' }} />
+          <Stack.Screen name="pick-day" options={{ headerShown: false, presentation: 'modal' }} />
+          <Stack.Screen name="edit-split" options={{ headerShown: false, presentation: 'modal' }} />
+          <Stack.Screen name="edit-routine" options={{ headerShown: false, presentation: 'fullScreenModal' }} />
+          <Stack.Screen name="workout" options={{ presentation: 'fullScreenModal' }} />
+          <Stack.Screen name="generated-workout" options={{ headerShown: false, presentation: 'fullScreenModal' }} />
+        </Stack>
+      </SQLiteProvider>
+    </I18nextProvider>
   );
 }

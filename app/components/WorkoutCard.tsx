@@ -1,9 +1,11 @@
 import { View, Text, TouchableOpacity, ActivityIndicator } from "react-native";
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { type Workout, type WorkoutExerciseSummary } from '../db/workouts';
 import { getSetsForWorkout, type WorkoutSet } from '../db/sets';
 import ConfirmModal from './ConfirmModal';
+import { getExerciseDisplayName } from '../lib/exerciseTranslations';
 
 export type PastWorkout = {
   workout: Workout;
@@ -11,14 +13,18 @@ export type PastWorkout = {
   prCount: number;
 };
 
-export function formatWorkoutDate(startedAt: string): string {
+export function formatWorkoutDate(
+  startedAt: string,
+  locale: string,
+  labels: { today: string; yesterday: string },
+): string {
   const date = new Date(startedAt);
   const now = new Date();
   const diffDays = Math.floor((now.getTime() - date.getTime()) / (1000 * 60 * 60 * 24));
-  const time = date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-  if (diffDays === 0) return `Today, ${time}`;
-  if (diffDays === 1) return `Yesterday, ${time}`;
-  return date.toLocaleDateString([], { weekday: 'short', month: 'short', day: 'numeric' });
+  const time = date.toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' });
+  if (diffDays === 0) return `${labels.today}, ${time}`;
+  if (diffDays === 1) return `${labels.yesterday}, ${time}`;
+  return date.toLocaleDateString(locale, { weekday: 'short', month: 'short', day: 'numeric' });
 }
 
 export function formatVolume(volume: number, unit: string): string {
@@ -48,6 +54,8 @@ export function WorkoutCard({
   onToggle: () => void;
   onDelete: () => Promise<void>;
 }) {
+  const { t, i18n } = useTranslation('workout');
+  const locale = i18n.language;
   const { workout, summaries, prCount } = item;
   const [expandedSets, setExpandedSets] = useState<WorkoutSet[] | null>(null);
   const [loadingSets, setLoadingSets] = useState(false);
@@ -60,9 +68,9 @@ export function WorkoutCard({
   const exercisePreview = (() => {
     if (summaries.length === 0) return null;
     const sorted = [...summaries].sort((a, b) => a.first_set_at - b.first_set_at);
-    const shown = sorted.slice(0, 3).map((s) => s.exercise_name);
+    const shown = sorted.slice(0, 3).map((s) => getExerciseDisplayName({ name: s.exercise_name }, locale));
     const rest = summaries.length - shown.length;
-    return rest > 0 ? `${shown.join(', ')} +${rest} more` : shown.join(', ');
+    return rest > 0 ? `${shown.join(', ')} ${t('moreExercises', { count: rest })}` : shown.join(', ');
   })();
 
   const handleToggle = async () => {
@@ -103,16 +111,16 @@ export function WorkoutCard({
         </View>
         <View style={{ flex: 1 }}>
           <Text style={{ color: '#f4f4f5', fontWeight: '700', fontSize: 15, letterSpacing: 0.2 }} numberOfLines={1}>
-            {workout.title || 'Workout'}
+            {workout.title || t('workoutFallbackTitle')}
           </Text>
           <Text style={{ color: '#52525b', fontSize: 12, fontWeight: '500', marginTop: 2 }}>
-            {formatWorkoutDate(workout.started_at)}
+            {formatWorkoutDate(workout.started_at, locale, { today: t('today'), yesterday: t('yesterday') })}
           </Text>
         </View>
         {/* PR badge */}
         {prCount > 0 && (
           <View style={{ backgroundColor: 'rgba(245,158,11,0.15)', borderWidth: 1, borderColor: '#f59e0b', borderRadius: 6, paddingHorizontal: 8, paddingVertical: 4 }}>
-            <Text style={{ color: '#f59e0b', fontSize: 11, fontWeight: '700' }}>{prCount} {prCount === 1 ? 'PR' : 'PRs'}</Text>
+            <Text style={{ color: '#f59e0b', fontSize: 11, fontWeight: '700' }}>{t('prCount', { count: prCount })}</Text>
           </View>
         )}
         {/* Expand toggle */}
@@ -124,11 +132,11 @@ export function WorkoutCard({
       {/* Stats row */}
       <View style={{ flexDirection: 'row', gap: 8, marginTop: 12 }}>
         <View style={{ flex: 1, backgroundColor: '#0a0a0a', borderWidth: 1, borderColor: 'rgba(39,39,42,0.5)', borderRadius: 12, padding: 12, alignItems: 'center' }}>
-          <Text style={{ color: '#52525b', fontSize: 11, marginBottom: 4 }}>Sets</Text>
+          <Text style={{ color: '#52525b', fontSize: 11, marginBottom: 4 }}>{t('sets')}</Text>
           <Text style={{ color: '#d4d4d8', fontSize: 13, fontWeight: '600' }}>{totalSets}</Text>
         </View>
         <View style={{ flex: 1, backgroundColor: '#0a0a0a', borderWidth: 1, borderColor: 'rgba(39,39,42,0.5)', borderRadius: 12, padding: 12, alignItems: 'center' }}>
-          <Text style={{ color: '#52525b', fontSize: 11, marginBottom: 4 }}>Volume</Text>
+          <Text style={{ color: '#52525b', fontSize: 11, marginBottom: 4 }}>{t('volume')}</Text>
           <Text style={{ color: '#d4d4d8', fontSize: 13, fontWeight: '600' }}>{formatVolume(totalVolume, dominantUnit)}</Text>
         </View>
       </View>
@@ -143,9 +151,9 @@ export function WorkoutCard({
 
       <ConfirmModal
         visible={showDeleteModal}
-        title="Delete Workout"
-        message="This will permanently delete this workout and all its sets."
-        confirmLabel="Delete"
+        title={t('deleteWorkoutTitle')}
+        message={t('deleteWorkoutMessage')}
+        confirmLabel={t('common:delete')}
         destructive
         onCancel={() => setShowDeleteModal(false)}
         onConfirm={() => { setShowDeleteModal(false); onDelete(); }}
@@ -162,7 +170,7 @@ export function WorkoutCard({
               return (
                 <View key={summary.exercise_id} style={{ marginBottom: 12 }}>
                   <Text style={{ color: '#a1a1aa', fontSize: 13, fontWeight: '600', marginBottom: 6 }}>
-                    {summary.exercise_name}
+                    {getExerciseDisplayName({ name: summary.exercise_name }, locale)}
                   </Text>
                   <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 6 }}>
                     {sets.map((s, idx) => (
@@ -170,7 +178,7 @@ export function WorkoutCard({
                         key={s.id}
                         style={{ backgroundColor: '#0a0a0a', borderWidth: 1, borderColor: 'rgba(39,39,42,0.6)', borderRadius: 8, paddingHorizontal: 10, paddingVertical: 6 }}
                       >
-                        <Text style={{ color: '#71717a', fontSize: 11 }}>Set {idx + 1}</Text>
+                        <Text style={{ color: '#71717a', fontSize: 11 }}>{t('setLabel', { n: idx + 1 })}</Text>
                         <Text style={{ color: '#d4d4d8', fontSize: 12, fontWeight: '600', marginTop: 2 }}>
                           {s.weight} {s.unit} × {s.reps}
                         </Text>
@@ -186,7 +194,7 @@ export function WorkoutCard({
             style={{ marginTop: 4, borderTopWidth: 1, borderTopColor: 'rgba(39,39,42,0.8)', paddingTop: 12, flexDirection: 'row', alignItems: 'center', gap: 8 }}
           >
             <Ionicons name="trash-outline" size={15} color="#ef4444" />
-            <Text style={{ color: '#ef4444', fontSize: 13, fontWeight: '600' }}>Delete Workout</Text>
+            <Text style={{ color: '#ef4444', fontSize: 13, fontWeight: '600' }}>{t('deleteWorkout')}</Text>
           </TouchableOpacity>
         </View>
       )}

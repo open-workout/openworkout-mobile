@@ -2,6 +2,7 @@ import { View, Text, TouchableOpacity, StatusBar } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { useTranslation } from 'react-i18next';
 import { markOnboardingDone } from './storage';
 
 const C = {
@@ -16,6 +17,7 @@ const C = {
 };
 
 export default function WelcomeScreen() {
+  const { t } = useTranslation('onboarding');
   const router = useRouter();
 
   async function handleSkip() {
@@ -47,7 +49,7 @@ export default function WelcomeScreen() {
               OpenWorkout
             </Text>
             <Text style={{ color: C.textMuted, fontSize: 16, textAlign: 'center', lineHeight: 24 }}>
-              Track your training, built around{'\n'}your schedule.
+              {t('appTagline')}
             </Text>
           </View>
         </View>
@@ -55,9 +57,9 @@ export default function WelcomeScreen() {
         {/* Feature hints */}
         <View style={{ gap: 16 }}>
           {[
-            { icon: 'calendar-outline' as const, label: 'Structure your week with a training split' },
-            { icon: 'barbell-outline' as const, label: 'Log sets and track personal records' },
-            { icon: 'trending-up-outline' as const, label: 'Watch your progress over time' },
+            { icon: 'calendar-outline' as const, label: t('featureSplit') },
+            { icon: 'barbell-outline' as const, label: t('featureLogSets') },
+            { icon: 'trending-up-outline' as const, label: t('featureProgress') },
           ].map(({ icon, label }) => (
             <View key={label} style={{ flexDirection: 'row', alignItems: 'center', gap: 14 }}>
               <View style={{
@@ -84,7 +86,7 @@ export default function WelcomeScreen() {
               alignItems: 'center',
             }}
           >
-            <Text style={{ color: C.activeDark, fontSize: 16, fontWeight: '700' }}>Start Setup</Text>
+            <Text style={{ color: C.activeDark, fontSize: 16, fontWeight: '700' }}>{t('startSetup')}</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
@@ -92,7 +94,7 @@ export default function WelcomeScreen() {
             activeOpacity={0.7}
             style={{ paddingVertical: 14, alignItems: 'center' }}
           >
-            <Text style={{ color: C.textDim, fontSize: 15, fontWeight: '500' }}>Skip for now</Text>
+            <Text style={{ color: C.textDim, fontSize: 15, fontWeight: '500' }}>{t('skipForNow')}</Text>
           </TouchableOpacity>
         </View>
 

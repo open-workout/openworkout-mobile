@@ -16,7 +16,6 @@
     },
     "android": {
       "icon": "./assets/images/icon.png",
-
       "backgroundColor": "#0a0a0a",
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
@@ -36,7 +35,8 @@
           "resizeMode": "contain",
           "backgroundColor": "#000000"
         }
-      ]
+      ],
+      "expo-localization"
     ],
     "experiments": {
       "typedRoutes": true,

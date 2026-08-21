@@ -184,11 +184,11 @@ export const DAY_TEMPLATES: DayTemplate[] = [
   },
 ];
 
-export const MUSCLE_SECTIONS_SPLIT: { label: string; muscles: string[]; isSuper: boolean }[] = [
-  { label: 'Super Muscles', muscles: ['legs', 'back', 'shoulders'], isSuper: true },
-  { label: 'Chest & Arms', muscles: ['chest', 'biceps', 'triceps', 'forearms'], isSuper: false },
-  { label: 'Core', muscles: ['core', 'abs'], isSuper: false },
-  { label: 'Legs', muscles: ['quads', 'glutes', 'hamstrings', 'adductors', 'calves'], isSuper: false },
-  { label: 'Back', muscles: ['traps', 'lats', 'rhomboids', 'lower back'], isSuper: false },
-  { label: 'Shoulders', muscles: ['front delts', 'side delts', 'rear delts'], isSuper: false },
+export const MUSCLE_SECTIONS_SPLIT: { id: string; label: string; muscles: string[]; isSuper: boolean }[] = [
+  { id: 'superMuscles', label: 'Super Muscles', muscles: ['legs', 'back', 'shoulders'], isSuper: true },
+  { id: 'chestArms', label: 'Chest & Arms', muscles: ['chest', 'biceps', 'triceps', 'forearms'], isSuper: false },
+  { id: 'core', label: 'Core', muscles: ['core', 'abs'], isSuper: false },
+  { id: 'legs', label: 'Legs', muscles: ['quads', 'glutes', 'hamstrings', 'adductors', 'calves'], isSuper: false },
+  { id: 'back', label: 'Back', muscles: ['traps', 'lats', 'rhomboids', 'lower back'], isSuper: false },
+  { id: 'shoulders', label: 'Shoulders', muscles: ['front delts', 'side delts', 'rear delts'], isSuper: false },
 ];

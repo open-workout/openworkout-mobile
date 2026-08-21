@@ -1,0 +1,16 @@
+{
+  "whichUnit": "Ce unitate folosești?",
+  "unitHint": "Poți schimba asta oricând din profilul tău.",
+  "kilograms": "Kilograme",
+  "pounds": "Livre",
+  "continue": "Continuă",
+  "workoutStructure": "Structura antrenamentului",
+  "workoutStructureHint": "Cum îți structurezi de obicei sesiunile? Poți schimba asta mai târziu.",
+  "getStarted": "Începe",
+  "appTagline": "Urmărește-ți antrenamentul, adaptat la\nprogramul tău.",
+  "featureSplit": "Structurează-ți săptămâna cu un program de antrenament",
+  "featureLogSets": "Înregistrează seturi și urmărește recorduri personale",
+  "featureProgress": "Urmărește-ți progresul în timp",
+  "startSetup": "Începe configurarea",
+  "skipForNow": "Sari peste pentru moment"
+}

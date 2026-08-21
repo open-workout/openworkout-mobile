@@ -3,6 +3,7 @@ import { View, Text, TouchableOpacity, StatusBar, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import { useTranslation } from 'react-i18next';
 import { deleteAllSplits, insertSplit } from './db/splits';
 import { useSplit } from './hooks/useSplit';
 import { PRESET_SPLITS, type SplitDay } from './constants/splits';
@@ -16,6 +17,7 @@ const C = {
 };
 
 export default function EditSplitScreen() {
+  const { t } = useTranslation('routines');
   const router = useRouter();
   const { split, isLoading } = useSplit();
 
@@ -38,12 +40,12 @@ export default function EditSplitScreen() {
 
   function handleDelete() {
     Alert.alert(
-      'Delete Split',
-      'Remove your training split? You can set it up again from your profile.',
+      t('deleteSplitTitle'),
+      t('deleteSplitMessage'),
       [
-        { text: 'Cancel', style: 'cancel' },
+        { text: t('common:cancel'), style: 'cancel' },
         {
-          text: 'Delete',
+          text: t('common:delete'),
           style: 'destructive',
           onPress: async () => { await deleteAllSplits(); router.back(); },
         },
@@ -66,9 +68,9 @@ export default function EditSplitScreen() {
         borderBottomColor: C.border,
       }}>
         <TouchableOpacity onPress={() => router.back()}>
-          <Text style={{ color: C.textMuted, fontSize: 16 }}>Cancel</Text>
+          <Text style={{ color: C.textMuted, fontSize: 16 }}>{t('common:cancel')}</Text>
         </TouchableOpacity>
-        <Text style={{ color: C.text, fontSize: 16, fontWeight: '700' }}>Training Split</Text>
+        <Text style={{ color: C.text, fontSize: 16, fontWeight: '700' }}>{t('trainingSplitTitle')}</Text>
         <TouchableOpacity
           onPress={handleDelete}
           disabled={!split}
@@ -83,7 +85,6 @@ export default function EditSplitScreen() {
           initialPreset={matchingPreset}
           initialDays={initialDays}
           startInCustom={startInCustom}
-          saveLabel="Save"
           onSave={handleSave}
         />
       )}

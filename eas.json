@@ -17,7 +17,8 @@
       },
       "ios": {
         "simulator": false
-      }
+      },
+      "autoIncrement":true
     }
   },
   "submit": {

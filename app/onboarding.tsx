@@ -9,11 +9,14 @@ import { markOnboardingDone, setWeightUnit, setWorkoutPreferences, getWorkoutPre
 import type { SplitDay } from './constants/splits';
 import SplitEditor from './components/SplitEditor';
 import WorkoutPrefsEditor from './components/WorkoutPrefsEditor';
+import { useLanguage } from './hooks/useLanguage';
+import { SUPPORTED_LANGUAGES, LANGUAGE_LABELS } from './i18n/resources';
 
 export default function OnboardingScreen() {
   const { t } = useTranslation('onboarding');
   const router = useRouter();
-  const [step, setStep] = useState<'unit' | 'split' | 'preferences'>('unit');
+  const { language, update: updateLanguage } = useLanguage();
+  const [step, setStep] = useState<'language' | 'unit' | 'split' | 'preferences'>('language');
   const [unit, setUnit] = useState<'kg' | 'lbs'>('kg');
   const [pendingSplit, setPendingSplit] = useState<{ name: string; days: SplitDay[] } | null>(null);
   const [prefs, setPrefs] = useState<WorkoutPreferences>({ ...DEFAULT_WORKOUT_PREFS });
@@ -28,6 +31,63 @@ export default function OnboardingScreen() {
     if (pendingSplit) await insertSplit(pendingSplit);
     await markOnboardingDone();
     router.replace('/home');
+  }
+
+  if (step === 'language') {
+    return (
+      <SafeAreaView style={{ flex: 1, backgroundColor: '#0a0a0a' }} edges={['top', 'bottom']}>
+        <StatusBar barStyle="light-content" />
+        <View style={{ flex: 1, paddingHorizontal: 28, justifyContent: 'space-between', paddingTop: 60, paddingBottom: 24 }}>
+
+          <View style={{ gap: 12 }}>
+            <Text style={{ color: '#f4f4f5', fontSize: 28, fontWeight: '900', letterSpacing: -0.5 }}>
+              {t('whichLanguage')}
+            </Text>
+            <Text style={{ color: '#71717a', fontSize: 15, lineHeight: 22 }}>
+              {t('languageHint')}
+            </Text>
+          </View>
+
+          <View style={{ gap: 12 }}>
+            {SUPPORTED_LANGUAGES.map((lang) => {
+              const selected = language === lang;
+              return (
+                <TouchableOpacity
+                  key={lang}
+                  onPress={() => updateLanguage(lang)}
+                  activeOpacity={0.8}
+                  style={{
+                    backgroundColor: selected ? '#f4f4f5' : '#18181b',
+                    borderRadius: 16,
+                    paddingVertical: 18,
+                    paddingHorizontal: 24,
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    borderWidth: 1,
+                    borderColor: selected ? '#f4f4f5' : '#27272a',
+                  }}
+                >
+                  <Text style={{ color: selected ? '#09090b' : '#f4f4f5', fontSize: 17, fontWeight: '700' }}>
+                    {LANGUAGE_LABELS[lang]}
+                  </Text>
+                  {selected && <Ionicons name="checkmark-circle" size={22} color="#09090b" />}
+                </TouchableOpacity>
+              );
+            })}
+          </View>
+
+          <TouchableOpacity
+            onPress={() => setStep('unit')}
+            activeOpacity={0.85}
+            style={{ backgroundColor: '#f4f4f5', borderRadius: 14, paddingVertical: 17, alignItems: 'center' }}
+          >
+            <Text style={{ color: '#09090b', fontSize: 16, fontWeight: '700' }}>{t('continue')}</Text>
+          </TouchableOpacity>
+
+        </View>
+      </SafeAreaView>
+    );
   }
 
   if (step === 'unit') {

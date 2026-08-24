@@ -1,4 +1,6 @@
 {
+  "whichLanguage": "Quelle langue préférez-vous ?",
+  "languageHint": "Vous pouvez modifier ce choix à tout moment dans votre profil.",
   "whichUnit": "Quelle unité utilisez-vous ?",
   "unitHint": "Vous pouvez modifier ce choix à tout moment dans votre profil.",
   "kilograms": "Kilogrammes",

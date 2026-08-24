@@ -3,6 +3,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useState, useEffect, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { getAllRoutines, insertRoutine, updateRoutine } from './db/routines';
 import { useExercises } from './hooks/useExercises';
 import { useKeyboardHeight } from './hooks/useKeyboardHeight';
@@ -10,6 +11,7 @@ import FormField from './components/FormField';
 import AddExerciseModal from './components/AddExerciseModal';
 import type { Exercise, NewExerciseInput } from './db/exercises';
 import { getAllExercises } from './db/exercises';
+import { exerciseMatchesQuery, getExerciseDisplayName, getMuscleLabels } from './lib/exerciseTranslations';
 
 const C = {
   bg: '#0a0a0a',
@@ -23,6 +25,8 @@ const C = {
 
 
 export default function EditRoutineScreen() {
+  const { t, i18n } = useTranslation('routines');
+  const locale = i18n.language;
   const router = useRouter();
   const { routineId } = useLocalSearchParams<{ routineId?: string }>();
   const { exercises, createExercise } = useExercises();
@@ -59,13 +63,10 @@ export default function EditRoutineScreen() {
   );
 
   const pickerCandidates = useMemo(() => {
-    const q = pickerSearch.trim().toLowerCase();
     return exercises.filter(
-      (e) =>
-        !alreadyAdded.has(e.id) &&
-        (q === '' || e.name.toLowerCase().includes(q) || (e.alt_names ?? []).some((a) => a.toLowerCase().includes(q))),
+      (e) => !alreadyAdded.has(e.id) && exerciseMatchesQuery(e, pickerSearch, locale),
     );
-  }, [exercises, pickerSearch, alreadyAdded]);
+  }, [exercises, pickerSearch, alreadyAdded, locale]);
 
   const addExercise = (exercise: Exercise) => {
     setSelectedExercises((prev) => [...prev, exercise]);
@@ -79,7 +80,7 @@ export default function EditRoutineScreen() {
 
   const handleSave = async () => {
     if (!name.trim()) {
-      setNameError('Name is required');
+      setNameError(t('nameRequired'));
       return;
     }
     const input = {
@@ -109,13 +110,13 @@ export default function EditRoutineScreen() {
         borderBottomColor: C.border,
       }}>
         <TouchableOpacity onPress={() => router.back()}>
-          <Text style={{ color: C.textMuted, fontSize: 16 }}>Cancel</Text>
+          <Text style={{ color: C.textMuted, fontSize: 16 }}>{t('common:cancel')}</Text>
         </TouchableOpacity>
         <Text style={{ color: C.text, fontSize: 16, fontWeight: '700' }}>
-          {routineId ? 'Edit Routine' : 'New Routine'}
+          {routineId ? t('editRoutine') : t('newRoutine')}
         </Text>
         <TouchableOpacity onPress={handleSave}>
-          <Text style={{ color: C.text, fontSize: 16, fontWeight: '700' }}>Save</Text>
+          <Text style={{ color: C.text, fontSize: 16, fontWeight: '700' }}>{t('common:save')}</Text>
         </TouchableOpacity>
       </View>
 
@@ -126,10 +127,10 @@ export default function EditRoutineScreen() {
         showsVerticalScrollIndicator={false}
       >
         <FormField
-          label="Routine name"
+          label={t('routineNameLabel')}
           value={name}
-          onChangeText={(t) => { setName(t); if (t.trim()) setNameError(''); }}
-          placeholder="e.g. Push Day"
+          onChangeText={(text) => { setName(text); if (text.trim()) setNameError(''); }}
+          placeholder={t('routineNamePlaceholder')}
           error={nameError}
           autoFocus={!routineId}
         />
@@ -137,13 +138,13 @@ export default function EditRoutineScreen() {
         {/* Exercise list */}
         <View style={{ marginTop: 8 }}>
           <Text style={{ color: C.textDim, fontSize: 10, fontWeight: '600', textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 12 }}>
-            Exercises
+            {t('exercisesSectionTitle')}
           </Text>
 
           {selectedExercises.length === 0 ? (
             <View style={{ borderWidth: 1, borderColor: C.border, borderRadius: 14, padding: 24, alignItems: 'center' }}>
               <Text style={{ color: C.textDim, fontSize: 14, textAlign: 'center' }}>
-                No exercises added yet. Tap the button below to add exercises to this routine.
+                {t('noExercisesAdded')}
               </Text>
             </View>
           ) : (
@@ -163,10 +164,10 @@ export default function EditRoutineScreen() {
                 }}
               >
                 <View style={{ flex: 1 }}>
-                  <Text style={{ color: C.text, fontSize: 15, fontWeight: '600' }}>{exercise.name}</Text>
+                  <Text style={{ color: C.text, fontSize: 15, fontWeight: '600' }}>{getExerciseDisplayName(exercise, locale)}</Text>
                   {exercise.primary_muscles.length > 0 && (
-                    <Text style={{ color: C.textMuted, fontSize: 12, marginTop: 2, textTransform: 'capitalize' }}>
-                      {exercise.primary_muscles.join(', ')}
+                    <Text style={{ color: C.textMuted, fontSize: 12, marginTop: 2 }}>
+                      {getMuscleLabels(exercise.primary_muscles, locale).join(', ')}
                     </Text>
                   )}
                 </View>
@@ -177,8 +178,8 @@ export default function EditRoutineScreen() {
                   borderRadius: 6,
                   marginRight: 12,
                 }}>
-                  <Text style={{ color: C.textMuted, fontSize: 11, fontWeight: '600', textTransform: 'capitalize' }}>
-                    {exercise.exercise_type || 'exercise'}
+                  <Text style={{ color: C.textMuted, fontSize: 11, fontWeight: '600' }}>
+                    {exercise.exercise_type ? t(`explore:exerciseType.${exercise.exercise_type}`, { defaultValue: exercise.exercise_type }) : t('exercise')}
                   </Text>
                 </View>
                 <TouchableOpacity
@@ -208,7 +209,7 @@ export default function EditRoutineScreen() {
             }}
           >
             <Ionicons name="add" size={18} color={C.textDim} />
-            <Text style={{ color: C.textDim, fontWeight: '600', fontSize: 15 }}>Add Exercise</Text>
+            <Text style={{ color: C.textDim, fontWeight: '600', fontSize: 15 }}>{t('addExercise')}</Text>
           </TouchableOpacity>
         </View>
       </ScrollView>
@@ -222,7 +223,7 @@ export default function EditRoutineScreen() {
       >
         <SafeAreaView style={{ flex: 1, backgroundColor: C.bg }} edges={['top']}>
           <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16, paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: C.border }}>
-            <Text style={{ color: C.text, fontSize: 17, fontWeight: '700' }}>Add Exercise</Text>
+            <Text style={{ color: C.text, fontSize: 17, fontWeight: '700' }}>{t('addExercise')}</Text>
             <TouchableOpacity
               onPress={() => { setShowPicker(false); setPickerSearch(''); }}
               style={{ width: 40, height: 40, alignItems: 'center', justifyContent: 'center' }}
@@ -236,7 +237,7 @@ export default function EditRoutineScreen() {
             <TextInput
               value={pickerSearch}
               onChangeText={setPickerSearch}
-              placeholder="Search exercises…"
+              placeholder={t('searchExercisesPlaceholder')}
               placeholderTextColor={C.textDim}
               style={{ flex: 1, color: C.text, fontSize: 15, paddingVertical: 10 }}
               autoCorrect={false}
@@ -262,13 +263,13 @@ export default function EditRoutineScreen() {
               <View style={{ width: 28, height: 28, borderRadius: 8, backgroundColor: C.card, borderWidth: 1, borderColor: C.borderAlt, alignItems: 'center', justifyContent: 'center' }}>
                 <Ionicons name="add" size={18} color={C.text} />
               </View>
-              <Text style={{ color: C.text, fontSize: 15, fontWeight: '600' }}>Create Exercise</Text>
+              <Text style={{ color: C.text, fontSize: 15, fontWeight: '600' }}>{t('createExercise')}</Text>
             </TouchableOpacity>
 
             {pickerCandidates.length === 0 && pickerSearch.length > 0 ? (
               <View style={{ alignItems: 'center', paddingTop: 48, paddingHorizontal: 32 }}>
                 <Text style={{ color: C.textDim, fontSize: 15, textAlign: 'center' }}>
-                  No exercises match your search
+                  {t('noExercisesMatchSearch')}
                 </Text>
               </View>
             ) : (
@@ -278,10 +279,10 @@ export default function EditRoutineScreen() {
                   onPress={() => addExercise(candidate)}
                   style={{ paddingHorizontal: 20, paddingVertical: 16, borderBottomWidth: 1, borderBottomColor: C.border }}
                 >
-                  <Text style={{ color: C.text, fontSize: 16, fontWeight: '600' }}>{candidate.name}</Text>
+                  <Text style={{ color: C.text, fontSize: 16, fontWeight: '600' }}>{getExerciseDisplayName(candidate, locale)}</Text>
                   {candidate.primary_muscles.length > 0 && (
-                    <Text style={{ color: C.textDim, fontSize: 13, marginTop: 2, textTransform: 'capitalize' }}>
-                      {candidate.primary_muscles.join(', ')}
+                    <Text style={{ color: C.textDim, fontSize: 13, marginTop: 2 }}>
+                      {getMuscleLabels(candidate.primary_muscles, locale).join(', ')}
                     </Text>
                   )}
                 </TouchableOpacity>

@@ -1,0 +1,53 @@
+{
+  "title": "Library",
+  "searchPlaceholder": "Find an exercise...",
+  "noExercisesFound": "No exercises found",
+  "exerciseCount_one": "{{count}} exercise",
+  "exerciseCount_other": "{{count}} exercises",
+  "type": "Type",
+  "primary": "Primary",
+  "secondary": "Secondary",
+  "notes": "Notes",
+  "exercise": "exercise",
+  "exerciseType": {
+    "compound": "Compound",
+    "isolation": "Isolation"
+  },
+  "deleteExercise": "Delete Exercise",
+  "deleteExerciseMessage": "Remove \"{{name}}\" from your library?",
+  "addExerciseModal": {
+    "editExercise": "Edit Exercise",
+    "newExercise": "New Exercise",
+    "saving": "Saving…",
+    "nameSectionHeader": "Name",
+    "namePlaceholder": "e.g. Barbell Bench Press",
+    "nameRequired": "Name is required",
+    "exerciseTypeSectionHeader": "Exercise Type",
+    "exerciseTypes": {
+      "compound": { "label": "Compound", "description": "Multi-joint" },
+      "accessory": { "label": "Accessory", "description": "Supporting lift" },
+      "isolation": { "label": "Isolation", "description": "Single joint" }
+    },
+    "primaryMusclesSectionHeader": "Primary Muscles",
+    "secondaryMusclesSectionHeader": "Secondary Muscles",
+    "altNamesSectionHeader": "Alternative Names",
+    "altNamePlaceholder": "e.g. Flat Press",
+    "descriptionSectionHeader": "Description (optional)",
+    "descriptionPlaceholder": "Add notes about form, cues, or variations…",
+    "settingsSectionHeader": "Settings",
+    "weightDirectionLabel": "Weight Direction",
+    "weightDirectionHint": "How difficulty changes as weight increases",
+    "weightDirectionNormal": "Normal",
+    "weightDirectionNormalSub": "Harder with more weight",
+    "weightDirectionAssisted": "Assisted",
+    "weightDirectionAssistedSub": "Easier with more weight",
+    "muscleSections": {
+      "superMuscles": "Super Muscles",
+      "chestArms": "Chest & Arms",
+      "core": "Core",
+      "legs": "Legs",
+      "back": "Back",
+      "shoulders": "Shoulders"
+    }
+  }
+}

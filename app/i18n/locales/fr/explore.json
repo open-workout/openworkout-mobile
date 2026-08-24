@@ -1,0 +1,53 @@
+{
+  "title": "Bibliothèque",
+  "searchPlaceholder": "Rechercher un exercice...",
+  "noExercisesFound": "Aucun exercice trouvé",
+  "exerciseCount_one": "{{count}} exercice",
+  "exerciseCount_other": "{{count}} exercices",
+  "type": "Type",
+  "primary": "Principal",
+  "secondary": "Secondaire",
+  "notes": "Notes",
+  "exercise": "exercice",
+  "exerciseType": {
+    "compound": "Polyarticulaire",
+    "isolation": "Isolation"
+  },
+  "deleteExercise": "Supprimer l'exercice",
+  "deleteExerciseMessage": "Retirer « {{name}} » de votre bibliothèque ?",
+  "addExerciseModal": {
+    "editExercise": "Modifier l'exercice",
+    "newExercise": "Nouvel exercice",
+    "saving": "Enregistrement…",
+    "nameSectionHeader": "Nom",
+    "namePlaceholder": "ex. Développé couché barre",
+    "nameRequired": "Le nom est requis",
+    "exerciseTypeSectionHeader": "Type d'exercice",
+    "exerciseTypes": {
+      "compound": { "label": "Polyarticulaire", "description": "Plusieurs articulations" },
+      "accessory": { "label": "Accessoire", "description": "Mouvement de soutien" },
+      "isolation": { "label": "Isolation", "description": "Une seule articulation" }
+    },
+    "primaryMusclesSectionHeader": "Muscles principaux",
+    "secondaryMusclesSectionHeader": "Muscles secondaires",
+    "altNamesSectionHeader": "Noms alternatifs",
+    "altNamePlaceholder": "ex. Développé plat",
+    "descriptionSectionHeader": "Description (optionnel)",
+    "descriptionPlaceholder": "Ajoutez des notes sur la forme, les repères ou les variantes…",
+    "settingsSectionHeader": "Paramètres",
+    "weightDirectionLabel": "Sens de la charge",
+    "weightDirectionHint": "Comment la difficulté évolue avec plus de poids",
+    "weightDirectionNormal": "Normal",
+    "weightDirectionNormalSub": "Plus difficile avec plus de poids",
+    "weightDirectionAssisted": "Assisté",
+    "weightDirectionAssistedSub": "Plus facile avec plus de poids",
+    "muscleSections": {
+      "superMuscles": "Super groupes",
+      "chestArms": "Pectoraux & Bras",
+      "core": "Gainage",
+      "legs": "Jambes",
+      "back": "Dos",
+      "shoulders": "Épaules"
+    }
+  }
+}

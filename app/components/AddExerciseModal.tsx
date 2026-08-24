@@ -12,7 +12,9 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
+import { useTranslation } from 'react-i18next';
 import type { Exercise, NewExerciseInput } from '../db/exercises';
+import { getMuscleLabel } from '../lib/exerciseTranslations';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -42,20 +44,16 @@ const INITIAL_FORM: FormState = {
   weight_direction: 1,
 };
 
-const MUSCLE_SECTIONS: { label: string; muscles: string[]; isSuper: boolean }[] = [
-  { label: 'Super Muscles', muscles: ['legs', 'back', 'shoulders'], isSuper: true },
-  { label: 'Chest & Arms', muscles: ['chest', 'biceps', 'triceps', 'forearms'], isSuper: false },
-  { label: 'Core', muscles: ['core', 'abs'], isSuper: false },
-  { label: 'Legs', muscles: ['quads', 'glutes', 'hamstrings', 'adductors', 'calves'], isSuper: false },
-  { label: 'Back', muscles: ['traps', 'lats', 'rhomboids', 'lower back'], isSuper: false },
-  { label: 'Shoulders', muscles: ['front delts', 'side delts', 'rear delts'], isSuper: false },
+const MUSCLE_SECTIONS: { id: string; muscles: string[]; isSuper: boolean }[] = [
+  { id: 'superMuscles', muscles: ['legs', 'back', 'shoulders'], isSuper: true },
+  { id: 'chestArms', muscles: ['chest', 'biceps', 'triceps', 'forearms'], isSuper: false },
+  { id: 'core', muscles: ['core', 'abs'], isSuper: false },
+  { id: 'legs', muscles: ['quads', 'glutes', 'hamstrings', 'adductors', 'calves'], isSuper: false },
+  { id: 'back', muscles: ['traps', 'lats', 'rhomboids', 'lower back'], isSuper: false },
+  { id: 'shoulders', muscles: ['front delts', 'side delts', 'rear delts'], isSuper: false },
 ];
 
-const EXERCISE_TYPES: { value: ExerciseType; label: string; description: string }[] = [
-  { value: 'compound', label: 'Compound', description: 'Multi-joint' },
-  { value: 'accessory', label: 'Accessory', description: 'Supporting lift' },
-  { value: 'isolation', label: 'Isolation', description: 'Single joint' },
-];
+const EXERCISE_TYPES: ExerciseType[] = ['compound', 'accessory', 'isolation'];
 
 // ─── Palette (matches app theme) ─────────────────────────────────────────────
 
@@ -91,9 +89,10 @@ function SectionHeader({ children }: { children: string }) {
 }
 
 function MuscleChip({
-  muscle, isSelected, isSuper, onPress,
+  muscle, label, isSelected, isSuper, onPress,
 }: {
   muscle: string;
+  label: string;
   isSelected: boolean;
   isSuper: boolean;
   onPress: () => void;
@@ -126,9 +125,8 @@ function MuscleChip({
         fontSize: 13,
         fontWeight: '600',
         color: isSelected ? C.activeDark : C.text,
-        textTransform: 'capitalize',
       }}>
-        {muscle}
+        {label}
       </Text>
     </TouchableOpacity>
   );
@@ -138,16 +136,20 @@ function MuscleSelector({
   sectionTitle,
   selected,
   onToggle,
+  locale,
+  t,
 }: {
   sectionTitle: string;
   selected: string[];
   onToggle: (muscle: string) => void;
+  locale: string;
+  t: (key: string) => string;
 }) {
   return (
     <View>
       <SectionHeader>{sectionTitle}</SectionHeader>
       {MUSCLE_SECTIONS.map((section) => (
-        <View key={section.label} style={{ marginBottom: 8 }}>
+        <View key={section.id} style={{ marginBottom: 8 }}>
           <Text style={{
             color: C.textDim,
             fontSize: 10,
@@ -156,13 +158,14 @@ function MuscleSelector({
             letterSpacing: 0.8,
             marginBottom: 8,
           }}>
-            {section.label}
+            {t(`muscleSections.${section.id}`)}
           </Text>
           <View style={{ flexDirection: 'row', flexWrap: 'wrap' }}>
             {section.muscles.map((muscle) => (
               <MuscleChip
                 key={muscle}
                 muscle={muscle}
+                label={getMuscleLabel(muscle, locale)}
                 isSelected={selected.includes(muscle)}
                 isSuper={section.isSuper}
                 onPress={() => onToggle(muscle)}
@@ -209,6 +212,9 @@ type Props = {
 };
 
 export default function AddExerciseModal({ visible, onClose, onSubmit, exercise }: Props) {
+  const { t: tExplore, i18n } = useTranslation('explore');
+  const t = (key: string, options?: Record<string, unknown>) => tExplore(`addExerciseModal.${key}`, options);
+  const locale = i18n.language;
   const [form, setForm] = useState<FormState>(INITIAL_FORM);
   const [submitting, setSubmitting] = useState(false);
   const [nameError, setNameError] = useState('');
@@ -262,7 +268,7 @@ export default function AddExerciseModal({ visible, onClose, onSubmit, exercise 
 
   async function handleSubmit() {
     if (!form.name.trim()) {
-      setNameError('Name is required');
+      setNameError(t('nameRequired'));
       return;
     }
     setNameError('');
@@ -314,9 +320,9 @@ export default function AddExerciseModal({ visible, onClose, onSubmit, exercise 
             borderBottomColor: C.border,
           }}>
             <TouchableOpacity onPress={handleClose}>
-              <Text style={{ color: C.textMuted, fontSize: 16 }}>Cancel</Text>
+              <Text style={{ color: C.textMuted, fontSize: 16 }}>{tExplore('common:cancel')}</Text>
             </TouchableOpacity>
-            <Text style={{ color: C.text, fontSize: 16, fontWeight: '700' }}>{exercise ? 'Edit Exercise' : 'New Exercise'}</Text>
+            <Text style={{ color: C.text, fontSize: 16, fontWeight: '700' }}>{exercise ? t('editExercise') : t('newExercise')}</Text>
             <TouchableOpacity
               onPress={handleSubmit}
               disabled={submitting}
@@ -332,7 +338,7 @@ export default function AddExerciseModal({ visible, onClose, onSubmit, exercise 
                 fontSize: 14,
                 fontWeight: '700',
               }}>
-                {submitting ? 'Saving…' : 'Save'}
+                {submitting ? t('saving') : tExplore('common:save')}
               </Text>
             </TouchableOpacity>
           </View>
@@ -344,11 +350,11 @@ export default function AddExerciseModal({ visible, onClose, onSubmit, exercise 
             showsVerticalScrollIndicator={false}
           >
             {/* ── Name ── */}
-            <SectionHeader>Name</SectionHeader>
+            <SectionHeader>{t('nameSectionHeader')}</SectionHeader>
             <TextInput
               value={form.name}
               onChangeText={(v) => { set('name', v); setNameError(''); }}
-              placeholder="e.g. Barbell Bench Press"
+              placeholder={t('namePlaceholder')}
               placeholderTextColor={C.textDim}
               style={{
                 backgroundColor: C.card,
@@ -367,12 +373,12 @@ export default function AddExerciseModal({ visible, onClose, onSubmit, exercise 
             )}
 
             {/* ── Exercise Type ── */}
-            <SectionHeader>Exercise Type</SectionHeader>
+            <SectionHeader>{t('exerciseTypeSectionHeader')}</SectionHeader>
             <View style={{
               flexDirection: 'row',
               gap: 8,
             }}>
-              {EXERCISE_TYPES.map(({ value, label, description }) => {
+              {EXERCISE_TYPES.map((value) => {
                 const active = form.exercise_type === value;
                 return (
                   <TouchableOpacity
@@ -393,14 +399,14 @@ export default function AddExerciseModal({ visible, onClose, onSubmit, exercise 
                       fontSize: 13,
                       fontWeight: '700',
                     }}>
-                      {label}
+                      {t(`exerciseTypes.${value}.label`)}
                     </Text>
                     <Text style={{
                       color: active ? '#52525b' : C.textDim,
                       fontSize: 11,
                       marginTop: 2,
                     }}>
-                      {description}
+                      {t(`exerciseTypes.${value}.description`)}
                     </Text>
                   </TouchableOpacity>
                 );
@@ -409,20 +415,24 @@ export default function AddExerciseModal({ visible, onClose, onSubmit, exercise 
 
             {/* ── Primary Muscles ── */}
             <MuscleSelector
-              sectionTitle="Primary Muscles"
+              sectionTitle={t('primaryMusclesSectionHeader')}
               selected={form.primary_muscles}
               onToggle={(m) => toggleMuscle('primary_muscles', m)}
+              locale={locale}
+              t={t}
             />
 
             {/* ── Secondary Muscles ── */}
             <MuscleSelector
-              sectionTitle="Secondary Muscles"
+              sectionTitle={t('secondaryMusclesSectionHeader')}
               selected={form.secondary_muscles}
               onToggle={(m) => toggleMuscle('secondary_muscles', m)}
+              locale={locale}
+              t={t}
             />
 
             {/* ── Alt Names ── */}
-            <SectionHeader>Alternative Names</SectionHeader>
+            <SectionHeader>{t('altNamesSectionHeader')}</SectionHeader>
             {form.alt_names.length > 0 && (
               <View style={{ flexDirection: 'row', flexWrap: 'wrap', marginBottom: 8 }}>
                 {form.alt_names.map((name) => (
@@ -435,7 +445,7 @@ export default function AddExerciseModal({ visible, onClose, onSubmit, exercise 
                 value={form.altNameDraft}
                 onChangeText={(v) => set('altNameDraft', v)}
                 onSubmitEditing={addAltName}
-                placeholder="e.g. Flat Press"
+                placeholder={t('altNamePlaceholder')}
                 placeholderTextColor={C.textDim}
                 returnKeyType="done"
                 blurOnSubmit={false}
@@ -468,11 +478,11 @@ export default function AddExerciseModal({ visible, onClose, onSubmit, exercise 
             </View>
 
             {/* ── Description ── */}
-            <SectionHeader>Description (optional)</SectionHeader>
+            <SectionHeader>{t('descriptionSectionHeader')}</SectionHeader>
             <TextInput
               value={form.description}
               onChangeText={(v) => set('description', v)}
-              placeholder="Add notes about form, cues, or variations…"
+              placeholder={t('descriptionPlaceholder')}
               placeholderTextColor={C.textDim}
               multiline
               numberOfLines={4}
@@ -491,7 +501,7 @@ export default function AddExerciseModal({ visible, onClose, onSubmit, exercise 
             />
 
             {/* ── Settings ── */}
-            <SectionHeader>Settings</SectionHeader>
+            <SectionHeader>{t('settingsSectionHeader')}</SectionHeader>
             <View style={{
               backgroundColor: C.card,
               borderWidth: 1,
@@ -505,15 +515,15 @@ export default function AddExerciseModal({ visible, onClose, onSubmit, exercise 
                 paddingVertical: 14,
               }}>
                 <Text style={{ color: C.text, fontSize: 14, fontWeight: '600', marginBottom: 4 }}>
-                  Weight Direction
+                  {t('weightDirectionLabel')}
                 </Text>
                 <Text style={{ color: C.textDim, fontSize: 12, marginBottom: 12 }}>
-                  How difficulty changes as weight increases
+                  {t('weightDirectionHint')}
                 </Text>
                 <View style={{ flexDirection: 'row', gap: 8 }}>
                   {([
-                    { value: 1 as const, label: 'Normal', sub: 'Harder with more weight' },
-                    { value: -1 as const, label: 'Assisted', sub: 'Easier with more weight' },
+                    { value: 1 as const, label: t('weightDirectionNormal'), sub: t('weightDirectionNormalSub') },
+                    { value: -1 as const, label: t('weightDirectionAssisted'), sub: t('weightDirectionAssistedSub') },
                   ] as const).map(({ value, label, sub }) => {
                     const active = form.weight_direction === value;
                     return (

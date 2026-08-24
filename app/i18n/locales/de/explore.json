@@ -1,0 +1,53 @@
+{
+  "title": "Bibliothek",
+  "searchPlaceholder": "Übung suchen...",
+  "noExercisesFound": "Keine Übungen gefunden",
+  "exerciseCount_one": "{{count}} Übung",
+  "exerciseCount_other": "{{count}} Übungen",
+  "type": "Typ",
+  "primary": "Primär",
+  "secondary": "Sekundär",
+  "notes": "Notizen",
+  "exercise": "Übung",
+  "exerciseType": {
+    "compound": "Verbundübung",
+    "isolation": "Isolationsübung"
+  },
+  "deleteExercise": "Übung löschen",
+  "deleteExerciseMessage": "„{{name}}“ aus deiner Bibliothek entfernen?",
+  "addExerciseModal": {
+    "editExercise": "Übung bearbeiten",
+    "newExercise": "Neue Übung",
+    "saving": "Wird gespeichert…",
+    "nameSectionHeader": "Name",
+    "namePlaceholder": "z. B. Langhantel-Bankdrücken",
+    "nameRequired": "Name ist erforderlich",
+    "exerciseTypeSectionHeader": "Übungstyp",
+    "exerciseTypes": {
+      "compound": { "label": "Verbundübung", "description": "Mehrgelenkig" },
+      "accessory": { "label": "Zusatzübung", "description": "Unterstützende Übung" },
+      "isolation": { "label": "Isolationsübung", "description": "Eingelenkig" }
+    },
+    "primaryMusclesSectionHeader": "Primäre Muskeln",
+    "secondaryMusclesSectionHeader": "Sekundäre Muskeln",
+    "altNamesSectionHeader": "Alternative Namen",
+    "altNamePlaceholder": "z. B. Flachbankdrücken",
+    "descriptionSectionHeader": "Beschreibung (optional)",
+    "descriptionPlaceholder": "Notizen zu Ausführung, Hinweisen oder Varianten hinzufügen…",
+    "settingsSectionHeader": "Einstellungen",
+    "weightDirectionLabel": "Gewichtsrichtung",
+    "weightDirectionHint": "Wie sich der Schwierigkeitsgrad mit mehr Gewicht ändert",
+    "weightDirectionNormal": "Normal",
+    "weightDirectionNormalSub": "Schwerer mit mehr Gewicht",
+    "weightDirectionAssisted": "Unterstützt",
+    "weightDirectionAssistedSub": "Leichter mit mehr Gewicht",
+    "muscleSections": {
+      "superMuscles": "Muskelgruppen",
+      "chestArms": "Brust & Arme",
+      "core": "Rumpf",
+      "legs": "Beine",
+      "back": "Rücken",
+      "shoulders": "Schultern"
+    }
+  }
+}

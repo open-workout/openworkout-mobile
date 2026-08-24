@@ -1,0 +1,18 @@
+{
+  "whichLanguage": "Quelle langue préférez-vous ?",
+  "languageHint": "Vous pouvez modifier ce choix à tout moment dans votre profil.",
+  "whichUnit": "Quelle unité utilisez-vous ?",
+  "unitHint": "Vous pouvez modifier ce choix à tout moment dans votre profil.",
+  "kilograms": "Kilogrammes",
+  "pounds": "Livres",
+  "continue": "Continuer",
+  "workoutStructure": "Structure d'entraînement",
+  "workoutStructureHint": "Comment structurez-vous habituellement vos séances ? Vous pourrez modifier cela plus tard.",
+  "getStarted": "Commencer",
+  "appTagline": "Suivez votre entraînement, adapté à\nvotre emploi du temps.",
+  "featureSplit": "Structurez votre semaine avec un programme d'entraînement",
+  "featureLogSets": "Enregistrez vos séries et suivez vos records personnels",
+  "featureProgress": "Suivez votre progression au fil du temps",
+  "startSetup": "Commencer la configuration",
+  "skipForNow": "Passer pour l'instant"
+}

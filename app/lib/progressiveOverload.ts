@@ -17,6 +17,7 @@ export function computeProgressSuggestion(
   exerciseType: string,
   progressReps: number,
   weightUnit: 'kg' | 'lbs',
+  t: (key: string, options?: Record<string, unknown>) => string,
 ): OverloadSuggestion | null {
   if (sets.length === 0) return null;
   const best = sets.reduce((a, b) =>
@@ -26,7 +27,7 @@ export function computeProgressSuggestion(
   const weight = best.reps >= progressReps ? best.weight + inc : best.weight;
   const reps = best.reps >= progressReps ? best.reps : best.reps + 2;
   const label = best.reps >= progressReps
-    ? `${weight} ${weightUnit}: AMRAP`
-    : `Try ${weight} ${weightUnit} × ${reps} reps`;
+    ? t('amrapLabel', { weight, unit: weightUnit })
+    : t('tryLabel', { weight, unit: weightUnit, reps });
   return { weight, reps, label };
 }

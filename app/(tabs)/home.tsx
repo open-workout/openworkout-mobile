@@ -4,13 +4,16 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter, useFocusEffect } from 'expo-router';
 import { useState, useCallback, useRef, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { getAllWorkouts, getFinishedWorkoutsPaginated, getWorkoutExerciseSummariesBatch, deleteWorkout, type Workout, type WorkoutExerciseSummary } from '../db/workouts';
 import { getWorkoutPRCountsBatch } from '../db/sets';
 import { WorkoutCard, type PastWorkout } from '../components/WorkoutCard';
+import { formatTodayLabel } from '../lib/dateFormat';
 
 const PAGE_SIZE = 10;
 
 export default function HomeScreen() {
+  const { t, i18n } = useTranslation('home');
   const router = useRouter();
   const [activeWorkout, setActiveWorkout] = useState<Workout | null>(null);
   const [pastWorkouts, setPastWorkouts] = useState<PastWorkout[]>([]);
@@ -78,15 +81,15 @@ export default function HomeScreen() {
   };
 
   const todayLabel = useMemo(() => {
-    return new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' });
-  }, []);
+    return formatTodayLabel(new Date(), i18n.language);
+  }, [i18n.language]);
 
   const ListHeader = (
     <View>
       {/* Header */}
       <View style={{ paddingHorizontal: 24, paddingTop: 8, paddingBottom: 16, borderBottomWidth: 0.5, borderBottomColor: '#18181b' }}>
         <Text style={{ color: '#71717a', fontSize: 14, fontWeight: '500', marginBottom: 4 }}>{todayLabel}</Text>
-        <Text style={{ color: '#fff', fontSize: 24, fontWeight: '800', letterSpacing: -0.5 }}>Ready to lift?</Text>
+        <Text style={{ color: '#fff', fontSize: 24, fontWeight: '800', letterSpacing: -0.5 }}>{t('readyToLift')}</Text>
       </View>
 
       {/* Start Workout CTA */}
@@ -113,10 +116,10 @@ export default function HomeScreen() {
               </LinearGradient>
               <View>
                 <Text style={{ color: '#f4f4f5', fontSize: 17, fontWeight: '700', marginBottom: 2 }}>
-                  {activeWorkout ? 'Resume Workout' : 'Start Workout'}
+                  {activeWorkout ? t('resumeWorkout') : t('startWorkout')}
                 </Text>
                 <Text style={{ color: '#71717a', fontSize: 14 }}>
-                  {activeWorkout ? 'Continue your session' : 'Track a new session'}
+                  {activeWorkout ? t('continueSession') : t('trackNewSession')}
                 </Text>
               </View>
             </View>
@@ -127,7 +130,7 @@ export default function HomeScreen() {
 
       {/* Section header */}
       <View style={{ marginTop: 32, paddingHorizontal: 24, marginBottom: 20 }}>
-        <Text style={{ color: '#f4f4f5', fontSize: 18, fontWeight: '600' }}>Recent Activity</Text>
+        <Text style={{ color: '#f4f4f5', fontSize: 18, fontWeight: '600' }}>{t('recentActivity')}</Text>
       </View>
     </View>
   );
@@ -138,10 +141,10 @@ export default function HomeScreen() {
         <ActivityIndicator color="#52525b" />
       )}
       {!hasMore && pastWorkouts.length > 0 && (
-        <Text style={{ color: '#3f3f46', fontSize: 13 }}>No more workouts</Text>
+        <Text style={{ color: '#3f3f46', fontSize: 13 }}>{t('noMoreWorkouts')}</Text>
       )}
       {!isLoadingMore && pastWorkouts.length === 0 && (
-        <Text style={{ color: '#52525b', fontSize: 14 }}>No finished workouts yet</Text>
+        <Text style={{ color: '#52525b', fontSize: 14 }}>{t('noFinishedWorkoutsYet')}</Text>
       )}
     </View>
   );

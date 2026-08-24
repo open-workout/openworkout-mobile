@@ -1,0 +1,53 @@
+{
+  "title": "Biblioteca",
+  "searchPlaceholder": "Buscar un ejercicio...",
+  "noExercisesFound": "No se encontraron ejercicios",
+  "exerciseCount_one": "{{count}} ejercicio",
+  "exerciseCount_other": "{{count}} ejercicios",
+  "type": "Tipo",
+  "primary": "Primario",
+  "secondary": "Secundario",
+  "notes": "Notas",
+  "exercise": "ejercicio",
+  "exerciseType": {
+    "compound": "Compuesto",
+    "isolation": "Aislamiento"
+  },
+  "deleteExercise": "Eliminar ejercicio",
+  "deleteExerciseMessage": "¿Quitar \"{{name}}\" de tu biblioteca?",
+  "addExerciseModal": {
+    "editExercise": "Editar ejercicio",
+    "newExercise": "Nuevo ejercicio",
+    "saving": "Guardando…",
+    "nameSectionHeader": "Nombre",
+    "namePlaceholder": "ej. Press de banca con barra",
+    "nameRequired": "El nombre es obligatorio",
+    "exerciseTypeSectionHeader": "Tipo de ejercicio",
+    "exerciseTypes": {
+      "compound": { "label": "Compuesto", "description": "Multiarticular" },
+      "accessory": { "label": "Accesorio", "description": "Ejercicio de apoyo" },
+      "isolation": { "label": "Aislamiento", "description": "Una sola articulación" }
+    },
+    "primaryMusclesSectionHeader": "Músculos primarios",
+    "secondaryMusclesSectionHeader": "Músculos secundarios",
+    "altNamesSectionHeader": "Nombres alternativos",
+    "altNamePlaceholder": "ej. Press plano",
+    "descriptionSectionHeader": "Descripción (opcional)",
+    "descriptionPlaceholder": "Añade notas sobre la técnica, indicaciones o variantes…",
+    "settingsSectionHeader": "Ajustes",
+    "weightDirectionLabel": "Dirección del peso",
+    "weightDirectionHint": "Cómo cambia la dificultad al aumentar el peso",
+    "weightDirectionNormal": "Normal",
+    "weightDirectionNormalSub": "Más difícil con más peso",
+    "weightDirectionAssisted": "Asistido",
+    "weightDirectionAssistedSub": "Más fácil con más peso",
+    "muscleSections": {
+      "superMuscles": "Grupos grandes",
+      "chestArms": "Pecho y brazos",
+      "core": "Core",
+      "legs": "Piernas",
+      "back": "Espalda",
+      "shoulders": "Hombros"
+    }
+  }
+}

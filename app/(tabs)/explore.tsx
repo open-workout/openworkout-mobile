@@ -2,10 +2,17 @@ import { View, Text, ScrollView, TouchableOpacity, TextInput, StatusBar, Activit
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useState, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useExercises } from '../hooks/useExercises';
 import AddExerciseModal from '../components/AddExerciseModal';
 import ConfirmModal from '../components/ConfirmModal';
 import type { Exercise } from '../db/exercises';
+import {
+  exerciseMatchesQuery,
+  getExerciseDisplayName,
+  getMuscleLabel,
+  getCategoryLabel,
+} from '../lib/exerciseTranslations';
 
 const categories = ['All', 'Chest', 'Back', 'Legs', 'Arms', 'Shoulders'];
 
@@ -25,6 +32,8 @@ function matchesCategory(ex: Exercise, category: string): boolean {
 }
 
 export default function ExploreScreen() {
+  const { t, i18n } = useTranslation('explore');
+  const locale = i18n.language;
   const [activeCategory, setActiveCategory] = useState(0);
   const [search, setSearch] = useState('');
   const [showAdd, setShowAdd] = useState(false);
@@ -36,11 +45,9 @@ export default function ExploreScreen() {
   const filtered = useMemo(() => {
     const cat = categories[activeCategory];
     return exercises.filter(
-      (ex) =>
-        matchesCategory(ex, cat) &&
-        [ex.name, ...(ex.alt_names ?? [])].some((n) => n.toLowerCase().includes(search.toLowerCase())),
+      (ex) => matchesCategory(ex, cat) && exerciseMatchesQuery(ex, search, locale),
     );
-  }, [exercises, activeCategory, search]);
+  }, [exercises, activeCategory, search, locale]);
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: '#0a0a0a' }} edges={['top']}>
@@ -49,7 +56,7 @@ export default function ExploreScreen() {
       {/* Header */}
       <View style={{ paddingHorizontal: 24, paddingTop: 8, paddingBottom: 0 }}>
         <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
-          <Text style={{ color: '#fff', fontSize: 24, fontWeight: '700', letterSpacing: -0.3 }}>Library</Text>
+          <Text style={{ color: '#fff', fontSize: 24, fontWeight: '700', letterSpacing: -0.3 }}>{t('title')}</Text>
           <TouchableOpacity
             onPress={() => setShowAdd(true)}
             style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: '#18181b', alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: '#27272a' }}
@@ -62,7 +69,7 @@ export default function ExploreScreen() {
         <View style={{ flexDirection: 'row', alignItems: 'center', backgroundColor: '#18181b', borderWidth: 1, borderColor: '#27272a', borderRadius: 12, paddingHorizontal: 14, paddingVertical: 12, marginBottom: 16 }}>
           <Ionicons name="search-outline" size={18} color="#52525b" style={{ marginRight: 10 }} />
           <TextInput
-            placeholder="Find an exercise..."
+            placeholder={t('searchPlaceholder')}
             placeholderTextColor="#52525b"
             style={{ flex: 1, color: '#fff', fontSize: 14 }}
             value={search}
@@ -95,7 +102,7 @@ export default function ExploreScreen() {
                 fontWeight: '600',
                 color: i === activeCategory ? '#09090b' : '#d4d4d8',
               }}>
-                {cat}
+                {getCategoryLabel(cat, locale)}
               </Text>
             </TouchableOpacity>
           ))}
@@ -116,12 +123,12 @@ export default function ExploreScreen() {
           >
             {filtered.length === 0 ? (
               <Text style={{ color: '#52525b', fontSize: 14, marginTop: 32, textAlign: 'center' }}>
-                No exercises found
+                {t('noExercisesFound')}
               </Text>
             ) : (
               <>
                 <Text style={{ color: '#71717a', fontSize: 11, fontWeight: '700', textTransform: 'uppercase', letterSpacing: 1, marginTop: 16, marginBottom: 12 }}>
-                  {filtered.length} exercise{filtered.length !== 1 ? 's' : ''}
+                  {t('exerciseCount', { count: filtered.length })}
                 </Text>
                 {filtered.map((ex) => {
                   const key = ex.id ?? ex.name;
@@ -155,9 +162,11 @@ export default function ExploreScreen() {
       />
       <ConfirmModal
         visible={deletingExercise !== null}
-        title="Delete Exercise"
-        message={`Remove "${deletingExercise?.name}" from your library?`}
-        confirmLabel="Delete"
+        title={t('deleteExercise')}
+        message={t('deleteExerciseMessage', {
+          name: deletingExercise ? getExerciseDisplayName(deletingExercise, locale) : '',
+        })}
+        confirmLabel={t('common:delete')}
         destructive
         onCancel={() => setDeletingExercise(null)}
         onConfirm={() => {
@@ -176,7 +185,13 @@ function ExerciseRow({ exercise, expanded, onToggle, onEdit, onDelete }: {
   onEdit: () => void;
   onDelete: () => void;
 }) {
-  const muscle = exercise.primary_muscles[0] ?? exercise.exercise_type ?? '—';
+  const { t, i18n } = useTranslation('explore');
+  const locale = i18n.language;
+  const muscle = exercise.primary_muscles[0]
+    ? getMuscleLabel(exercise.primary_muscles[0], locale)
+    : exercise.exercise_type
+      ? t(`exerciseType.${exercise.exercise_type}`, { defaultValue: exercise.exercise_type })
+      : '—';
 
   return (
     <View style={{
@@ -193,9 +208,9 @@ function ExerciseRow({ exercise, expanded, onToggle, onEdit, onDelete }: {
           <MaterialCommunityIcons name="dumbbell" size={24} color="#a1a1aa" />
         </View>
         <View style={{ flex: 1, marginLeft: 16 }}>
-          <Text style={{ color: '#f4f4f5', fontSize: 14, fontWeight: '700' }}>{exercise.name}</Text>
+          <Text style={{ color: '#f4f4f5', fontSize: 14, fontWeight: '700' }}>{getExerciseDisplayName(exercise, locale)}</Text>
           <Text style={{ color: '#52525b', fontSize: 12, marginTop: 4 }}>
-            {muscle} • {exercise.exercise_type || 'exercise'}
+            {muscle} • {exercise.exercise_type ? t(`exerciseType.${exercise.exercise_type}`, { defaultValue: exercise.exercise_type }) : t('exercise')}
           </Text>
         </View>
         <TouchableOpacity
@@ -211,20 +226,20 @@ function ExerciseRow({ exercise, expanded, onToggle, onEdit, onDelete }: {
         <View style={{ borderTopWidth: 1, borderTopColor: '#27272a', paddingHorizontal: 16, paddingVertical: 14, gap: 12 }}>
           {exercise.exercise_type ? (
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-              <Text style={{ color: '#52525b', fontSize: 11, fontWeight: '700', textTransform: 'uppercase', letterSpacing: 0.8, width: 72 }}>Type</Text>
+              <Text style={{ color: '#52525b', fontSize: 11, fontWeight: '700', textTransform: 'uppercase', letterSpacing: 0.8, width: 72 }}>{t('type')}</Text>
               <View style={{ backgroundColor: '#27272a', borderRadius: 8, paddingHorizontal: 10, paddingVertical: 4 }}>
-                <Text style={{ color: '#a1a1aa', fontSize: 12, fontWeight: '600', textTransform: 'capitalize' }}>{exercise.exercise_type}</Text>
+                <Text style={{ color: '#a1a1aa', fontSize: 12, fontWeight: '600' }}>{t(`exerciseType.${exercise.exercise_type}`, { defaultValue: exercise.exercise_type })}</Text>
               </View>
             </View>
           ) : null}
 
           {exercise.primary_muscles.length > 0 && (
             <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 8 }}>
-              <Text style={{ color: '#52525b', fontSize: 11, fontWeight: '700', textTransform: 'uppercase', letterSpacing: 0.8, width: 72, paddingTop: 4 }}>Primary</Text>
+              <Text style={{ color: '#52525b', fontSize: 11, fontWeight: '700', textTransform: 'uppercase', letterSpacing: 0.8, width: 72, paddingTop: 4 }}>{t('primary')}</Text>
               <View style={{ flex: 1, flexDirection: 'row', flexWrap: 'wrap', gap: 6 }}>
                 {exercise.primary_muscles.map((m) => (
                   <View key={m} style={{ backgroundColor: '#1c1c1f', borderWidth: 1, borderColor: '#3f3f46', borderRadius: 20, paddingHorizontal: 10, paddingVertical: 4 }}>
-                    <Text style={{ color: '#d4d4d8', fontSize: 12, textTransform: 'capitalize' }}>{m}</Text>
+                    <Text style={{ color: '#d4d4d8', fontSize: 12 }}>{getMuscleLabel(m, locale)}</Text>
                   </View>
                 ))}
               </View>
@@ -233,11 +248,11 @@ function ExerciseRow({ exercise, expanded, onToggle, onEdit, onDelete }: {
 
           {exercise.secondary_muscles.length > 0 && (
             <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 8 }}>
-              <Text style={{ color: '#52525b', fontSize: 11, fontWeight: '700', textTransform: 'uppercase', letterSpacing: 0.8, width: 72, paddingTop: 4 }}>Secondary</Text>
+              <Text style={{ color: '#52525b', fontSize: 11, fontWeight: '700', textTransform: 'uppercase', letterSpacing: 0.8, width: 72, paddingTop: 4 }}>{t('secondary')}</Text>
               <View style={{ flex: 1, flexDirection: 'row', flexWrap: 'wrap', gap: 6 }}>
                 {exercise.secondary_muscles.map((m) => (
                   <View key={m} style={{ backgroundColor: '#18181b', borderWidth: 1, borderColor: '#27272a', borderRadius: 20, paddingHorizontal: 10, paddingVertical: 4 }}>
-                    <Text style={{ color: '#71717a', fontSize: 12, textTransform: 'capitalize' }}>{m}</Text>
+                    <Text style={{ color: '#71717a', fontSize: 12 }}>{getMuscleLabel(m, locale)}</Text>
                   </View>
                 ))}
               </View>
@@ -246,7 +261,7 @@ function ExerciseRow({ exercise, expanded, onToggle, onEdit, onDelete }: {
 
           {!!exercise.description && (
             <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 8 }}>
-              <Text style={{ color: '#52525b', fontSize: 11, fontWeight: '700', textTransform: 'uppercase', letterSpacing: 0.8, width: 72, paddingTop: 2 }}>Notes</Text>
+              <Text style={{ color: '#52525b', fontSize: 11, fontWeight: '700', textTransform: 'uppercase', letterSpacing: 0.8, width: 72, paddingTop: 2 }}>{t('notes')}</Text>
               <Text style={{ flex: 1, color: '#71717a', fontSize: 13, lineHeight: 18 }}>{exercise.description}</Text>
             </View>
           )}
@@ -257,14 +272,14 @@ function ExerciseRow({ exercise, expanded, onToggle, onEdit, onDelete }: {
               style={{ flexDirection: 'row', alignItems: 'center', gap: 6, backgroundColor: '#18181b', borderWidth: 1, borderColor: '#3f3f46', borderRadius: 10, paddingHorizontal: 14, paddingVertical: 8 }}
             >
               <Ionicons name="pencil-outline" size={14} color="#a1a1aa" />
-              <Text style={{ color: '#a1a1aa', fontSize: 13, fontWeight: '600' }}>Edit</Text>
+              <Text style={{ color: '#a1a1aa', fontSize: 13, fontWeight: '600' }}>{t('common:edit')}</Text>
             </TouchableOpacity>
             <TouchableOpacity
               onPress={onDelete}
               style={{ flexDirection: 'row', alignItems: 'center', gap: 6, backgroundColor: '#18181b', borderWidth: 1, borderColor: '#3f3f46', borderRadius: 10, paddingHorizontal: 14, paddingVertical: 8 }}
             >
               <Ionicons name="trash-outline" size={14} color="#ef4444" />
-              <Text style={{ color: '#ef4444', fontSize: 13, fontWeight: '600' }}>Delete</Text>
+              <Text style={{ color: '#ef4444', fontSize: 13, fontWeight: '600' }}>{t('common:delete')}</Text>
             </TouchableOpacity>
           </View>
         </View>

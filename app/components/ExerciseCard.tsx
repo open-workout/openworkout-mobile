@@ -1,9 +1,11 @@
 import { View, Text, TouchableOpacity, Linking } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useTranslation } from 'react-i18next';
 import type { Exercise } from '../db/exercises';
 import { SetRow, DraftSetRow, type LocalSet } from './SetRows';
 import { OverloadHint } from './OverloadHint';
 import type { OverloadSuggestion } from '../lib/progressiveOverload';
+import { getExerciseDisplayName, getMuscleLabels } from '../lib/exerciseTranslations';
 
 const C = {
   card: '#18181b',
@@ -12,12 +14,6 @@ const C = {
   text: '#f4f4f5',
   textMuted: '#71717a',
   textDim: '#52525b',
-};
-
-const TYPE_LABEL: Record<string, string> = {
-  compound: 'Compound',
-  accessory: 'Accessory',
-  isolation: 'Isolation',
 };
 
 type Props = {
@@ -59,7 +55,9 @@ export function ExerciseCard({
   onSetBlur,
   onSetDelete,
 }: Props) {
-  const muscles = exercise.primary_muscles.join(', ');
+  const { t, i18n } = useTranslation('workout');
+  const locale = i18n.language;
+  const muscles = getMuscleLabels(exercise.primary_muscles, locale).join(', ');
 
   return (
     <View style={{ backgroundColor: C.card, borderRadius: 16, borderWidth: 1, borderColor: isExpanded ? C.borderAlt : C.border, marginBottom: 12, overflow: 'hidden' }}>
@@ -70,13 +68,13 @@ export function ExerciseCard({
       >
         <View style={{ flex: 1 }}>
           <Text style={{ color: C.textDim, fontSize: 10, fontWeight: '700', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 6 }}>
-            {TYPE_LABEL[slotType] ?? slotType}
+            {t(`explore:addExerciseModal.exerciseTypes.${slotType}.label`, { defaultValue: slotType })}
           </Text>
           <Text style={{ color: C.text, fontSize: 18, fontWeight: '700', marginBottom: 4 }}>
-            {exercise.name}
+            {getExerciseDisplayName(exercise, locale)}
           </Text>
           {!!muscles && (
-            <Text style={{ color: C.textMuted, fontSize: 13, textTransform: 'capitalize' }}>
+            <Text style={{ color: C.textMuted, fontSize: 13 }}>
               {muscles}
             </Text>
           )}
@@ -89,7 +87,7 @@ export function ExerciseCard({
               style={{ flexDirection: 'row', alignItems: 'center', gap: 5, backgroundColor: '#141414', borderRadius: 10, borderWidth: 1, borderColor: C.border, paddingHorizontal: 10, paddingVertical: 7 }}
             >
               <Ionicons name="swap-horizontal-outline" size={15} color={C.textMuted} />
-              <Text style={{ color: C.textMuted, fontSize: 12, fontWeight: '600' }}>Switch</Text>
+              <Text style={{ color: C.textMuted, fontSize: 12, fontWeight: '600' }}>{t('switch')}</Text>
             </TouchableOpacity>
           )}
           <TouchableOpacity onPress={onDelete}>
@@ -105,14 +103,14 @@ export function ExerciseCard({
           style={{ flexDirection: 'row', alignItems: 'center', gap: 5, paddingHorizontal: 8, paddingVertical: 4 }}
         >
           <Ionicons name="search-outline" size={13} color={C.textDim} />
-          <Text style={{ color: C.textDim, fontSize: 12, fontWeight: '600' }}>Search</Text>
+          <Text style={{ color: C.textDim, fontSize: 12, fontWeight: '600' }}>{t('search')}</Text>
         </TouchableOpacity>
       </View>
 
       {isExpanded && (
         <View style={{ borderTopWidth: 1, borderTopColor: C.border }}>
           <View style={{ flexDirection: 'row', paddingHorizontal: 16, paddingVertical: 10, gap: 8 }}>
-            {[weightUnit.toUpperCase(), 'REPS'].map((h) => (
+            {[weightUnit.toUpperCase(), t('repsHeader')].map((h) => (
               <Text key={h} style={{ flex: 1, textAlign: 'center', color: C.textDim, fontSize: 11, fontWeight: '700', letterSpacing: 0.8 }}>{h}</Text>
             ))}
             <View style={{ width: 28 }} />

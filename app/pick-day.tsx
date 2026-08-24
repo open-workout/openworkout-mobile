@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
+import { useTranslation } from 'react-i18next';
 import { useSplit } from './hooks/useSplit';
 import { useExercises } from './hooks/useExercises';
 import { useWorkoutPreferences } from './hooks/useWorkoutPreferences';
@@ -21,10 +22,14 @@ import {
   type SplitDay,
   type SuperState,
 } from './constants/splits';
+import { getMuscleLabels, getExerciseDisplayName } from './lib/exerciseTranslations';
+import { getDayNameLabel } from './lib/splitTranslations';
 
 type Tab = 'workout' | 'routines';
 
 export default function PickDayScreen() {
+  const { t, i18n } = useTranslation('routines');
+  const locale = i18n.language;
   const router = useRouter();
   const { split, isLoading } = useSplit();
   const { exercises } = useExercises();
@@ -86,7 +91,7 @@ export default function PickDayScreen() {
             <Ionicons name="arrow-back" size={18} color="#a1a1aa" />
           </TouchableOpacity>
           <Text style={{ flex: 1, textAlign: 'center', color: '#f4f4f5', fontSize: 17, fontWeight: '700' }}>
-            What muscles?
+            {t('whatMusclesTitle')}
           </Text>
           <View style={{ width: 36 }} />
         </View>
@@ -107,7 +112,7 @@ export default function PickDayScreen() {
               style={{ backgroundColor: '#1c1c1f', borderWidth: 1, borderColor: '#3f3f46', borderRadius: 14, paddingVertical: 14, alignItems: 'center', flexDirection: 'row', justifyContent: 'center', gap: 8 }}
             >
               <Ionicons name="sparkles" size={16} color="#f4f4f5" />
-              <Text style={{ color: '#f4f4f5', fontSize: 15, fontWeight: '700' }}>Generate workout</Text>
+              <Text style={{ color: '#f4f4f5', fontSize: 15, fontWeight: '700' }}>{t('generateWorkout')}</Text>
             </TouchableOpacity>
           )}
           <TouchableOpacity
@@ -116,7 +121,7 @@ export default function PickDayScreen() {
             style={{ backgroundColor: '#f4f4f5', borderRadius: 14, paddingVertical: 16, alignItems: 'center' }}
           >
             <Text style={{ color: '#09090b', fontSize: 16, fontWeight: '700' }}>
-              {selectedMuscles.length > 0 ? 'Continue manually' : 'Skip'}
+              {selectedMuscles.length > 0 ? t('continueManually') : t('skip')}
             </Text>
           </TouchableOpacity>
         </View>
@@ -138,15 +143,15 @@ export default function PickDayScreen() {
           <Ionicons name="close" size={18} color="#a1a1aa" />
         </TouchableOpacity>
         <Text style={{ flex: 1, textAlign: 'center', color: '#f4f4f5', fontSize: 17, fontWeight: '700' }}>
-          What are you training today?
+          {t('whatAreYouTrainingToday')}
         </Text>
         <View style={{ width: 36 }} />
       </View>
 
       {/* Tab switcher */}
       <View style={{ flexDirection: 'row', marginHorizontal: 20, marginBottom: 20, backgroundColor: '#18181b', borderRadius: 12, padding: 4, borderWidth: 1, borderColor: '#27272a' }}>
-        <TabButton label="Workout" active={activeTab === 'workout'} onPress={() => setActiveTab('workout')} />
-        <TabButton label="Routines" active={activeTab === 'routines'} onPress={() => setActiveTab('routines')} />
+        <TabButton label={t('workoutTab')} active={activeTab === 'workout'} onPress={() => setActiveTab('workout')} />
+        <TabButton label={t('routinesTab')} active={activeTab === 'routines'} onPress={() => setActiveTab('routines')} />
       </View>
 
       {activeTab === 'workout' ? (
@@ -170,7 +175,7 @@ export default function PickDayScreen() {
 
               {!split && (
                 <Text style={{ color: '#52525b', fontSize: 14, textAlign: 'center', marginBottom: 24, marginTop: 8 }}>
-                  No split configured · set one up in Profile
+                  {t('noSplitConfigured')}
                 </Text>
               )}
 
@@ -188,9 +193,9 @@ export default function PickDayScreen() {
                   <Ionicons name="sparkles" size={17} color={canGenerate ? '#f4f4f5' : '#a1a1aa'} />
                 </View>
                 <View style={{ flex: 1 }}>
-                  <Text style={{ color: canGenerate ? '#f4f4f5' : '#71717a', fontSize: 16, fontWeight: '700' }}>Generate workout</Text>
+                  <Text style={{ color: canGenerate ? '#f4f4f5' : '#71717a', fontSize: 16, fontWeight: '700' }}>{t('generateWorkout')}</Text>
                   <Text style={{ color: '#71717a', fontSize: 13, marginTop: 2 }}>
-                    {canGenerate ? 'Based on selected muscles' : 'Select a day above to enable'}
+                    {canGenerate ? t('generateWorkoutBasedOnMuscles') : t('selectDayToEnable')}
                   </Text>
                 </View>
                 <Ionicons name="chevron-forward" size={18} color="#52525b" />
@@ -205,8 +210,8 @@ export default function PickDayScreen() {
                   <Ionicons name="list" size={17} color="#a1a1aa" />
                 </View>
                 <View style={{ flex: 1 }}>
-                  <Text style={{ color: '#f4f4f5', fontSize: 16, fontWeight: '700' }}>Manual mode</Text>
-                  <Text style={{ color: '#71717a', fontSize: 13, marginTop: 2 }}>Build your workout from scratch</Text>
+                  <Text style={{ color: '#f4f4f5', fontSize: 16, fontWeight: '700' }}>{t('manualMode')}</Text>
+                  <Text style={{ color: '#71717a', fontSize: 13, marginTop: 2 }}>{t('buildFromScratch')}</Text>
                 </View>
                 <Ionicons name="chevron-forward" size={18} color="#52525b" />
               </TouchableOpacity>
@@ -222,22 +227,23 @@ export default function PickDayScreen() {
           {routines.length === 0 ? (
             <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center', paddingTop: 80 }}>
               <Ionicons name="list-outline" size={44} color="#3f3f46" style={{ marginBottom: 14 }} />
-              <Text style={{ color: '#f4f4f5', fontSize: 17, fontWeight: '700', marginBottom: 8 }}>No routines yet</Text>
+              <Text style={{ color: '#f4f4f5', fontSize: 17, fontWeight: '700', marginBottom: 8 }}>{t('noRoutinesYet')}</Text>
               <Text style={{ color: '#71717a', fontSize: 14, textAlign: 'center', lineHeight: 20, marginBottom: 24 }}>
-                Create a routine to save a set of exercises and start from it next time.
+                {t('createRoutineHint')}
               </Text>
               <TouchableOpacity
                 onPress={() => router.push('/edit-routine')}
                 style={{ backgroundColor: '#f4f4f5', borderRadius: 14, paddingVertical: 13, paddingHorizontal: 24 }}
               >
-                <Text style={{ color: '#09090b', fontSize: 15, fontWeight: '700' }}>Create routine</Text>
+                <Text style={{ color: '#09090b', fontSize: 15, fontWeight: '700' }}>{t('createRoutine')}</Text>
               </TouchableOpacity>
             </View>
           ) : (
             routines.map((routine) => {
-              const exerciseNames = routine.exercise_ids
-                .map((id) => exercises.find((e) => e.id === id)?.name)
-                .filter(Boolean) as string[];
+              const routineExercises = routine.exercise_ids
+                .map((id) => exercises.find((e) => e.id === id))
+                .filter(Boolean) as Exercise[];
+              const exerciseNames = routineExercises.map((e) => getExerciseDisplayName(e, locale));
               return (
                 <RoutineCard
                   key={routine.id}
@@ -275,6 +281,9 @@ function TabButton({ label, active, onPress }: { label: string; active: boolean;
 }
 
 function MuscleGrid({ selected, onToggle }: { selected: string[]; onToggle: (m: string) => void }) {
+  const { t: tExplore, i18n } = useTranslation('explore');
+  const locale = i18n.language;
+
   function handleSuperToggle(superKey: string) {
     const children = SUPER_MUSCLE_MAP[superKey];
     const state = getSuperState(superKey, selected);
@@ -288,9 +297,9 @@ function MuscleGrid({ selected, onToggle }: { selected: string[]; onToggle: (m: 
   return (
     <View>
       {MUSCLE_SECTIONS_SPLIT.map((section) => (
-        <View key={section.label} style={{ marginBottom: 12 }}>
+        <View key={section.id} style={{ marginBottom: 12 }}>
           <Text style={{ color: '#52525b', fontSize: 10, fontWeight: '600', textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 8 }}>
-            {section.label}
+            {tExplore(`addExerciseModal.muscleSections.${section.id}`)}
           </Text>
           <View style={{ flexDirection: 'row', flexWrap: 'wrap' }}>
             {section.muscles.map((muscle) => {
@@ -300,6 +309,7 @@ function MuscleGrid({ selected, onToggle }: { selected: string[]; onToggle: (m: 
                   <MuscleChip
                     key={muscle}
                     muscle={muscle}
+                    label={getMuscleLabels([muscle], locale)[0]}
                     isSelected={false}
                     isSuper
                     superState={state}
@@ -311,6 +321,7 @@ function MuscleGrid({ selected, onToggle }: { selected: string[]; onToggle: (m: 
                 <MuscleChip
                   key={muscle}
                   muscle={muscle}
+                  label={getMuscleLabels([muscle], locale)[0]}
                   isSelected={selected.includes(muscle)}
                   isSuper={false}
                   onPress={() => onToggle(muscle)}
@@ -324,8 +335,9 @@ function MuscleGrid({ selected, onToggle }: { selected: string[]; onToggle: (m: 
   );
 }
 
-function MuscleChip({ muscle, isSelected, isSuper, superState, onPress }: {
+function MuscleChip({ muscle, label, isSelected, isSuper, superState, onPress }: {
   muscle: string;
+  label: string;
   isSelected: boolean;
   isSuper: boolean;
   superState?: SuperState;
@@ -356,17 +368,16 @@ function MuscleChip({ muscle, isSelected, isSuper, superState, onPress }: {
       {isSuper && (
         <Ionicons name="layers-outline" size={11} color={effectiveSelected ? '#09090b' : '#71717a'} />
       )}
-      <Text style={{ fontSize: 13, fontWeight: '600', color: effectiveSelected ? '#09090b' : '#f4f4f5', textTransform: 'capitalize' }}>
-        {muscle}
+      <Text style={{ fontSize: 13, fontWeight: '600', color: effectiveSelected ? '#09090b' : '#f4f4f5' }}>
+        {label}
       </Text>
     </TouchableOpacity>
   );
 }
 
 function DayCard({ day, selected, onPress }: { day: SplitDay; selected: boolean; onPress: () => void }) {
-  const muscleLabel = compressMuscles(day.muscles)
-    .map((m) => m.charAt(0).toUpperCase() + m.slice(1))
-    .join(' · ');
+  const { t, i18n } = useTranslation('routines');
+  const muscleLabel = getMuscleLabels(compressMuscles(day.muscles), i18n.language).join(' · ');
 
   return (
     <TouchableOpacity
@@ -385,7 +396,7 @@ function DayCard({ day, selected, onPress }: { day: SplitDay; selected: boolean;
       }}
     >
       <View style={{ flex: 1 }}>
-        <Text style={{ color: '#f4f4f5', fontSize: 17, fontWeight: '700', marginBottom: 4 }}>{day.name}</Text>
+        <Text style={{ color: '#f4f4f5', fontSize: 17, fontWeight: '700', marginBottom: 4 }}>{getDayNameLabel(day.name, t)}</Text>
         {muscleLabel ? (
           <Text style={{ color: '#71717a', fontSize: 13 }}>{muscleLabel}</Text>
         ) : null}
@@ -399,6 +410,7 @@ function DayCard({ day, selected, onPress }: { day: SplitDay; selected: boolean;
 }
 
 function RoutineCard({ routine, exerciseNames, onPress }: { routine: Routine; exerciseNames: string[]; onPress: () => void }) {
+  const { t } = useTranslation('routines');
   return (
     <TouchableOpacity
       activeOpacity={0.75}
@@ -438,13 +450,14 @@ function RoutineCard({ routine, exerciseNames, onPress }: { routine: Routine; ex
           ))}
         </View>
       ) : (
-        <Text style={{ color: '#52525b', fontSize: 13 }}>No exercises</Text>
+        <Text style={{ color: '#52525b', fontSize: 13 }}>{t('noExercises')}</Text>
       )}
     </TouchableOpacity>
   );
 }
 
 function CustomCard({ onPress }: { onPress: () => void }) {
+  const { t } = useTranslation('routines');
   return (
     <TouchableOpacity
       activeOpacity={0.75}
@@ -463,7 +476,7 @@ function CustomCard({ onPress }: { onPress: () => void }) {
       }}
     >
       <View style={{ flex: 1 }}>
-        <Text style={{ color: '#a1a1aa', fontSize: 17, fontWeight: '700' }}>Custom workout</Text>
+        <Text style={{ color: '#a1a1aa', fontSize: 17, fontWeight: '700' }}>{t('customWorkout')}</Text>
       </View>
       <Ionicons name="chevron-forward" size={18} color="#52525b" />
     </TouchableOpacity>

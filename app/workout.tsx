@@ -3,6 +3,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useState, useRef, useEffect, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useWorkouts } from './hooks/useWorkouts';
 import { useExercises } from './hooks/useExercises';
 import { useWeightUnit } from './hooks/useWeightUnit';
@@ -16,6 +17,7 @@ import { SetRow, DraftSetRow, type LocalSet } from './components/SetRows';
 import { OverloadHint } from './components/OverloadHint';
 import { computeProgressSuggestion, type OverloadSuggestion } from './lib/progressiveOverload';
 import { getWorkoutPreferences, type WorkoutPreferences } from './storage';
+import { exerciseMatchesQuery, getExerciseDisplayName, getMuscleLabels } from './lib/exerciseTranslations';
 
 type ExerciseBlock = {
   blockId: string;
@@ -34,6 +36,8 @@ function formatElapsed(seconds: number): string {
 }
 
 export default function WorkoutScreen() {
+  const { t, i18n } = useTranslation('workout');
+  const locale = i18n.language;
   const router = useRouter();
   const { workoutId } = useLocalSearchParams<{ workoutId: string }>();
   const { finishWorkout, renameWorkout, addSet: persistSet, editSet, removeSet } = useWorkouts();
@@ -66,7 +70,7 @@ export default function WorkoutScreen() {
     if (!block || !localPrefs) return;
     const exerciseRef = block.exercise.id || block.exercise.name;
     getLastSetsForExercise(exerciseRef).then((sets) => {
-      setOverloadSuggestion(computeProgressSuggestion(sets, block.exercise.exercise_type, localPrefs.progress_reps, weightUnit));
+      setOverloadSuggestion(computeProgressSuggestion(sets, block.exercise.exercise_type, localPrefs.progress_reps, weightUnit, t));
     });
   }, [topBlockId, localPrefs]);
 
@@ -224,11 +228,11 @@ export default function WorkoutScreen() {
     const block = blocks[blockIndex];
     const set = block?.sets.find((s) => s.id === setId);
     if (!set) return;
-    const label = [set.weight && `${set.weight} kg`, set.reps && `${set.reps} reps`].filter(Boolean).join(' · ');
-    Alert.alert('Delete Set', label || 'Delete this set?', [
-      { text: 'Cancel', style: 'cancel' },
+    const label = [set.weight && `${set.weight} ${t('common:kg')}`, set.reps && `${set.reps} ${t('repsUnit')}`].filter(Boolean).join(' · ');
+    Alert.alert(t('deleteSetTitle'), label || t('deleteThisSet'), [
+      { text: t('common:cancel'), style: 'cancel' },
       {
-        text: 'Delete',
+        text: t('common:delete'),
         style: 'destructive',
         onPress: async () => {
           await removeSet(setId);
@@ -243,12 +247,12 @@ export default function WorkoutScreen() {
   const handleDeleteBlock = (blockIndex: number) => {
     const block = blocks[blockIndex];
     Alert.alert(
-      block.exercise.name,
-      'Delete this exercise and all its sets?',
+      getExerciseDisplayName(block.exercise, locale),
+      t('deleteExerciseConfirmMessage'),
       [
-        { text: 'Cancel', style: 'cancel' },
+        { text: t('common:cancel'), style: 'cancel' },
         {
-          text: 'Delete',
+          text: t('common:delete'),
           style: 'destructive',
           onPress: async () => {
             if (block.seedSetId) await removeSet(block.seedSetId);
@@ -260,9 +264,7 @@ export default function WorkoutScreen() {
     );
   };
 
-  const filtered = exercises.filter((e) =>
-    e.name.toLowerCase().includes(search.toLowerCase()),
-  );
+  const filtered = exercises.filter((e) => exerciseMatchesQuery(e, search, locale));
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: '#0a0a0a' }} edges={['top']}>
@@ -278,7 +280,7 @@ export default function WorkoutScreen() {
             {formatElapsed(elapsed)}
           </Text>
           <TouchableOpacity onPress={handleFinish} style={{ backgroundColor: '#f4f4f5', borderRadius: 8, paddingHorizontal: 16, paddingVertical: 7 }}>
-            <Text style={{ color: '#09090b', fontWeight: '700', fontSize: 14 }}>Finish</Text>
+            <Text style={{ color: '#09090b', fontWeight: '700', fontSize: 14 }}>{t('finish')}</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -294,7 +296,7 @@ export default function WorkoutScreen() {
           <TextInput
             key={workoutTitle}
             defaultValue={workoutTitle}
-            placeholder="Workout name"
+            placeholder={t('workoutNamePlaceholder')}
             placeholderTextColor="#3f3f46"
             onEndEditing={(e) => handleTitleBlur(e.nativeEvent.text)}
             style={{ color: '#fff', fontSize: 24, fontWeight: '700', backgroundColor: 'transparent' }}
@@ -309,7 +311,7 @@ export default function WorkoutScreen() {
             style={{ paddingVertical: 16, borderRadius: 12, borderWidth: 2, borderColor: '#27272a', borderStyle: 'dashed', alignItems: 'center', flexDirection: 'row', justifyContent: 'center', gap: 8 }}
           >
             <Ionicons name="add" size={18} color="#52525b" />
-            <Text style={{ color: '#52525b', fontWeight: '600', fontSize: 15 }}>Add Exercise</Text>
+            <Text style={{ color: '#52525b', fontWeight: '600', fontSize: 15 }}>{t('routines:addExercise')}</Text>
           </TouchableOpacity>
         </View>
 
@@ -317,7 +319,7 @@ export default function WorkoutScreen() {
         {blocks.length === 0 && (
           <View style={{ alignItems: 'center', paddingTop: 32, paddingBottom: 32 }}>
             <Ionicons name="barbell-outline" size={48} color="#27272a" />
-            <Text style={{ color: '#52525b', fontSize: 16, fontWeight: '500', marginTop: 16 }}>No exercises yet</Text>
+            <Text style={{ color: '#52525b', fontSize: 16, fontWeight: '500', marginTop: 16 }}>{t('noExercisesYet')}</Text>
           </View>
         )}
 
@@ -326,7 +328,7 @@ export default function WorkoutScreen() {
           <View key={block.blockId} style={{ paddingHorizontal: 16, marginBottom: 24 }}>
             <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 8, marginBottom: 12 }}>
               <Text style={{ color: '#34d399', fontWeight: '700', fontSize: 13, textTransform: 'uppercase', letterSpacing: 0.8, flex: 1 }}>
-                {block.exercise.name}
+                {getExerciseDisplayName(block.exercise, locale)}
               </Text>
               <TouchableOpacity onPress={() => handleDeleteBlock(blockIndex)}>
                 <Ionicons name="trash-outline" size={18} color="#71717a" />
@@ -335,7 +337,7 @@ export default function WorkoutScreen() {
 
             <View style={{ backgroundColor: 'rgba(24,24,27,0.6)', borderRadius: 16, borderWidth: 1, borderColor: 'rgba(39,39,42,0.8)', overflow: 'hidden' }}>
               <View style={{ flexDirection: 'row', paddingHorizontal: 16, paddingVertical: 12, gap: 8 }}>
-                {[weightUnit.toUpperCase(), 'REPS'].map((h) => (
+                {[weightUnit.toUpperCase(), t('repsHeader')].map((h) => (
                   <Text key={h} style={{ flex: 1, textAlign: 'center', color: '#52525b', fontSize: 11, fontWeight: '700', letterSpacing: 0.8 }}>{h}</Text>
                 ))}
                 <View style={{ width: 28 }} />
@@ -372,7 +374,7 @@ export default function WorkoutScreen() {
                   style={{ flexDirection: 'row', alignItems: 'center', gap: 5, paddingHorizontal: 10, paddingVertical: 5 }}
                 >
                   <Ionicons name="search-outline" size={14} color="#52525b" />
-                  <Text style={{ color: '#52525b', fontSize: 12, fontWeight: '600' }}>Search</Text>
+                  <Text style={{ color: '#52525b', fontSize: 12, fontWeight: '600' }}>{t('search')}</Text>
                 </TouchableOpacity>
               </View>
             </View>
@@ -390,7 +392,7 @@ export default function WorkoutScreen() {
       <Modal visible={pickerVisible} animationType="slide" presentationStyle="pageSheet" onRequestClose={() => setPickerVisible(false)}>
         <SafeAreaView style={{ flex: 1, backgroundColor: '#0a0a0a' }} edges={['top']}>
           <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16, paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: '#18181b' }}>
-            <Text style={{ color: '#f4f4f5', fontSize: 18, fontWeight: '700' }}>Select Exercise</Text>
+            <Text style={{ color: '#f4f4f5', fontSize: 18, fontWeight: '700' }}>{t('selectExercise')}</Text>
             <TouchableOpacity
               onPress={() => { setPickerVisible(false); setSearch(''); }}
               style={{ width: 40, height: 40, alignItems: 'center', justifyContent: 'center' }}
@@ -404,7 +406,7 @@ export default function WorkoutScreen() {
             <TextInput
               value={search}
               onChangeText={setSearch}
-              placeholder="Search exercises..."
+              placeholder={t('searchExercisesPlaceholder')}
               placeholderTextColor="#52525b"
               autoFocus
               style={{ flex: 1, color: '#f4f4f5', fontSize: 16 }}
@@ -418,7 +420,7 @@ export default function WorkoutScreen() {
             <View style={{ width: 28, height: 28, borderRadius: 8, backgroundColor: '#18181b', borderWidth: 1, borderColor: '#27272a', alignItems: 'center', justifyContent: 'center' }}>
               <Ionicons name="add" size={16} color="#71717a" />
             </View>
-            <Text style={{ color: '#71717a', fontSize: 15, fontWeight: '600' }}>New exercise</Text>
+            <Text style={{ color: '#71717a', fontSize: 15, fontWeight: '600' }}>{t('newExercise')}</Text>
           </TouchableOpacity>
 
           <ScrollView
@@ -429,14 +431,14 @@ export default function WorkoutScreen() {
           >
             {filtered.length === 0 ? (
               <View style={{ alignItems: 'center', paddingTop: 48, paddingHorizontal: 24 }}>
-                <Text style={{ color: '#52525b', fontSize: 16, marginBottom: 16 }}>No exercises found</Text>
+                <Text style={{ color: '#52525b', fontSize: 16, marginBottom: 16 }}>{t('explore:noExercisesFound')}</Text>
                 {search.trim().length > 0 && (
                   <TouchableOpacity
                     onPress={() => setAddExerciseVisible(true)}
                     style={{ flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: '#18181b', borderWidth: 1, borderColor: '#27272a', borderRadius: 12, paddingHorizontal: 16, paddingVertical: 12 }}
                   >
                     <Ionicons name="add-circle-outline" size={18} color="#a1a1aa" />
-                    <Text style={{ color: '#a1a1aa', fontSize: 15, fontWeight: '600' }}>{`Create "${search.trim()}"`}</Text>
+                    <Text style={{ color: '#a1a1aa', fontSize: 15, fontWeight: '600' }}>{t('createQuery', { query: search.trim() })}</Text>
                   </TouchableOpacity>
                 )}
               </View>
@@ -447,9 +449,9 @@ export default function WorkoutScreen() {
                   onPress={() => pickExercise(item)}
                   style={{ paddingHorizontal: 24, paddingVertical: 16, borderBottomWidth: 1, borderBottomColor: '#18181b' }}
                 >
-                  <Text style={{ color: '#f4f4f5', fontSize: 16, fontWeight: '600' }}>{item.name}</Text>
+                  <Text style={{ color: '#f4f4f5', fontSize: 16, fontWeight: '600' }}>{getExerciseDisplayName(item, locale)}</Text>
                   {item.primary_muscles?.length > 0 && (
-                    <Text style={{ color: '#52525b', fontSize: 13, marginTop: 2 }}>{item.primary_muscles.join(', ')}</Text>
+                    <Text style={{ color: '#52525b', fontSize: 13, marginTop: 2 }}>{getMuscleLabels(item.primary_muscles, locale).join(', ')}</Text>
                   )}
                 </TouchableOpacity>
               ))

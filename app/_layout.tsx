@@ -161,7 +161,10 @@ export default function RootLayout() {
           <Stack.Screen name="edit-split" options={{ headerShown: false, presentation: 'modal' }} />
           <Stack.Screen name="edit-routine" options={{ headerShown: false, presentation: 'fullScreenModal' }} />
           <Stack.Screen name="settings" options={{ headerShown: false, presentation: 'fullScreenModal' }} />
-          <Stack.Screen name="generated-workout" options={{ headerShown: false, presentation: 'fullScreenModal' }} />
+          <Stack.Screen
+            name="generated-workout"
+            options={{ headerShown: false, presentation: 'fullScreenModal', animation: 'slide_from_bottom' }}
+          />
         </Stack>
       </SQLiteProvider>
     </I18nextProvider>

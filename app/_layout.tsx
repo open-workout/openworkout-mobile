@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { Stack } from "expo-router";
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SQLiteProvider, type SQLiteDatabase } from 'expo-sqlite';
 import { I18nextProvider } from 'react-i18next';
 import '@/global.css';
@@ -151,6 +152,7 @@ export default function RootLayout() {
   }, []);
 
   return (
+    <GestureHandlerRootView style={{ flex: 1 }}>
     <I18nextProvider i18n={i18n}>
       <SQLiteProvider databaseName="openworkout.db" onInit={initializeDb}>
         <Stack screenOptions={{ headerShown: false }}>
@@ -174,5 +176,6 @@ export default function RootLayout() {
         </Stack>
       </SQLiteProvider>
     </I18nextProvider>
+    </GestureHandlerRootView>
   );
 }

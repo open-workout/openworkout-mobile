@@ -1,7 +1,7 @@
 jest.mock('../../app/hooks/useExercises', () => ({ useExercises: jest.fn() }));
 
 import { render, screen, fireEvent } from '@testing-library/react-native';
-import ExploreScreen from '../../app/(tabs)/exercises';
+import ExploreScreen from '../../app/components/ExercisesTabPage';
 import { useExercises } from '../../app/hooks/useExercises';
 import { FIXTURE_EXERCISES, CABLE_MATCHES, LAST_CABLE_MATCH } from '../fixtures/exercises';
 import i18n from '../../app/i18n';

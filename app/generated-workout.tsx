@@ -367,7 +367,7 @@ export default function GeneratedWorkoutScreen() {
       {/* Header */}
       <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16, paddingVertical: 12, backgroundColor: '#0c0c0e', borderBottomWidth: 1, borderBottomColor: C.border }}>
         <TouchableOpacity
-          onPress={() => setShowFinishModal(true)}
+          onPress={() => router.back()}
           style={{ width: 40, height: 40, alignItems: 'center', justifyContent: 'center' }}
         >
           <Ionicons name="chevron-down" size={26} color={C.textMuted} />

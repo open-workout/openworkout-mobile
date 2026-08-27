@@ -48,7 +48,7 @@ export default function PickDayScreen() {
 
   const handleManual = (muscles: string[]) => {
     setPendingWorkout([], muscles);
-    router.push('/generated-workout');
+    router.replace('/generated-workout');
   };
 
   const handleRoutine = (routine: Routine) => {
@@ -60,7 +60,7 @@ export default function PickDayScreen() {
       exercise: ex,
     }));
     setPendingWorkout(slots, []);
-    router.push('/generated-workout');
+    router.replace('/generated-workout');
   };
 
   const handleGenerate = async () => {
@@ -68,7 +68,7 @@ export default function PickDayScreen() {
     const stats = await getAllExerciseStats();
     const slots = generateWorkout(activeMuscles, exercises, stats, prefs);
     setPendingWorkout(slots, activeMuscles, selectedDay);
-    router.push('/generated-workout');
+    router.replace('/generated-workout');
   };
 
   const toggleMuscle = (muscle: string) => {

@@ -1,4 +1,5 @@
-import { Tabs, useRouter } from 'expo-router';
+import { Tabs, useRouter, useNavigation } from 'expo-router';
+import { useCallback, useEffect, useState } from 'react';
 import { TouchableOpacity, GestureResponderEvent } from 'react-native';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -9,7 +10,7 @@ import { getAllWorkouts } from '../db/workouts';
 const TAB_BAR_CONTENT_HEIGHT = 56;
 const START_BUTTON_SIZE = 58;
 
-function StartTabButton(props: { onPress?: (e: GestureResponderEvent) => void; accessibilityState?: { selected?: boolean } }) {
+function StartTabButton(props: { onPress?: (e: GestureResponderEvent) => void; accessibilityState?: { selected?: boolean }; hasActiveWorkout: boolean }) {
   return (
     <TouchableOpacity
       onPress={props.onPress}
@@ -32,7 +33,9 @@ function StartTabButton(props: { onPress?: (e: GestureResponderEvent) => void; a
         borderColor: C.bg,
       }}
     >
-      <MaterialCommunityIcons name="dumbbell" size={26} color="#052e1c" />
+      {props.hasActiveWorkout
+        ? <Ionicons name="refresh" size={26} color="#052e1c" />
+        : <MaterialCommunityIcons name="dumbbell" size={26} color="#052e1c" />}
     </TouchableOpacity>
   );
 }
@@ -42,6 +45,24 @@ export default function TabsLayout() {
   const bottomInset = Math.max(insets.bottom, 12);
   const { t } = useTranslation('navigation');
   const router = useRouter();
+  const navigation = useNavigation();
+  const [hasActiveWorkout, setHasActiveWorkout] = useState(false);
+
+  const refreshActiveWorkout = useCallback(() => {
+    getAllWorkouts().then((workouts) => {
+      setHasActiveWorkout(workouts.some((w) => !w.finished_at));
+    });
+  }, []);
+
+  // Keep the Start button's icon in sync with whether a workout is in
+  // progress. `navigation` here is the root Stack's navigation object (this
+  // layout is that stack's "(tabs)" screen), so its 'state' event fires
+  // whenever pick-day/generated-workout are pushed or popped — exactly the
+  // moments an in-progress workout can appear or disappear.
+  useEffect(() => {
+    refreshActiveWorkout();
+    return navigation.addListener('state', refreshActiveWorkout);
+  }, [navigation, refreshActiveWorkout]);
 
   // The Start tab has no screen of its own to navigate to — tapping it
   // immediately routes into the start-workout flow (resume, or pick-day).
@@ -104,7 +125,7 @@ export default function TabsLayout() {
           title: '',
           tabBarLabelStyle: { height: 0 },
           tabBarIcon: () => null,
-          tabBarButton: (props) => <StartTabButton {...props} />,
+          tabBarButton: (props) => <StartTabButton {...props} hasActiveWorkout={hasActiveWorkout} />,
         }}
         listeners={{
           tabPress: (e) => {

@@ -5,7 +5,12 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import { C, accent } from '../theme/colors';
 
-const TAB_BAR_CONTENT_HEIGHT = 56;
+// Tall enough to comfortably fit a label under the Start button's raised,
+// floating circle (which pokes -18px above the bar) without relying on
+// content overflowing its box — the circle's own bottom edge sits at
+// (START_BUTTON_SIZE - 18) from the bar's content top, and the label needs
+// real room below that.
+const TAB_BAR_CONTENT_HEIGHT = 70;
 const START_BUTTON_SIZE = 58;
 
 type IoniconName = ComponentProps<typeof Ionicons>['name'];
@@ -59,6 +64,7 @@ export function TabBar({ activeIndex, onSelectIndex, hasActiveWorkout, onStartPr
           onPress={onStartPress}
           activeOpacity={0.85}
           style={{
+            position: 'absolute',
             top: -18,
             width: START_BUTTON_SIZE,
             height: START_BUTTON_SIZE,
@@ -79,6 +85,9 @@ export function TabBar({ activeIndex, onSelectIndex, hasActiveWorkout, onStartPr
             ? <Ionicons name="refresh" size={26} color="#052e1c" />
             : <MaterialCommunityIcons name="dumbbell" size={26} color="#052e1c" />}
         </TouchableOpacity>
+        <Text style={{ marginTop: START_BUTTON_SIZE - 18 + 4, fontSize: 10, fontWeight: '600', letterSpacing: 0.3, color: C.textMuted }}>
+          {hasActiveWorkout ? t('resume') : t('start')}
+        </Text>
       </View>
 
       {RIGHT_ITEMS.map((item) => (

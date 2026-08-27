@@ -4,8 +4,8 @@ import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useState, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useExercises } from '../hooks/useExercises';
-import AddExerciseModal from '../components/AddExerciseModal';
-import ConfirmModal from '../components/ConfirmModal';
+import AddExerciseModal from './AddExerciseModal';
+import ConfirmModal from './ConfirmModal';
 import type { Exercise } from '../db/exercises';
 import {
   exerciseMatchesQuery,
@@ -13,6 +13,7 @@ import {
   getMuscleLabel,
   getCategoryLabel,
 } from '../lib/exerciseTranslations';
+import { accent } from '../theme/colors';
 
 const categories = ['All', 'Chest', 'Back', 'Legs', 'Arms', 'Shoulders'];
 
@@ -31,7 +32,7 @@ function matchesCategory(ex: Exercise, category: string): boolean {
   return keywords.some((kw) => muscles.some((m) => m.includes(kw)));
 }
 
-export default function ExploreScreen() {
+export default function ExercisesTabPage() {
   const { t, i18n } = useTranslation('explore');
   const locale = i18n.language;
   const [activeCategory, setActiveCategory] = useState(0);
@@ -59,9 +60,9 @@ export default function ExploreScreen() {
           <Text style={{ color: '#fff', fontSize: 24, fontWeight: '700', letterSpacing: -0.3 }}>{t('title')}</Text>
           <TouchableOpacity
             onPress={() => setShowAdd(true)}
-            style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: '#18181b', alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: '#27272a' }}
+            style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: '#18181b', alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: accent.teal }}
           >
-            <Ionicons name="add" size={22} color="#f4f4f5" />
+            <Ionicons name="add" size={22} color={accent.teal} />
           </TouchableOpacity>
         </View>
 

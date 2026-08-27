@@ -11,6 +11,7 @@ export type WorkoutSet = {
   logged_at: string;
   created_at: number;
   is_pr: number;
+  duration_seconds: number | null;
 };
 
 export type NewSetInput = {
@@ -21,6 +22,7 @@ export type NewSetInput = {
   weight: number;
   unit: string;
   logged_at: string;
+  duration_seconds?: number | null;
 };
 
 export type UpdateSetInput = {
@@ -29,6 +31,7 @@ export type UpdateSetInput = {
   weight: number;
   unit: string;
   logged_at: string;
+  duration_seconds?: number | null;
 };
 
 type RawSetRow = {
@@ -42,6 +45,7 @@ type RawSetRow = {
   logged_at: string;
   created_at: number;
   is_pr: number;
+  duration_seconds: number | null;
 };
 
 function generateId(): string {
@@ -54,8 +58,8 @@ export async function insertSet(input: NewSetInput): Promise<string> {
   await db.runAsync(
     `INSERT INTO sets
        (id, workout_id, exercise_id,
-        reps, difficulty, weight, unit, logged_at, created_at)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        reps, difficulty, weight, unit, logged_at, created_at, duration_seconds)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     id,
     input.workout_id,
     input.exercise_id,
@@ -65,6 +69,7 @@ export async function insertSet(input: NewSetInput): Promise<string> {
     input.unit,
     input.logged_at,
     Date.now(),
+    input.duration_seconds ?? null,
   );
   return id;
 }
@@ -72,12 +77,13 @@ export async function insertSet(input: NewSetInput): Promise<string> {
 export async function updateSet(id: string, input: UpdateSetInput): Promise<void> {
   const db = await getDb();
   await db.runAsync(
-    `UPDATE sets SET reps = ?, difficulty = ?, weight = ?, unit = ?, logged_at = ? WHERE id = ?`,
+    `UPDATE sets SET reps = ?, difficulty = ?, weight = ?, unit = ?, logged_at = ?, duration_seconds = ? WHERE id = ?`,
     input.reps,
     input.difficulty,
     input.weight,
     input.unit,
     input.logged_at,
+    input.duration_seconds ?? null,
     id,
   );
 }

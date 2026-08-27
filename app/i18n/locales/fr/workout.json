@@ -15,6 +15,7 @@
   "workoutNamePlaceholder": "Nom de la séance",
   "noExercisesYet": "Aucun exercice pour l'instant",
   "repsHeader": "REPS",
+  "durationHeader": "SEC",
   "search": "Rechercher",
   "selectExercise": "Sélectionner un exercice",
   "searchExercisesPlaceholder": "Rechercher des exercices...",

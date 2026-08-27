@@ -18,6 +18,7 @@ const MOCK_EXERCISES: Exercise[] = [
     alt_names: [],
     description: '',
     weight_direction: 1,
+    logging_type: 'reps',
     created_at: 1000,
   },
 ];

@@ -1,7 +1,8 @@
 {
   "home": "Start",
-  "explore": "Entdecken",
-  "routines": "Routinen",
+  "plan": "Plan",
+  "start": "Training",
+  "resume": "Fortsetzen",
   "stats": "Statistik",
-  "profile": "Profil"
+  "exercises": "Übungen"
 }

@@ -1,7 +1,8 @@
 {
   "home": "Acasă",
-  "explore": "Explorează",
-  "routines": "Rutine",
+  "plan": "Plan",
+  "start": "Antrenament",
+  "resume": "Reia",
   "stats": "Statistici",
-  "profile": "Profil"
+  "exercises": "Exerciții"
 }

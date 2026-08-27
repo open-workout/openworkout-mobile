@@ -6,5 +6,10 @@
   "trackNewSession": "Registrar una nueva sesión",
   "recentActivity": "Actividad reciente",
   "noMoreWorkouts": "No hay más entrenamientos",
-  "noFinishedWorkoutsYet": "Aún no hay entrenamientos terminados"
+  "noFinishedWorkoutsYet": "Aún no hay entrenamientos terminados",
+  "inProgress": "En curso",
+  "todayLabel": "Siguiente",
+  "noSplitConfiguredShort": "Configura una rutina",
+  "weekStreak": "Racha de {{count}} semanas",
+  "streakSubtitle": "{{current}}/{{goal}} esta semana · {{total}} entrenamientos en total"
 }

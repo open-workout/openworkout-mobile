@@ -1,4 +1,5 @@
-import { View, Text, ScrollView, TouchableOpacity, StatusBar, Modal, TextInput, KeyboardAvoidingView, Platform } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, StatusBar, Modal, TextInput, KeyboardAvoidingView, Platform, Dimensions } from 'react-native';
+import Animated, { useSharedValue, useAnimatedStyle, withTiming, runOnJS } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter, useLocalSearchParams } from 'expo-router';
@@ -19,19 +20,11 @@ import { type LocalSet } from './components/SetRows';
 import AddExerciseModal from './components/AddExerciseModal';
 import ConfirmModal from './components/ConfirmModal';
 import { ExerciseCard } from './components/ExerciseCard';
+import { ExerciseTabStrip } from './components/ExerciseTabStrip';
 import { computeProgressSuggestion, type OverloadSuggestion } from './lib/progressiveOverload';
 import { getWorkoutPreferences, type WorkoutPreferences } from './storage';
 import { exerciseMatchesQuery, getExerciseDisplayName, getMuscleLabels } from './lib/exerciseTranslations';
-
-const C = {
-  bg: '#0a0a0a',
-  card: '#18181b',
-  border: '#27272a',
-  borderAlt: '#3f3f46',
-  text: '#f4f4f5',
-  textMuted: '#71717a',
-  textDim: '#52525b',
-};
+import { C } from './theme/colors';
 
 type WorkoutCard = {
   cardId: string;
@@ -63,11 +56,11 @@ export default function GeneratedWorkoutScreen() {
   const [cards, setCards] = useState<WorkoutCard[]>(() =>
     resumeWorkoutId ? [] : slots.map((s) => ({ cardId: mkId(), slotType: s.type, exercise: s.exercise })),
   );
+  const [activeCardId, setActiveCardId] = useState<string | null>(() => cards[0]?.cardId ?? null);
 
   // Per-card state keyed by cardId (stable across add/delete)
-  const [expandedCards, setExpandedCards] = useState<Record<string, boolean>>({});
   const [cardSets, setCardSets] = useState<Record<string, LocalSet[]>>({});
-  const [drafts, setDrafts] = useState<Record<string, { weight: string; reps: string }>>({});
+  const [drafts, setDrafts] = useState<Record<string, { weight: string; secondary: string }>>({});
   const [suggestions, setSuggestions] = useState<Record<string, OverloadSuggestion | null>>({});
   const [localPrefs, setLocalPrefs] = useState<WorkoutPreferences | null>(null);
 
@@ -91,6 +84,19 @@ export default function GeneratedWorkoutScreen() {
   const [deletingCardId, setDeletingCardId] = useState<string | null>(null);
   const [showFinishModal, setShowFinishModal] = useState(false);
 
+  // The stack navigator's own dismiss transition doesn't animate reliably
+  // for this modal on every platform, so the slide-down on exit is driven
+  // here instead: translate the panel off-screen first, then dismiss the
+  // route once that's finished — by then nothing visible changes.
+  const translateY = useSharedValue(0);
+  const panelStyle = useAnimatedStyle(() => ({ transform: [{ translateY: translateY.value }] }));
+  const closePanel = () => {
+    const windowHeight = Dimensions.get('window').height;
+    translateY.value = withTiming(windowHeight, { duration: 280 }, (finished) => {
+      if (finished) runOnJS(router.dismiss)();
+    });
+  };
+
   useEffect(() => {
     if (!pending && !resumeWorkoutId) router.back();
     getWorkoutPreferences().then(setLocalPrefs);
@@ -111,7 +117,6 @@ export default function GeneratedWorkoutScreen() {
 
         const newCards: WorkoutCard[] = [];
         const newCardSets: Record<string, LocalSet[]> = {};
-        const newExpanded: Record<string, boolean> = {};
         const handledExIds = new Set<string>();
 
         const toLocalSets = (exSets: typeof dbSets): LocalSet[] =>
@@ -122,6 +127,7 @@ export default function GeneratedWorkoutScreen() {
               id: s.id,
               weight: s.weight ? String(s.weight) : '',
               reps: s.reps ? String(s.reps) : '',
+              durationSeconds: s.duration_seconds ? String(s.duration_seconds) : '',
               unit: s.unit as 'kg' | 'lbs',
               loggedAt: new Date(s.logged_at),
             }));
@@ -132,7 +138,6 @@ export default function GeneratedWorkoutScreen() {
           const localSets = toLocalSets(exSets);
           newCards.push({ cardId, slotType, exercise });
           newCardSets[cardId] = localSets;
-          if (localSets.length > 0) newExpanded[cardId] = true;
           handledExIds.add(exId);
         };
 
@@ -152,7 +157,7 @@ export default function GeneratedWorkoutScreen() {
 
         setCards(newCards);
         setCardSets(newCardSets);
-        setExpandedCards(newExpanded);
+        setActiveCardId(newCards[0]?.cardId ?? null);
       },
     );
   }, [resumeWorkoutId]);
@@ -160,11 +165,13 @@ export default function GeneratedWorkoutScreen() {
   useEffect(() => {
     if (!localPrefs) return;
     Promise.all(
-      cards.map(async (card) => {
-        const exerciseRef = card.exercise.id || card.exercise.name;
-        const sets = await getLastSetsForExercise(exerciseRef);
-        return { cardId: card.cardId, suggestion: computeProgressSuggestion(sets, card.exercise.exercise_type, localPrefs.progress_reps, weightUnit, t) };
-      }),
+      cards
+        .filter((card) => (card.exercise.logging_type ?? 'reps') !== 'time')
+        .map(async (card) => {
+          const exerciseRef = card.exercise.id || card.exercise.name;
+          const sets = await getLastSetsForExercise(exerciseRef);
+          return { cardId: card.cardId, suggestion: computeProgressSuggestion(sets, card.exercise.exercise_type, localPrefs.progress_reps, weightUnit, t) };
+        }),
     ).then((results) => {
       const map: Record<string, OverloadSuggestion | null> = {};
       for (const { cardId, suggestion } of results) map[cardId] = suggestion;
@@ -176,7 +183,11 @@ export default function GeneratedWorkoutScreen() {
 
   const ensureWorkout = (): Promise<string> => {
     if (!workoutRef.current) {
-      workoutRef.current = insertWorkout({ title: '', started_at: new Date().toISOString() });
+      workoutRef.current = insertWorkout({
+        title: '',
+        started_at: new Date().toISOString(),
+        split_day_name: getPendingWorkout()?.splitDayName ?? null,
+      });
     }
     return workoutRef.current;
   };
@@ -185,9 +196,10 @@ export default function GeneratedWorkoutScreen() {
 
   const confirmDraft = async (cardId: string) => {
     const draft = drafts[cardId];
-    if (!draft?.weight.trim() || !draft?.reps.trim()) return;
+    if (!draft?.weight.trim() || !draft?.secondary.trim()) return;
     const card = cards.find((c) => c.cardId === cardId);
     if (!card) return;
+    const isTime = (card.exercise.logging_type ?? 'reps') === 'time';
     const exerciseRef = card.exercise.id || card.exercise.name;
     const now = new Date();
 
@@ -195,34 +207,56 @@ export default function GeneratedWorkoutScreen() {
     const newId = await insertSet({
       workout_id: workoutId,
       exercise_id: exerciseRef,
-      reps: parseFloat(draft.reps) || 0,
+      reps: isTime ? 0 : (parseFloat(draft.secondary) || 0),
       difficulty: 0,
       weight: parseFloat(draft.weight) || 0,
       unit: weightUnit,
       logged_at: now.toISOString(),
+      duration_seconds: isTime ? (parseInt(draft.secondary, 10) || 0) : null,
     });
 
-    const saved: LocalSet = { id: newId, weight: draft.weight, reps: draft.reps, unit: weightUnit, loggedAt: now };
+    const saved: LocalSet = {
+      id: newId,
+      weight: draft.weight,
+      reps: isTime ? '' : draft.secondary,
+      durationSeconds: isTime ? draft.secondary : '',
+      unit: weightUnit,
+      loggedAt: now,
+    };
     setCardSets((prev) => ({ ...prev, [cardId]: [saved, ...(prev[cardId] ?? [])] }));
-    setDrafts((prev) => ({ ...prev, [cardId]: { weight: '', reps: '' } }));
+    setDrafts((prev) => ({ ...prev, [cardId]: { weight: '', secondary: '' } }));
   };
 
-  const updateSetField = (cardId: string, setId: string, field: 'weight' | 'reps', value: string) => {
+  const updateSetWeight = (cardId: string, setId: string, value: string) => {
     setCardSets((prev) => ({
       ...prev,
-      [cardId]: (prev[cardId] ?? []).map((s) => (s.id === setId ? { ...s, [field]: value } : s)),
+      [cardId]: (prev[cardId] ?? []).map((s) => (s.id === setId ? { ...s, weight: value } : s)),
+    }));
+  };
+
+  const updateSetSecondary = (cardId: string, setId: string, value: string) => {
+    const card = cards.find((c) => c.cardId === cardId);
+    const isTime = (card?.exercise.logging_type ?? 'reps') === 'time';
+    setCardSets((prev) => ({
+      ...prev,
+      [cardId]: (prev[cardId] ?? []).map((s) =>
+        s.id === setId ? { ...s, [isTime ? 'durationSeconds' : 'reps']: value } : s,
+      ),
     }));
   };
 
   const saveSet = (cardId: string, setId: string) => {
+    const card = cards.find((c) => c.cardId === cardId);
+    const isTime = (card?.exercise.logging_type ?? 'reps') === 'time';
     const set = (cardSets[cardId] ?? []).find((s) => s.id === setId);
     if (!set) return;
     editSet(setId, {
-      reps: parseFloat(set.reps) || 0,
+      reps: isTime ? 0 : (parseFloat(set.reps) || 0),
       difficulty: 0,
       weight: parseFloat(set.weight) || 0,
       unit: set.unit,
       logged_at: set.loggedAt ? set.loggedAt.toISOString() : 'pending',
+      duration_seconds: isTime ? (parseInt(set.durationSeconds, 10) || 0) : null,
     });
   };
 
@@ -243,9 +277,10 @@ export default function GeneratedWorkoutScreen() {
       exercise,
     };
     setCards((prev) => [...prev, newCard]);
+    setActiveCardId(newCard.cardId);
     setShowPicker(false);
     setPickerSearch('');
-    if (localPrefs) {
+    if (localPrefs && (exercise.logging_type ?? 'reps') !== 'time') {
       const exerciseRef = exercise.id || exercise.name;
       getLastSetsForExercise(exerciseRef).then((sets) => {
         setSuggestions((prev) => ({ ...prev, [newCard.cardId]: computeProgressSuggestion(sets, exercise.exercise_type, localPrefs.progress_reps, weightUnit, t) }));
@@ -263,11 +298,12 @@ export default function GeneratedWorkoutScreen() {
         await deleteSetsByExercise(workoutId, exerciseRef);
       }
     }
-    setCards((prev) => prev.filter((c) => c.cardId !== deletingCardId));
+    const remaining = cards.filter((c) => c.cardId !== deletingCardId);
+    setCards(remaining);
     setCardSets((prev) => { const n = { ...prev }; delete n[deletingCardId!]; return n; });
     setDrafts((prev) => { const n = { ...prev }; delete n[deletingCardId!]; return n; });
-    setExpandedCards((prev) => { const n = { ...prev }; delete n[deletingCardId!]; return n; });
     setSuggestions((prev) => { const n = { ...prev }; delete n[deletingCardId!]; return n; });
+    setActiveCardId((prev) => (prev === deletingCardId ? (remaining[0]?.cardId ?? null) : prev));
     setDeletingCardId(null);
   };
 
@@ -311,7 +347,7 @@ export default function GeneratedWorkoutScreen() {
     setSuggestions((prev) => { const n = { ...prev }; delete n[cardId]; return n; });
     setSwitchingCardId(null);
     setSwitchSearch('');
-    if (localPrefs) {
+    if (localPrefs && (exercise.logging_type ?? 'reps') !== 'time') {
       const exerciseRef = exercise.id || exercise.name;
       getLastSetsForExercise(exerciseRef).then((sets) => {
         setSuggestions((prev) => ({ ...prev, [cardId]: computeProgressSuggestion(sets, exercise.exercise_type, localPrefs.progress_reps, weightUnit, t) }));
@@ -335,14 +371,18 @@ export default function GeneratedWorkoutScreen() {
     ? getMuscleLabels(compressMuscles(pending.muscles), locale).join(' · ')
     : '';
 
+  const activeCard = cards.find((c) => c.cardId === activeCardId) ?? null;
+  const activeDraft = activeCardId ? (drafts[activeCardId] ?? { weight: '', secondary: '' }) : { weight: '', secondary: '' };
+
   return (
+    <Animated.View style={[{ flex: 1 }, panelStyle]}>
     <SafeAreaView style={{ flex: 1, backgroundColor: C.bg }} edges={['top']}>
       <StatusBar barStyle="light-content" backgroundColor={C.bg} />
 
       {/* Header */}
       <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16, paddingVertical: 12, backgroundColor: '#0c0c0e', borderBottomWidth: 1, borderBottomColor: C.border }}>
         <TouchableOpacity
-          onPress={() => setShowFinishModal(true)}
+          onPress={closePanel}
           style={{ width: 40, height: 40, alignItems: 'center', justifyContent: 'center' }}
         >
           <Ionicons name="chevron-down" size={26} color={C.textMuted} />
@@ -365,6 +405,14 @@ export default function GeneratedWorkoutScreen() {
         </View>
       </View>
 
+      {/* Exercise tab strip */}
+      <ExerciseTabStrip
+        cards={cards.map((c) => ({ cardId: c.cardId, hasSets: (cardSets[c.cardId] ?? []).length > 0 }))}
+        activeCardId={activeCardId}
+        onSelect={setActiveCardId}
+        onAdd={() => setShowPicker(true)}
+      />
+
       <KeyboardAvoidingView
         style={{ flex: 1 }}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -375,41 +423,34 @@ export default function GeneratedWorkoutScreen() {
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
       >
-        {cards.map((card) => {
-          const { cardId } = card;
-          const draft = drafts[cardId] ?? { weight: '', reps: '' };
-          return (
-            <ExerciseCard
-              key={cardId}
-              slotType={card.slotType}
-              exercise={card.exercise}
-              isExpanded={!!expandedCards[cardId]}
-              sets={cardSets[cardId] ?? []}
-              draft={draft}
-              suggestion={suggestions[cardId] ?? null}
-              weightUnit={weightUnit}
-              onToggleExpand={() => setExpandedCards((prev) => ({ ...prev, [cardId]: !expandedCards[cardId] }))}
-              onSwitch={() => setSwitchingCardId(cardId)}
-              onDelete={() => setDeletingCardId(cardId)}
-              onDraftWeightChange={(v) => setDrafts((prev) => ({ ...prev, [cardId]: { ...draft, weight: v } }))}
-              onDraftRepsChange={(v) => setDrafts((prev) => ({ ...prev, [cardId]: { ...draft, reps: v } }))}
-              onConfirmDraft={() => confirmDraft(cardId)}
-              onSetWeightChange={(setId, v) => updateSetField(cardId, setId, 'weight', v)}
-              onSetRepsChange={(setId, v) => updateSetField(cardId, setId, 'reps', v)}
-              onSetBlur={(setId) => saveSet(cardId, setId)}
-              onSetDelete={(setId) => setDeletingSet({ cardId, setId })}
-            />
-          );
-        })}
-
-        {/* Add exercise */}
-        <TouchableOpacity
-          onPress={() => setShowPicker(true)}
-          style={{ paddingVertical: 16, borderRadius: 12, borderWidth: 2, borderColor: C.border, borderStyle: 'dashed', alignItems: 'center', flexDirection: 'row', justifyContent: 'center', gap: 8, marginTop: 4 }}
-        >
-          <Ionicons name="add" size={18} color={C.textDim} />
-          <Text style={{ color: C.textDim, fontWeight: '600', fontSize: 15 }}>{t('routines:addExercise')}</Text>
-        </TouchableOpacity>
+        {activeCard ? (
+          <ExerciseCard
+            key={activeCard.cardId}
+            slotType={activeCard.slotType}
+            exercise={activeCard.exercise}
+            sets={cardSets[activeCard.cardId] ?? []}
+            draft={activeDraft}
+            suggestion={suggestions[activeCard.cardId] ?? null}
+            weightUnit={weightUnit}
+            onSwitch={() => setSwitchingCardId(activeCard.cardId)}
+            onDelete={() => setDeletingCardId(activeCard.cardId)}
+            onDraftWeightChange={(v) => setDrafts((prev) => ({ ...prev, [activeCard.cardId]: { ...activeDraft, weight: v } }))}
+            onDraftSecondaryChange={(v) => setDrafts((prev) => ({ ...prev, [activeCard.cardId]: { ...activeDraft, secondary: v } }))}
+            onConfirmDraft={() => confirmDraft(activeCard.cardId)}
+            onSetWeightChange={(setId, v) => updateSetWeight(activeCard.cardId, setId, v)}
+            onSetSecondaryChange={(setId, v) => updateSetSecondary(activeCard.cardId, setId, v)}
+            onSetBlur={(setId) => saveSet(activeCard.cardId, setId)}
+            onSetDelete={(setId) => setDeletingSet({ cardId: activeCard.cardId, setId })}
+          />
+        ) : (
+          <TouchableOpacity
+            onPress={() => setShowPicker(true)}
+            style={{ paddingVertical: 32, borderRadius: 12, borderWidth: 2, borderColor: C.border, borderStyle: 'dashed', alignItems: 'center', flexDirection: 'row', justifyContent: 'center', gap: 8 }}
+          >
+            <Ionicons name="add" size={18} color={C.textDim} />
+            <Text style={{ color: C.textDim, fontWeight: '600', fontSize: 15 }}>{t('routines:addExercise')}</Text>
+          </TouchableOpacity>
+        )}
       </ScrollView>
       </KeyboardAvoidingView>
 
@@ -641,5 +682,6 @@ export default function GeneratedWorkoutScreen() {
         onConfirm={confirmDeleteCard}
       />
     </SafeAreaView>
+    </Animated.View>
   );
 }

@@ -1,181 +1,65 @@
-import { View, Text, FlatList, StatusBar, TouchableOpacity, ActivityIndicator } from "react-native";
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { LinearGradient } from 'expo-linear-gradient';
-import { Ionicons } from '@expo/vector-icons';
+import { View } from 'react-native';
 import { useRouter, useFocusEffect } from 'expo-router';
-import { useState, useCallback, useRef, useMemo } from 'react';
-import { useTranslation } from 'react-i18next';
-import { getAllWorkouts, getFinishedWorkoutsPaginated, getWorkoutExerciseSummariesBatch, deleteWorkout, type Workout, type WorkoutExerciseSummary } from '../db/workouts';
-import { getWorkoutPRCountsBatch } from '../db/sets';
-import { WorkoutCard, type PastWorkout } from '../components/WorkoutCard';
-import { formatTodayLabel } from '../lib/dateFormat';
+import { useCallback, useState } from 'react';
+import { getAllWorkouts } from '../db/workouts';
+import { SwipeableTabPager } from '../components/SwipeableTabPager';
+import { TabBar } from '../components/TabBar';
+import HomeTabPage from '../components/HomeTabPage';
+import PlanTabPage from '../components/PlanTabPage';
+import StatsTabPage from '../components/StatsTabPage';
+import ExercisesTabPage from '../components/ExercisesTabPage';
+import { C } from '../theme/colors';
 
-const PAGE_SIZE = 10;
-
-export default function HomeScreen() {
-  const { t, i18n } = useTranslation('home');
+// The single route backing the whole tab experience: a swipeable pager over
+// the 4 content pages, plus a hand-built tab bar (React Navigation's bottom
+// tabs don't support an interactive, both-pages-visible swipe transition,
+// so that's driven directly by SwipeableTabPager instead). "Start" isn't a
+// page — it's an action button that routes into the start-workout flow.
+export default function HomeRoute() {
   const router = useRouter();
-  const [activeWorkout, setActiveWorkout] = useState<Workout | null>(null);
-  const [pastWorkouts, setPastWorkouts] = useState<PastWorkout[]>([]);
-  const [hasMore, setHasMore] = useState(true);
-  const [isLoadingMore, setIsLoadingMore] = useState(false);
-  const [expandedWorkoutId, setExpandedWorkoutId] = useState<string | null>(null);
-  const offsetRef = useRef(0);
-  const loadingRef = useRef(false);
+  const [activeIndex, setActiveIndex] = useState(0);
+  const [hasActiveWorkout, setHasActiveWorkout] = useState(false);
 
-  const loadPage = useCallback(async (offset: number, replace: boolean) => {
-    if (loadingRef.current) return;
-    loadingRef.current = true;
-    setIsLoadingMore(true);
-    try {
-      const workouts = await getFinishedWorkoutsPaginated(offset, PAGE_SIZE);
-      const workoutIds = workouts.map((w) => w.id);
-      const [allSummaries, prCounts] = await Promise.all([
-        getWorkoutExerciseSummariesBatch(workoutIds),
-        getWorkoutPRCountsBatch(workoutIds),
-      ]);
-      const summaryMap: Record<string, WorkoutExerciseSummary[]> = {};
-      for (const s of allSummaries) {
-        if (!summaryMap[s.workout_id]) summaryMap[s.workout_id] = [];
-        summaryMap[s.workout_id].push(s);
-      }
-      const withSummaries = workouts.map((w) => ({
-        workout: w,
-        summaries: summaryMap[w.id] ?? [],
-        prCount: prCounts[w.id] ?? 0,
-      }));
-      if (replace) {
-        setPastWorkouts(withSummaries);
-      } else {
-        setPastWorkouts((prev) => [...prev, ...withSummaries]);
-      }
-      offsetRef.current = offset + workouts.length;
-      setHasMore(workouts.length === PAGE_SIZE);
-    } finally {
-      loadingRef.current = false;
-      setIsLoadingMore(false);
-    }
+  const refreshActiveWorkout = useCallback(() => {
+    getAllWorkouts().then((workouts) => {
+      setHasActiveWorkout(workouts.some((w) => !w.finished_at));
+    });
   }, []);
 
+  // Refresh whenever this route regains focus — e.g. returning from
+  // generated-workout (finished/discarded/exited), settings, or pick-day.
   useFocusEffect(useCallback(() => {
-    offsetRef.current = 0;
-    loadingRef.current = false;
-    setHasMore(true);
-    Promise.all([
-      getAllWorkouts().then((ws) => setActiveWorkout(ws.find((w) => !w.finished_at) ?? null)),
-      loadPage(0, true),
-    ]);
-  }, [loadPage]));
+    refreshActiveWorkout();
+  }, [refreshActiveWorkout]));
 
-  const handleLoadMore = () => {
-    if (!hasMore || isLoadingMore) return;
-    loadPage(offsetRef.current, false);
-  };
-
-  const handleStartWorkout = () => {
-    if (activeWorkout) {
-      router.push(`/generated-workout?workoutId=${activeWorkout.id}`);
-      return;
+  const handleStartPress = async () => {
+    const workouts = await getAllWorkouts();
+    const active = workouts.find((w) => !w.finished_at);
+    if (active) {
+      router.push(`/generated-workout?workoutId=${active.id}`);
+    } else {
+      router.push('/pick-day');
     }
-    router.push('/pick-day');
   };
-
-  const todayLabel = useMemo(() => {
-    return formatTodayLabel(new Date(), i18n.language);
-  }, [i18n.language]);
-
-  const ListHeader = (
-    <View>
-      {/* Header */}
-      <View style={{ paddingHorizontal: 24, paddingTop: 8, paddingBottom: 16, borderBottomWidth: 0.5, borderBottomColor: '#18181b' }}>
-        <Text style={{ color: '#71717a', fontSize: 14, fontWeight: '500', marginBottom: 4 }}>{todayLabel}</Text>
-        <Text style={{ color: '#fff', fontSize: 24, fontWeight: '800', letterSpacing: -0.5 }}>{t('readyToLift')}</Text>
-      </View>
-
-      {/* Start Workout CTA */}
-      <TouchableOpacity
-        activeOpacity={0.85}
-        onPress={handleStartWorkout}
-        style={{ marginHorizontal: 24, marginTop: 24, marginBottom: 8 }}
-      >
-        <LinearGradient
-          colors={['#f4f4f5', '#a1a1aa']}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
-          style={{ borderRadius: 20, padding: 2 }}
-        >
-          <View style={{ backgroundColor: '#0c0c0e', borderRadius: 18, paddingHorizontal: 24, paddingVertical: 20, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 16 }}>
-              <LinearGradient
-                colors={['#f4f4f5', '#a1a1aa']}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 1 }}
-                style={{ width: 48, height: 48, borderRadius: 24, alignItems: 'center', justifyContent: 'center' }}
-              >
-                <Ionicons name={activeWorkout ? 'refresh' : 'play'} size={22} color="#09090b" style={{ marginLeft: activeWorkout ? 0 : 2 }} />
-              </LinearGradient>
-              <View>
-                <Text style={{ color: '#f4f4f5', fontSize: 17, fontWeight: '700', marginBottom: 2 }}>
-                  {activeWorkout ? t('resumeWorkout') : t('startWorkout')}
-                </Text>
-                <Text style={{ color: '#71717a', fontSize: 14 }}>
-                  {activeWorkout ? t('continueSession') : t('trackNewSession')}
-                </Text>
-              </View>
-            </View>
-            <Ionicons name="chevron-forward" size={20} color="#52525b" />
-          </View>
-        </LinearGradient>
-      </TouchableOpacity>
-
-      {/* Section header */}
-      <View style={{ marginTop: 32, paddingHorizontal: 24, marginBottom: 20 }}>
-        <Text style={{ color: '#f4f4f5', fontSize: 18, fontWeight: '600' }}>{t('recentActivity')}</Text>
-      </View>
-    </View>
-  );
-
-  const ListFooter = (
-    <View style={{ paddingBottom: 24, alignItems: 'center', paddingTop: 8, paddingHorizontal: 24 }}>
-      {isLoadingMore && pastWorkouts.length > 0 && (
-        <ActivityIndicator color="#52525b" />
-      )}
-      {!hasMore && pastWorkouts.length > 0 && (
-        <Text style={{ color: '#3f3f46', fontSize: 13 }}>{t('noMoreWorkouts')}</Text>
-      )}
-      {!isLoadingMore && pastWorkouts.length === 0 && (
-        <Text style={{ color: '#52525b', fontSize: 14 }}>{t('noFinishedWorkoutsYet')}</Text>
-      )}
-    </View>
-  );
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: '#0a0a0a' }} edges={['top']}>
-      <StatusBar barStyle="light-content" backgroundColor="#0a0a0a" />
-      <FlatList
-        data={pastWorkouts}
-        keyExtractor={(item) => item.workout.id}
-        renderItem={({ item }) => (
-          <WorkoutCard
-            item={item}
-            expanded={expandedWorkoutId === item.workout.id}
-            onToggle={() => setExpandedWorkoutId(
-              expandedWorkoutId === item.workout.id ? null : item.workout.id
-            )}
-            onDelete={async () => {
-              await deleteWorkout(item.workout.id);
-              setExpandedWorkoutId(null);
-              setPastWorkouts((prev) => prev.filter((w) => w.workout.id !== item.workout.id));
-            }}
-          />
-        )}
-        ListHeaderComponent={ListHeader}
-        ListFooterComponent={ListFooter}
-        onEndReached={handleLoadMore}
-        onEndReachedThreshold={0.3}
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={{ paddingBottom: 0 }}
+    <View style={{ flex: 1, backgroundColor: C.bg }}>
+      <SwipeableTabPager
+        activeIndex={activeIndex}
+        onIndexChange={setActiveIndex}
+        pages={[
+          <HomeTabPage key="home" />,
+          <PlanTabPage key="plan" />,
+          <StatsTabPage key="stats" />,
+          <ExercisesTabPage key="exercises" />,
+        ]}
       />
-    </SafeAreaView>
+      <TabBar
+        activeIndex={activeIndex}
+        onSelectIndex={setActiveIndex}
+        hasActiveWorkout={hasActiveWorkout}
+        onStartPress={handleStartPress}
+      />
+    </View>
   );
 }

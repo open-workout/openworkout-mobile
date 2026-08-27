@@ -1,81 +1,8 @@
-import { Tabs } from 'expo-router';
-import { Ionicons } from '@expo/vector-icons';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useTranslation } from 'react-i18next';
+import { Slot } from 'expo-router';
 
-const TAB_BAR_CONTENT_HEIGHT = 56;
-
+// The "(tabs)" group now backs a single route (home.tsx), which owns the
+// whole tab bar + swipeable pager itself — there's no navigator to
+// configure here, just pass the route through.
 export default function TabsLayout() {
-  const insets = useSafeAreaInsets();
-  const bottomInset = Math.max(insets.bottom, 12);
-  const { t } = useTranslation('navigation');
-
-  return (
-    <Tabs
-      screenOptions={{
-        headerShown: false,
-        tabBarStyle: {
-          backgroundColor: '#0a0a0a',
-          borderTopColor: '#27272a',
-          borderTopWidth: 1,
-          paddingTop: 8,
-          paddingBottom: bottomInset,
-          height: TAB_BAR_CONTENT_HEIGHT + bottomInset,
-        },
-        tabBarActiveTintColor: '#ffffff',
-        tabBarInactiveTintColor: '#71717a',
-        tabBarLabelStyle: {
-          fontSize: 10,
-          fontWeight: '600',
-          letterSpacing: 0.3,
-        },
-      }}
-    >
-      <Tabs.Screen
-        name="home"
-        options={{
-          title: t('home'),
-          tabBarIcon: ({ color, focused }: { color: string; focused: boolean }) => (
-            <Ionicons name={focused ? 'home' : 'home-outline'} size={24} color={color} />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="explore"
-        options={{
-          title: t('explore'),
-          tabBarIcon: ({ color, focused }: { color: string; focused: boolean }) => (
-            <Ionicons name={focused ? 'search' : 'search-outline'} size={24} color={color} />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="routines"
-        options={{
-          title: t('routines'),
-          tabBarIcon: ({ color, focused }: { color: string; focused: boolean }) => (
-            <Ionicons name={focused ? 'list' : 'list-outline'} size={24} color={color} />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="stats"
-        options={{
-          title: t('stats'),
-          tabBarIcon: ({ color, focused }: { color: string; focused: boolean }) => (
-            <Ionicons name={focused ? 'bar-chart' : 'bar-chart-outline'} size={24} color={color} />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="profile"
-        options={{
-          title: t('profile'),
-          tabBarIcon: ({ color, focused }: { color: string; focused: boolean }) => (
-            <Ionicons name={focused ? 'person' : 'person-outline'} size={24} color={color} />
-          ),
-        }}
-      />
-    </Tabs>
-  );
+  return <Slot />;
 }

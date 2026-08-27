@@ -76,5 +76,11 @@
   },
   "routinesTabHint": "Crea una rutina para guardar un conjunto de ejercicios e iniciar rápidamente un entrenamiento a partir de ella.",
   "deleteRoutineTitle": "Eliminar rutina",
-  "deleteRoutineMessage": "¿Quitar \"{{name}}\"? Esto no se puede deshacer."
+  "deleteRoutineMessage": "¿Quitar \"{{name}}\"? Esto no se puede deshacer.",
+  "menuProgramOfToday": "Programa de hoy",
+  "comingSoon": "Próximamente",
+  "menuRoutine": "Rutina",
+  "menuRoutineHint": "Empieza desde una rutina guardada",
+  "menuDaySplit": "Día de la rutina",
+  "menuDaySplitHint": "Elige un día de tu rutina o genera uno"
 }

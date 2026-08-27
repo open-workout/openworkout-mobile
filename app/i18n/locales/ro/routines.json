@@ -43,7 +43,7 @@
   "dayPlaceholder": "Ziua {{n}}",
   "trainingSplitTitle": "Program de antrenament",
   "deleteSplitTitle": "Șterge programul",
-  "deleteSplitMessage": "Elimini programul tău de antrenament? Îl poți configura din nou din profil.",
+  "deleteSplitMessage": "Elimini programul tău de antrenament? Îl poți configura din nou din Setări.",
   "saving": "Se salvează…",
   "presetNames": {
     "preset_upper_lower": "Sus / Jos",
@@ -77,5 +77,11 @@
   },
   "routinesTabHint": "Creează o rutină pentru a salva un set de exerciții și a începe rapid un antrenament din ea.",
   "deleteRoutineTitle": "Șterge rutina",
-  "deleteRoutineMessage": "Elimini „{{name}}”? Această acțiune nu poate fi anulată."
+  "deleteRoutineMessage": "Elimini „{{name}}”? Această acțiune nu poate fi anulată.",
+  "menuProgramOfToday": "Programul de azi",
+  "comingSoon": "În curând",
+  "menuRoutine": "Rutină",
+  "menuRoutineHint": "Pornește de la o rutină salvată",
+  "menuDaySplit": "Ziua din split",
+  "menuDaySplitHint": "Alege o zi din split-ul tău sau generează una"
 }

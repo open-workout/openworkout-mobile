@@ -15,7 +15,7 @@ function ex(
   primary: string[],
   secondary: string[] = [],
 ): Exercise {
-  return { id: name, name, exercise_type: type, primary_muscles: primary, secondary_muscles: secondary, alt_names: [], description: '', weight_direction: 1, created_at: 0 };
+  return { id: name, name, exercise_type: type, primary_muscles: primary, secondary_muscles: secondary, alt_names: [], description: '', weight_direction: 1, logging_type: 'reps', created_at: 0 };
 }
 
 const NO_STATS = new Map<string, ExerciseStat>();
@@ -25,6 +25,7 @@ const DEFAULT_PREFS: WorkoutPreferences = {
   accessory_exercises: 2,
   isolation_exercises: 1,
   progress_reps: 8,
+  weekly_goal: 3,
 };
 
 /** Returns the expanded muscle list for a named day in a named preset split. */

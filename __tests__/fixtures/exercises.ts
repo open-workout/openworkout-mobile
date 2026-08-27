@@ -13,6 +13,7 @@ export const FIXTURE_EXERCISES: Exercise[] = [
     alt_names: [],
     description: '',
     weight_direction: 1,
+    logging_type: 'reps',
     created_at: 1,
   },
   {
@@ -24,6 +25,7 @@ export const FIXTURE_EXERCISES: Exercise[] = [
     alt_names: [],
     description: '',
     weight_direction: 1,
+    logging_type: 'reps',
     created_at: 2,
   },
   {
@@ -35,6 +37,7 @@ export const FIXTURE_EXERCISES: Exercise[] = [
     alt_names: ['Cable Crossover'],
     description: '',
     weight_direction: 1,
+    logging_type: 'reps',
     created_at: 3,
   },
   {
@@ -46,6 +49,7 @@ export const FIXTURE_EXERCISES: Exercise[] = [
     alt_names: [],
     description: '',
     weight_direction: 1,
+    logging_type: 'reps',
     created_at: 4,
   },
   {
@@ -57,6 +61,7 @@ export const FIXTURE_EXERCISES: Exercise[] = [
     alt_names: [],
     description: '',
     weight_direction: 1,
+    logging_type: 'reps',
     created_at: 5,
   },
   {
@@ -68,6 +73,7 @@ export const FIXTURE_EXERCISES: Exercise[] = [
     alt_names: [],
     description: '',
     weight_direction: 1,
+    logging_type: 'reps',
     created_at: 6,
   },
   {
@@ -79,6 +85,7 @@ export const FIXTURE_EXERCISES: Exercise[] = [
     alt_names: [],
     description: '',
     weight_direction: 1,
+    logging_type: 'reps',
     created_at: 7,
   },
 ];

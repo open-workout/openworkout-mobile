@@ -5,25 +5,17 @@ import { useRouter, useFocusEffect } from 'expo-router';
 import { useCallback, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useRoutines } from '../hooks/useRoutines';
-import ConfirmModal from '../components/ConfirmModal';
+import ConfirmModal from './ConfirmModal';
 import type { Routine } from '../db/routines';
+import { C, accent } from '../theme/colors';
 
-const C = {
-  bg: '#0a0a0a',
-  card: '#18181b',
-  border: '#27272a',
-  text: '#f4f4f5',
-  textMuted: '#71717a',
-  textDim: '#52525b',
-};
-
-export default function RoutinesScreen() {
+export default function PlanTabPage() {
   const { t } = useTranslation('routines');
   const router = useRouter();
   const { routines, isLoading, removeRoutine, reload } = useRoutines();
   const [deletingRoutine, setDeletingRoutine] = useState<Routine | null>(null);
 
-  // Reload when tab regains focus (picks up creates/edits from edit-routine)
+  // Reload when this route regains focus (picks up creates/edits from edit-routine)
   useFocusEffect(useCallback(() => { reload(); }, [reload]));
 
   return (
@@ -33,12 +25,12 @@ export default function RoutinesScreen() {
       {/* Header */}
       <View style={{ paddingHorizontal: 24, paddingTop: 8, paddingBottom: 0 }}>
         <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
-          <Text style={{ color: C.text, fontSize: 24, fontWeight: '700', letterSpacing: -0.3 }}>{t('navigation:routines')}</Text>
+          <Text style={{ color: C.text, fontSize: 24, fontWeight: '700', letterSpacing: -0.3 }}>{t('navigation:plan')}</Text>
           <TouchableOpacity
             onPress={() => router.push('/edit-routine')}
-            style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: C.card, alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: C.border }}
+            style={{ width: 40, height: 40, borderRadius: 20, backgroundColor: C.card, alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: accent.blue }}
           >
-            <Ionicons name="add" size={22} color={C.text} />
+            <Ionicons name="add" size={22} color={accent.blue} />
           </TouchableOpacity>
         </View>
       </View>

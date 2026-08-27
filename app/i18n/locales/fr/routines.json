@@ -18,7 +18,7 @@
   "generateWorkout": "Générer une séance",
   "continueManually": "Continuer manuellement",
   "skip": "Passer",
-  "noSplitConfigured": "Aucun programme configuré · configurez-en un dans le profil",
+  "noSplitConfigured": "Aucun programme configuré · configurez-en un dans les réglages",
   "customWorkout": "Séance personnalisée",
   "generateWorkoutBasedOnMuscles": "Basé sur les muscles sélectionnés",
   "selectDayToEnable": "Sélectionnez un jour ci-dessus pour activer",
@@ -76,5 +76,11 @@
   },
   "routinesTabHint": "Créez une routine pour enregistrer un ensemble d'exercices et démarrer rapidement une séance à partir de celle-ci.",
   "deleteRoutineTitle": "Supprimer la routine",
-  "deleteRoutineMessage": "Retirer « {{name}} » ? Cette action est irréversible."
+  "deleteRoutineMessage": "Retirer « {{name}} » ? Cette action est irréversible.",
+  "menuProgramOfToday": "Programme du jour",
+  "comingSoon": "Bientôt disponible",
+  "menuRoutine": "Routine",
+  "menuRoutineHint": "Démarrer à partir d'une routine enregistrée",
+  "menuDaySplit": "Jour du split",
+  "menuDaySplitHint": "Choisissez un jour de votre split, ou générez-en un"
 }

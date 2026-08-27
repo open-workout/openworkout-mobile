@@ -18,7 +18,7 @@
   "generateWorkout": "Generate workout",
   "continueManually": "Continue manually",
   "skip": "Skip",
-  "noSplitConfigured": "No split configured · set one up in Profile",
+  "noSplitConfigured": "No split configured · set one up in Settings",
   "customWorkout": "Custom workout",
   "generateWorkoutBasedOnMuscles": "Based on selected muscles",
   "selectDayToEnable": "Select a day above to enable",
@@ -76,5 +76,11 @@
   },
   "routinesTabHint": "Create a routine to save a set of exercises and quickly start a workout from it.",
   "deleteRoutineTitle": "Delete Routine",
-  "deleteRoutineMessage": "Remove \"{{name}}\"? This cannot be undone."
+  "deleteRoutineMessage": "Remove \"{{name}}\"? This cannot be undone.",
+  "menuProgramOfToday": "Program of Today",
+  "comingSoon": "Coming soon",
+  "menuRoutine": "Routine",
+  "menuRoutineHint": "Start from a saved routine",
+  "menuDaySplit": "Day of Split",
+  "menuDaySplitHint": "Pick a day from your split, or generate one"
 }

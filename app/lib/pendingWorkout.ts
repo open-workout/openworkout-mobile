@@ -5,20 +5,22 @@ import type { Exercise } from '../db/exercises';
 type PendingWorkout = {
   slots: GeneratedSlot[];
   muscles: string[];
+  splitDayName: string | null;
 };
 
 type PersistedSlot = { exerciseId: string; type: string };
-type PersistedPending = { slots: PersistedSlot[]; muscles: string[] };
+type PersistedPending = { slots: PersistedSlot[]; muscles: string[]; splitDayName: string | null };
 
 const STORAGE_KEY = 'pending_workout';
 
 let pending: PendingWorkout | null = null;
 
-export function setPendingWorkout(slots: GeneratedSlot[], muscles: string[]): void {
-  pending = { slots, muscles };
+export function setPendingWorkout(slots: GeneratedSlot[], muscles: string[], splitDayName: string | null = null): void {
+  pending = { slots, muscles, splitDayName };
   const toSave: PersistedPending = {
     slots: slots.map((s) => ({ exerciseId: s.exercise.id || s.exercise.name, type: s.type })),
     muscles,
+    splitDayName,
   };
   SecureStore.setItemAsync(STORAGE_KEY, JSON.stringify(toSave));
 }
@@ -38,7 +40,7 @@ export async function restorePendingWorkout(allExercises: Exercise[]): Promise<v
       const exercise = allExercises.find((e) => e.id === exerciseId || e.name === exerciseId);
       if (exercise) slots.push({ type: type as GeneratedSlot['type'], exercise });
     }
-    pending = { slots, muscles: saved.muscles };
+    pending = { slots, muscles: saved.muscles, splitDayName: saved.splitDayName ?? null };
   } catch {
     // corrupted data — ignore
   }
@@ -55,6 +57,7 @@ export function updatePendingSlotExercise(oldExerciseId: string, newExercise: Ex
   const toSave: PersistedPending = {
     slots: pending.slots.map((s) => ({ exerciseId: s.exercise.id || s.exercise.name, type: s.type })),
     muscles: pending.muscles,
+    splitDayName: pending.splitDayName,
   };
   SecureStore.setItemAsync(STORAGE_KEY, JSON.stringify(toSave));
 }

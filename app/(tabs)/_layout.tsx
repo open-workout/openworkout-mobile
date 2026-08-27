@@ -1,9 +1,10 @@
-import { Tabs } from 'expo-router';
+import { Tabs, useRouter } from 'expo-router';
 import { TouchableOpacity, GestureResponderEvent } from 'react-native';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
 import { C, accent } from '../theme/colors';
+import { getAllWorkouts } from '../db/workouts';
 
 const TAB_BAR_CONTENT_HEIGHT = 56;
 const START_BUTTON_SIZE = 58;
@@ -40,6 +41,23 @@ export default function TabsLayout() {
   const insets = useSafeAreaInsets();
   const bottomInset = Math.max(insets.bottom, 12);
   const { t } = useTranslation('navigation');
+  const router = useRouter();
+
+  // The Start tab has no screen of its own to navigate to — tapping it
+  // immediately routes into the start-workout flow (resume, or pick-day).
+  // This is handled as a tabPress interception rather than a redirect on
+  // the "start" screen's focus effect, because a focus-effect redirect
+  // would immediately re-fire and re-push pick-day the moment the user hit
+  // back from it, making back navigation look broken.
+  const handleStartPress = async () => {
+    const workouts = await getAllWorkouts();
+    const active = workouts.find((w) => !w.finished_at);
+    if (active) {
+      router.push(`/generated-workout?workoutId=${active.id}`);
+    } else {
+      router.push('/pick-day');
+    }
+  };
 
   return (
     <Tabs
@@ -87,6 +105,12 @@ export default function TabsLayout() {
           tabBarLabelStyle: { height: 0 },
           tabBarIcon: () => null,
           tabBarButton: (props) => <StartTabButton {...props} />,
+        }}
+        listeners={{
+          tabPress: (e) => {
+            e.preventDefault();
+            handleStartPress();
+          },
         }}
       />
       <Tabs.Screen

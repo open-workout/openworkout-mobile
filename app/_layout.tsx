@@ -7,6 +7,7 @@ import { setDb } from './db/database';
 import { SEED_EXERCISES } from './constants/exerciseData';
 import i18n from './i18n';
 import { getLanguage } from './storage';
+import { C } from './theme/colors';
 
 async function initializeDb(database: SQLiteDatabase) {
   setDb(database);
@@ -163,7 +164,12 @@ export default function RootLayout() {
           <Stack.Screen name="settings" options={{ headerShown: false, presentation: 'fullScreenModal' }} />
           <Stack.Screen
             name="generated-workout"
-            options={{ headerShown: false, presentation: 'fullScreenModal', animation: 'slide_from_bottom' }}
+            options={{
+              headerShown: false,
+              presentation: 'fullScreenModal',
+              animation: 'slide_from_bottom',
+              contentStyle: { backgroundColor: C.bg },
+            }}
           />
         </Stack>
       </SQLiteProvider>

@@ -1,4 +1,5 @@
-import { View, Text, ScrollView, TouchableOpacity, StatusBar, Modal, TextInput, KeyboardAvoidingView, Platform } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, StatusBar, Modal, TextInput, KeyboardAvoidingView, Platform, Dimensions } from 'react-native';
+import Animated, { useSharedValue, useAnimatedStyle, withTiming, runOnJS } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter, useLocalSearchParams } from 'expo-router';
@@ -82,6 +83,19 @@ export default function GeneratedWorkoutScreen() {
   const [deletingSet, setDeletingSet] = useState<{ cardId: string; setId: string } | null>(null);
   const [deletingCardId, setDeletingCardId] = useState<string | null>(null);
   const [showFinishModal, setShowFinishModal] = useState(false);
+
+  // The stack navigator's own dismiss transition doesn't animate reliably
+  // for this modal on every platform, so the slide-down on exit is driven
+  // here instead: translate the panel off-screen first, then dismiss the
+  // route once that's finished — by then nothing visible changes.
+  const translateY = useSharedValue(0);
+  const panelStyle = useAnimatedStyle(() => ({ transform: [{ translateY: translateY.value }] }));
+  const closePanel = () => {
+    const windowHeight = Dimensions.get('window').height;
+    translateY.value = withTiming(windowHeight, { duration: 280 }, (finished) => {
+      if (finished) runOnJS(router.dismiss)();
+    });
+  };
 
   useEffect(() => {
     if (!pending && !resumeWorkoutId) router.back();
@@ -361,13 +375,14 @@ export default function GeneratedWorkoutScreen() {
   const activeDraft = activeCardId ? (drafts[activeCardId] ?? { weight: '', secondary: '' }) : { weight: '', secondary: '' };
 
   return (
+    <Animated.View style={[{ flex: 1 }, panelStyle]}>
     <SafeAreaView style={{ flex: 1, backgroundColor: C.bg }} edges={['top']}>
       <StatusBar barStyle="light-content" backgroundColor={C.bg} />
 
       {/* Header */}
       <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16, paddingVertical: 12, backgroundColor: '#0c0c0e', borderBottomWidth: 1, borderBottomColor: C.border }}>
         <TouchableOpacity
-          onPress={() => router.back()}
+          onPress={closePanel}
           style={{ width: 40, height: 40, alignItems: 'center', justifyContent: 'center' }}
         >
           <Ionicons name="chevron-down" size={26} color={C.textMuted} />
@@ -667,5 +682,6 @@ export default function GeneratedWorkoutScreen() {
         onConfirm={confirmDeleteCard}
       />
     </SafeAreaView>
+    </Animated.View>
   );
 }

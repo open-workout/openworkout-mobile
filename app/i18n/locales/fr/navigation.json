@@ -1,7 +1,7 @@
 {
   "home": "Accueil",
-  "explore": "Explorer",
-  "routines": "Routines",
+  "plan": "Plan",
+  "start": "Séance",
   "stats": "Stats",
-  "profile": "Profil"
+  "exercises": "Exercices"
 }

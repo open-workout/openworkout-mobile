@@ -1,9 +1,40 @@
 import { Tabs } from 'expo-router';
-import { Ionicons } from '@expo/vector-icons';
+import { TouchableOpacity, GestureResponderEvent } from 'react-native';
+import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from 'react-i18next';
+import { C, accent } from '../theme/colors';
 
 const TAB_BAR_CONTENT_HEIGHT = 56;
+const START_BUTTON_SIZE = 58;
+
+function StartTabButton(props: { onPress?: (e: GestureResponderEvent) => void; accessibilityState?: { selected?: boolean } }) {
+  return (
+    <TouchableOpacity
+      onPress={props.onPress}
+      activeOpacity={0.85}
+      style={{
+        top: -18,
+        alignSelf: 'center',
+        width: START_BUTTON_SIZE,
+        height: START_BUTTON_SIZE,
+        borderRadius: START_BUTTON_SIZE / 2,
+        backgroundColor: accent.green,
+        alignItems: 'center',
+        justifyContent: 'center',
+        shadowColor: accent.green,
+        shadowOpacity: 0.4,
+        shadowRadius: 10,
+        shadowOffset: { width: 0, height: 4 },
+        elevation: 6,
+        borderWidth: 4,
+        borderColor: C.bg,
+      }}
+    >
+      <MaterialCommunityIcons name="dumbbell" size={26} color="#052e1c" />
+    </TouchableOpacity>
+  );
+}
 
 export default function TabsLayout() {
   const insets = useSafeAreaInsets();
@@ -15,15 +46,15 @@ export default function TabsLayout() {
       screenOptions={{
         headerShown: false,
         tabBarStyle: {
-          backgroundColor: '#0a0a0a',
-          borderTopColor: '#27272a',
+          backgroundColor: C.bg,
+          borderTopColor: C.border,
           borderTopWidth: 1,
           paddingTop: 8,
           paddingBottom: bottomInset,
           height: TAB_BAR_CONTENT_HEIGHT + bottomInset,
         },
-        tabBarActiveTintColor: '#ffffff',
-        tabBarInactiveTintColor: '#71717a',
+        tabBarActiveTintColor: C.text,
+        tabBarInactiveTintColor: C.textMuted,
         tabBarLabelStyle: {
           fontSize: 10,
           fontWeight: '600',
@@ -41,21 +72,21 @@ export default function TabsLayout() {
         }}
       />
       <Tabs.Screen
-        name="explore"
+        name="plan"
         options={{
-          title: t('explore'),
+          title: t('plan'),
           tabBarIcon: ({ color, focused }: { color: string; focused: boolean }) => (
-            <Ionicons name={focused ? 'search' : 'search-outline'} size={24} color={color} />
+            <Ionicons name={focused ? 'calendar' : 'calendar-outline'} size={24} color={color} />
           ),
         }}
       />
       <Tabs.Screen
-        name="routines"
+        name="start"
         options={{
-          title: t('routines'),
-          tabBarIcon: ({ color, focused }: { color: string; focused: boolean }) => (
-            <Ionicons name={focused ? 'list' : 'list-outline'} size={24} color={color} />
-          ),
+          title: '',
+          tabBarLabelStyle: { height: 0 },
+          tabBarIcon: () => null,
+          tabBarButton: (props) => <StartTabButton {...props} />,
         }}
       />
       <Tabs.Screen
@@ -68,11 +99,11 @@ export default function TabsLayout() {
         }}
       />
       <Tabs.Screen
-        name="profile"
+        name="exercises"
         options={{
-          title: t('profile'),
+          title: t('exercises'),
           tabBarIcon: ({ color, focused }: { color: string; focused: boolean }) => (
-            <Ionicons name={focused ? 'person' : 'person-outline'} size={24} color={color} />
+            <Ionicons name={focused ? 'list' : 'list-outline'} size={24} color={color} />
           ),
         }}
       />

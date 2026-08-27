@@ -1,5 +1,5 @@
 {
-  "title": "Profil",
+  "title": "Setări",
   "workouts": "Antrenamente",
   "totalVolume": "Volum total",
   "trainingSplit": "Program de antrenament",
@@ -30,6 +30,9 @@
     "compoundInfoMessage": "Exercițiile compuse lucrează mai multe grupe musculare și articulații simultan (ex. genuflexiuni, împins din culcat, îndreptări). Ele sunt fundamentul majorității sesiunilor.",
     "accessoryInfoMessage": "Exercițiile auxiliare susțin mișcările principale țintind grupele musculare de sprijin (ex. ramat, fandări, dips). Ele completează o sesiune și ajută la corectarea punctelor slabe.",
     "isolationInfoMessage": "Exercițiile de izolare țintesc un singur mușchi și o singură articulație (ex. flexii biceps, extensii picioare). Sunt folosite pentru a crește masa musculară sau a corecta slăbiciuni specifice.",
-    "progressRepsInfoMessage": "Numărul de repetări care declanșează o creștere a greutății. Odată ce atingi acest număr de repetări la un set, aplicația sugerează adăugarea de greutate data viitoare — până atunci, sugerează adăugarea de repetări."
+    "progressRepsInfoMessage": "Numărul de repetări care declanșează o creștere a greutății. Odată ce atingi acest număr de repetări la un set, aplicația sugerează adăugarea de greutate data viitoare — până atunci, sugerează adăugarea de repetări.",
+    "streak": "Serie",
+    "weeklyGoal": "Obiectiv săptămânal",
+    "weeklyGoalInfoMessage": "Câte antrenamente pe săptămână contează pentru obiectivul tău de serie. Afișat pe Acasă ca progres săptămânal."
   }
 }

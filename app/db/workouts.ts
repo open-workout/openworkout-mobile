@@ -5,6 +5,7 @@ export type Workout = {
   title: string;
   started_at: string;
   finished_at: string | null;
+  split_day_name: string | null;
   created_at: number;
 };
 
@@ -12,6 +13,7 @@ export type NewWorkoutInput = {
   title: string;
   started_at: string;
   finished_at?: string | null;
+  split_day_name?: string | null;
 };
 
 type RawWorkoutRow = {
@@ -19,6 +21,7 @@ type RawWorkoutRow = {
   title: string;
   started_at: string;
   finished_at: string | null;
+  split_day_name: string | null;
   created_at: number;
 };
 
@@ -30,12 +33,13 @@ export async function insertWorkout(input: NewWorkoutInput): Promise<string> {
   const db = await getDb();
   const id = generateId();
   await db.runAsync(
-    `INSERT INTO workouts (id, title, started_at, finished_at, created_at)
-     VALUES (?, ?, ?, ?, ?)`,
+    `INSERT INTO workouts (id, title, started_at, finished_at, split_day_name, created_at)
+     VALUES (?, ?, ?, ?, ?, ?)`,
     id,
     input.title,
     input.started_at,
     input.finished_at ?? null,
+    input.split_day_name ?? null,
     Date.now(),
   );
   return id;

@@ -1,7 +1,7 @@
 jest.mock('../../app/hooks/useExercises', () => ({ useExercises: jest.fn() }));
 
 import { render, screen, fireEvent } from '@testing-library/react-native';
-import ExploreScreen from '../../app/(tabs)/explore';
+import ExploreScreen from '../../app/(tabs)/exercises';
 import { useExercises } from '../../app/hooks/useExercises';
 import { FIXTURE_EXERCISES, CABLE_MATCHES, LAST_CABLE_MATCH } from '../fixtures/exercises';
 import i18n from '../../app/i18n';
@@ -16,6 +16,7 @@ const BENCH_PRESS_SEED: Exercise = {
   alt_names: ['Bench Press', 'Flat Bench'],
   description: '',
   weight_direction: 1,
+  logging_type: 'reps',
   created_at: 8,
 };
 

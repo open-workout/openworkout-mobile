@@ -4,22 +4,23 @@ import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useRouter, useFocusEffect } from 'expo-router';
 import { useState, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useSplit } from '../hooks/useSplit';
-import { useWeightUnit } from '../hooks/useWeightUnit';
-import { useWorkoutPreferences } from '../hooks/useWorkoutPreferences';
-import { useLanguage } from '../hooks/useLanguage';
-import { compressMuscles } from '../constants/splits';
-import WorkoutPrefsEditor from '../components/WorkoutPrefsEditor';
-import ConfirmModal from '../components/ConfirmModal';
-import { deleteAllWorkouts, getFinishedWorkoutCount } from '../db/workouts';
-import { deleteAllSeedExercises, deleteAllUserExercises } from '../db/exercises';
-import { getTotalVolume } from '../db/sets';
-import { getMuscleLabels } from '../lib/exerciseTranslations';
-import { getSplitDisplayName, getDayNameLabel } from '../lib/splitTranslations';
-import { SUPPORTED_LANGUAGES, LANGUAGE_LABELS } from '../i18n/resources';
+import { useSplit } from './hooks/useSplit';
+import { useWeightUnit } from './hooks/useWeightUnit';
+import { useWorkoutPreferences } from './hooks/useWorkoutPreferences';
+import { useLanguage } from './hooks/useLanguage';
+import { compressMuscles } from './constants/splits';
+import WorkoutPrefsEditor from './components/WorkoutPrefsEditor';
+import ConfirmModal from './components/ConfirmModal';
+import { deleteAllWorkouts, getFinishedWorkoutCount } from './db/workouts';
+import { deleteAllSeedExercises, deleteAllUserExercises } from './db/exercises';
+import { getTotalVolume } from './db/sets';
+import { getMuscleLabels } from './lib/exerciseTranslations';
+import { getSplitDisplayName, getDayNameLabel } from './lib/splitTranslations';
+import { SUPPORTED_LANGUAGES, LANGUAGE_LABELS } from './i18n/resources';
+import { C } from './theme/colors';
 
-export default function ProfileScreen() {
-  const { t, i18n } = useTranslation('profile');
+export default function SettingsScreen() {
+  const { t, i18n } = useTranslation('settings');
   const { t: tRoutines } = useTranslation('routines');
   const locale = i18n.language;
   const router = useRouter();
@@ -47,8 +48,15 @@ export default function ProfileScreen() {
       <StatusBar barStyle="light-content" backgroundColor="#0a0a0a" />
 
       {/* Header */}
-      <View style={{ paddingHorizontal: 24, paddingTop: 8, paddingBottom: 16, borderBottomWidth: 0.5, borderBottomColor: '#18181b' }}>
+      <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 24, paddingTop: 8, paddingBottom: 16, borderBottomWidth: 0.5, borderBottomColor: '#18181b' }}>
         <Text style={{ color: '#fff', fontSize: 24, fontWeight: '700', letterSpacing: -0.3 }}>{t('title')}</Text>
+        <TouchableOpacity
+          onPress={() => router.back()}
+          hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
+          style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: C.card, alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: C.border }}
+        >
+          <Ionicons name="close" size={20} color={C.textMuted} />
+        </TouchableOpacity>
       </View>
 
       <ScrollView

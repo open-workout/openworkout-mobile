@@ -25,6 +25,7 @@ function ex(
     alt_names: [],
     description: '',
     weight_direction: 1,
+    logging_type: 'reps',
     created_at: 0,
   };
 }
@@ -36,6 +37,7 @@ const BASE_PREFS: WorkoutPreferences = {
   accessory_exercises: 2,
   isolation_exercises: 1,
   progress_reps: 8,
+  weekly_goal: 3,
 };
 
 function prefs(overrides: Partial<WorkoutPreferences> = {}): WorkoutPreferences {

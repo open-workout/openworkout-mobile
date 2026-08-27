@@ -1,7 +1,7 @@
 {
   "home": "Inicio",
-  "explore": "Explorar",
-  "routines": "Rutinas",
+  "plan": "Plan",
+  "start": "Entrenar",
   "stats": "Estadísticas",
-  "profile": "Perfil"
+  "exercises": "Ejercicios"
 }

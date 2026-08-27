@@ -18,7 +18,7 @@
   "generateWorkout": "Workout generieren",
   "continueManually": "Manuell fortfahren",
   "skip": "Überspringen",
-  "noSplitConfigured": "Kein Plan eingerichtet · richte einen im Profil ein",
+  "noSplitConfigured": "Kein Plan eingerichtet · richte einen in den Einstellungen ein",
   "customWorkout": "Individuelles Workout",
   "generateWorkoutBasedOnMuscles": "Basierend auf ausgewählten Muskeln",
   "selectDayToEnable": "Wähle oben einen Tag zum Aktivieren",
@@ -42,7 +42,7 @@
   "dayPlaceholder": "Tag {{n}}",
   "trainingSplitTitle": "Trainingsplan",
   "deleteSplitTitle": "Plan löschen",
-  "deleteSplitMessage": "Deinen Trainingsplan entfernen? Du kannst ihn später erneut in deinem Profil einrichten.",
+  "deleteSplitMessage": "Deinen Trainingsplan entfernen? Du kannst ihn später erneut in den Einstellungen einrichten.",
   "saving": "Wird gespeichert…",
   "presetNames": {
     "preset_upper_lower": "Oberkörper / Unterkörper",
@@ -76,5 +76,11 @@
   },
   "routinesTabHint": "Erstelle eine Routine, um eine Reihe von Übungen zu speichern und schnell ein Workout daraus zu starten.",
   "deleteRoutineTitle": "Routine löschen",
-  "deleteRoutineMessage": "„{{name}}“ entfernen? Dies kann nicht rückgängig gemacht werden."
+  "deleteRoutineMessage": "„{{name}}“ entfernen? Dies kann nicht rückgängig gemacht werden.",
+  "menuProgramOfToday": "Programm von heute",
+  "comingSoon": "Demnächst",
+  "menuRoutine": "Routine",
+  "menuRoutineHint": "Von einer gespeicherten Routine starten",
+  "menuDaySplit": "Tag aus Trainingsplan",
+  "menuDaySplitHint": "Wähle einen Tag aus deinem Plan oder lass einen generieren"
 }

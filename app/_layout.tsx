@@ -31,6 +31,21 @@ async function initializeDb(database: SQLiteDatabase) {
   if (setCols.length > 0 && !setCols.find((c) => c.name === 'is_pr')) {
     await database.execAsync('ALTER TABLE sets ADD COLUMN is_pr INTEGER NOT NULL DEFAULT 0;');
   }
+  // Migration: add duration_seconds column to sets if missing (time-based sets)
+  if (setCols.length > 0 && !setCols.find((c) => c.name === 'duration_seconds')) {
+    await database.execAsync('ALTER TABLE sets ADD COLUMN duration_seconds INTEGER;');
+  }
+
+  // Migration: add logging_type column to exercises if missing (reps vs. time based)
+  if (exerciseCols.length > 0 && !exerciseCols.find((c) => c.name === 'logging_type')) {
+    await database.execAsync(`ALTER TABLE exercises ADD COLUMN logging_type TEXT NOT NULL DEFAULT 'reps';`);
+  }
+
+  // Migration: add split_day_name column to workouts if missing (tracks split rotation)
+  const workoutCols = await database.getAllAsync<{ name: string }>('PRAGMA table_info(workouts)');
+  if (workoutCols.length > 0 && !workoutCols.find((c) => c.name === 'split_day_name')) {
+    await database.execAsync('ALTER TABLE workouts ADD COLUMN split_day_name TEXT;');
+  }
 
   await database.execAsync(`
     CREATE TABLE IF NOT EXISTS exercises (
@@ -42,30 +57,33 @@ async function initializeDb(database: SQLiteDatabase) {
       alt_names         TEXT,
       description       TEXT,
       weight_direction  INTEGER DEFAULT 1,
+      logging_type      TEXT NOT NULL DEFAULT 'reps',
       created_at        INTEGER
     );
   `);
   await database.execAsync(`
     CREATE TABLE IF NOT EXISTS workouts (
-      id          TEXT PRIMARY KEY,
-      title       TEXT NOT NULL DEFAULT '',
-      started_at  TEXT NOT NULL,
-      finished_at TEXT,
-      created_at  INTEGER NOT NULL
+      id             TEXT PRIMARY KEY,
+      title          TEXT NOT NULL DEFAULT '',
+      started_at     TEXT NOT NULL,
+      finished_at    TEXT,
+      split_day_name TEXT,
+      created_at     INTEGER NOT NULL
     );
   `);
   await database.execAsync(`
     CREATE TABLE IF NOT EXISTS sets (
-      id          TEXT PRIMARY KEY,
-      workout_id  TEXT NOT NULL REFERENCES workouts(id) ON DELETE CASCADE,
-      exercise_id TEXT NOT NULL,
-      reps        INTEGER NOT NULL DEFAULT 0,
-      difficulty  INTEGER NOT NULL DEFAULT 0,
-      weight      REAL    NOT NULL DEFAULT 0,
-      unit        TEXT    NOT NULL DEFAULT 'kg',
-      logged_at   TEXT    NOT NULL,
-      created_at  INTEGER NOT NULL,
-      is_pr       INTEGER NOT NULL DEFAULT 0
+      id               TEXT PRIMARY KEY,
+      workout_id       TEXT NOT NULL REFERENCES workouts(id) ON DELETE CASCADE,
+      exercise_id      TEXT NOT NULL,
+      reps             INTEGER NOT NULL DEFAULT 0,
+      difficulty       INTEGER NOT NULL DEFAULT 0,
+      weight           REAL    NOT NULL DEFAULT 0,
+      unit             TEXT    NOT NULL DEFAULT 'kg',
+      logged_at        TEXT    NOT NULL,
+      created_at       INTEGER NOT NULL,
+      is_pr            INTEGER NOT NULL DEFAULT 0,
+      duration_seconds INTEGER
     );
   `);
   await database.execAsync(`
@@ -106,8 +124,8 @@ async function initializeDb(database: SQLiteDatabase) {
         await database.runAsync(
           `INSERT INTO exercises
              (id, name, exercise_type, primary_muscles, secondary_muscles,
-              alt_names, description, weight_direction, created_at)
-           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+              alt_names, description, weight_direction, logging_type, created_at)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
           id,
           ex.name,
           ex.exercise_type,
@@ -116,6 +134,7 @@ async function initializeDb(database: SQLiteDatabase) {
           JSON.stringify(ex.alt_names),
           ex.description,
           ex.weight_direction,
+          ex.logging_type ?? 'reps',
           now,
         );
       }
@@ -141,7 +160,7 @@ export default function RootLayout() {
           <Stack.Screen name="pick-day" options={{ headerShown: false, presentation: 'modal' }} />
           <Stack.Screen name="edit-split" options={{ headerShown: false, presentation: 'modal' }} />
           <Stack.Screen name="edit-routine" options={{ headerShown: false, presentation: 'fullScreenModal' }} />
-          <Stack.Screen name="workout" options={{ presentation: 'fullScreenModal' }} />
+          <Stack.Screen name="settings" options={{ headerShown: false, presentation: 'fullScreenModal' }} />
           <Stack.Screen name="generated-workout" options={{ headerShown: false, presentation: 'fullScreenModal' }} />
         </Stack>
       </SQLiteProvider>

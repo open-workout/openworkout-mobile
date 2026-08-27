@@ -6,5 +6,10 @@
   "trackNewSession": "Înregistrează o sesiune nouă",
   "recentActivity": "Activitate recentă",
   "noMoreWorkouts": "Nu mai sunt antrenamente",
-  "noFinishedWorkoutsYet": "Niciun antrenament finalizat încă"
+  "noFinishedWorkoutsYet": "Niciun antrenament finalizat încă",
+  "inProgress": "În desfășurare",
+  "todayLabel": "Următorul",
+  "noSplitConfiguredShort": "Configurează un split",
+  "weekStreak": "{{count}} săptămâni consecutive",
+  "streakSubtitle": "{{current}}/{{goal}} săptămâna aceasta · {{total}} antrenamente în total"
 }

@@ -108,10 +108,10 @@ export function ExerciseCard({
       <View style={{ borderTopWidth: 1, borderTopColor: C.border }}>
         <View style={{ flexDirection: 'row', paddingHorizontal: 16, paddingVertical: 10, gap: 8 }}>
           <View style={{ width: 26 }} />
-          <View style={{ width: 28 }} />
           {[weightUnit.toUpperCase(), loggingType === 'time' ? t('durationHeader') : t('repsHeader')].map((h) => (
             <Text key={h} style={{ flex: 1, textAlign: 'center', color: C.textDim, fontSize: 11, fontWeight: '700', letterSpacing: 0.8 }}>{h}</Text>
           ))}
+          <View style={{ width: 28 }} />
         </View>
 
         {suggestion && <OverloadHint label={suggestion.label} />}

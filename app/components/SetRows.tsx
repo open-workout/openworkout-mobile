@@ -56,25 +56,6 @@ export function SetRow({
           <Ionicons name="flame-outline" size={14} color={accent.amber} />
         )}
       </View>
-      <TouchableOpacity
-        onPress={selectionMode ? onToggleSelect : onToggleChecked}
-        style={{ width: 28, alignItems: 'center' }}
-        hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-      >
-        {selectionMode ? (
-          <Ionicons
-            name={selected ? 'checkmark-circle' : 'ellipse-outline'}
-            size={22}
-            color={selected ? accent.red : '#52525b'}
-          />
-        ) : (
-          <Ionicons
-            name={checked ? 'checkbox' : 'square-outline'}
-            size={22}
-            color={checked ? accent.green : canCheck ? '#71717a' : '#3f3f46'}
-          />
-        )}
-      </TouchableOpacity>
       <View style={{ flex: 1 }}>
         <TextInput
           value={set.weight}
@@ -99,6 +80,25 @@ export function SetRow({
           style={{ backgroundColor: '#0a0a0a', borderWidth: 1, borderColor: '#3f3f46', borderRadius: 8, paddingVertical: 8, textAlign: 'center', color: '#fff', fontWeight: '500', fontSize: 14 }}
         />
       </View>
+      <TouchableOpacity
+        onPress={selectionMode ? onToggleSelect : onToggleChecked}
+        style={{ width: 28, alignItems: 'center' }}
+        hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+      >
+        {selectionMode ? (
+          <Ionicons
+            name={selected ? 'checkmark-circle' : 'ellipse-outline'}
+            size={22}
+            color={selected ? accent.red : '#52525b'}
+          />
+        ) : (
+          <Ionicons
+            name={checked ? 'checkmark-circle' : 'ellipse-outline'}
+            size={22}
+            color={checked ? accent.green : canCheck ? '#71717a' : '#3f3f46'}
+          />
+        )}
+      </TouchableOpacity>
     </View>
   );
 }

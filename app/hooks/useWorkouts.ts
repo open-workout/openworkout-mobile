@@ -13,6 +13,7 @@ import {
   insertSet,
   updateSet,
   deleteSet,
+  deletePendingSetsForWorkout,
   detectAndMarkPRs,
   type WorkoutSet,
   type NewSetInput,
@@ -53,6 +54,7 @@ export function useWorkouts() {
   const finishWorkout = useCallback(
     async (id: string, finishedAt: string) => {
       await markWorkoutFinished(id, finishedAt);
+      await deletePendingSetsForWorkout(id);
       await detectAndMarkPRs(id);
       await refreshExerciseStats(id, finishedAt);
       await loadLocal();

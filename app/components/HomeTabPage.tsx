@@ -8,11 +8,8 @@ import { getAllWorkouts, getFinishedWorkoutsPaginated, getWorkoutExerciseSummari
 import { getWorkoutPRCountsBatch } from '../db/sets';
 import { WorkoutCard, type PastWorkout } from './WorkoutCard';
 import { formatTodayLabel } from '../lib/dateFormat';
-import { useSplit } from '../hooks/useSplit';
 import { useWorkoutPreferences } from '../hooks/useWorkoutPreferences';
 import { computeWeekStreak } from '../lib/streak';
-import { getNextSplitDayName } from '../lib/splitRotation';
-import { getDayNameLabel } from '../lib/splitTranslations';
 import { C, accent } from '../theme/colors';
 
 const PAGE_SIZE = 10;
@@ -31,9 +28,7 @@ function isSameDay(a: Date, b: Date): boolean {
 
 export default function HomeTabPage() {
   const { t, i18n } = useTranslation('home');
-  const { t: tRoutines } = useTranslation('routines');
   const router = useRouter();
-  const { split } = useSplit();
   const { prefs } = useWorkoutPreferences();
   const [activeWorkout, setActiveWorkout] = useState<Workout | null>(null);
   const [finishedWorkouts, setFinishedWorkouts] = useState<Workout[]>([]);
@@ -96,12 +91,9 @@ export default function HomeTabPage() {
     loadPage(offsetRef.current, false);
   };
 
-  const handleStartWorkout = () => {
-    if (activeWorkout) {
-      router.push(`/generated-workout?workoutId=${activeWorkout.id}`);
-      return;
-    }
-    router.push('/pick-day');
+  const handleResumeWorkout = () => {
+    if (!activeWorkout) return;
+    router.push(`/generated-workout?workoutId=${activeWorkout.id}`);
   };
 
   const todayLabel = useMemo(() => {
@@ -118,11 +110,6 @@ export default function HomeTabPage() {
   const streak = useMemo(
     () => computeWeekStreak(finishedWorkouts, prefs?.weekly_goal ?? 3),
     [finishedWorkouts, prefs],
-  );
-
-  const nextDayName = useMemo(
-    () => getNextSplitDayName(split, finishedWorkouts),
-    [split, finishedWorkouts],
   );
 
   const ListHeader = (
@@ -181,29 +168,27 @@ export default function HomeTabPage() {
           })}
         </View>
 
-        {/* Today / next-up row */}
-        <TouchableOpacity
-          activeOpacity={0.85}
-          onPress={handleStartWorkout}
-          style={{ flexDirection: 'row', alignItems: 'center', gap: 12, borderTopWidth: 1, borderTopColor: C.border, paddingHorizontal: 18, paddingVertical: 14 }}
-        >
-          <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: accent.green, alignItems: 'center', justifyContent: 'center' }}>
-            <Ionicons name={activeWorkout ? 'refresh' : 'play'} size={16} color="#052e1c" style={{ marginLeft: activeWorkout ? 0 : 2 }} />
-          </View>
-          <View style={{ flex: 1 }}>
-            <Text style={{ color: C.textDim, fontSize: 10, fontWeight: '700', textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 2 }}>
-              {activeWorkout ? t('inProgress') : t('todayLabel')}
-            </Text>
-            <Text style={{ color: C.text, fontSize: 15, fontWeight: '700' }}>
-              {activeWorkout
-                ? t('resumeWorkout')
-                : nextDayName
-                  ? getDayNameLabel(nextDayName, tRoutines)
-                  : t('noSplitConfiguredShort')}
-            </Text>
-          </View>
-          <Ionicons name="chevron-forward" size={18} color={C.textDim} />
-        </TouchableOpacity>
+        {/* Resume-workout row — only shown when a workout is in progress */}
+        {activeWorkout && (
+          <TouchableOpacity
+            activeOpacity={0.85}
+            onPress={handleResumeWorkout}
+            style={{ flexDirection: 'row', alignItems: 'center', gap: 12, borderTopWidth: 1, borderTopColor: C.border, paddingHorizontal: 18, paddingVertical: 14 }}
+          >
+            <View style={{ width: 36, height: 36, borderRadius: 18, backgroundColor: accent.green, alignItems: 'center', justifyContent: 'center' }}>
+              <Ionicons name="refresh" size={16} color="#052e1c" />
+            </View>
+            <View style={{ flex: 1 }}>
+              <Text style={{ color: C.textDim, fontSize: 10, fontWeight: '700', textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 2 }}>
+                {t('inProgress')}
+              </Text>
+              <Text style={{ color: C.text, fontSize: 15, fontWeight: '700' }}>
+                {t('resumeWorkout')}
+              </Text>
+            </View>
+            <Ionicons name="chevron-forward" size={18} color={C.textDim} />
+          </TouchableOpacity>
+        )}
       </View>
 
       {/* Streak card */}

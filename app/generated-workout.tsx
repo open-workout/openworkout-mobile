@@ -10,19 +10,19 @@ import { useExercises } from './hooks/useExercises';
 import { useWeightUnit } from './hooks/useWeightUnit';
 import { useKeyboardHeight } from './hooks/useKeyboardHeight';
 import { insertWorkout, deleteWorkout } from './db/workouts';
-import { insertSet, deleteSetsByExercise, getLastSetsForExercise, getSetsForWorkout } from './db/sets';
+import { insertSet, deleteSetsByExercise, getLastSetsForExercise, getSetsForWorkout, generateId, type NewSetInput } from './db/sets';
 import { getAllExercises } from './db/exercises';
 import { getPendingWorkout, clearPendingWorkout, restorePendingWorkout, updatePendingSlotExercise } from './lib/pendingWorkout';
 import { findAlternatives } from './lib/generateWorkout';
 import { compressMuscles } from './constants/splits';
 import type { Exercise, NewExerciseInput } from './db/exercises';
-import { type LocalSet } from './components/SetRows';
+import { isSetFilled, type LocalSet } from './components/SetRows';
 import AddExerciseModal from './components/AddExerciseModal';
 import ConfirmModal from './components/ConfirmModal';
 import { ExerciseCard } from './components/ExerciseCard';
 import { ExerciseTabStrip } from './components/ExerciseTabStrip';
 import { computeProgressSuggestion, type OverloadSuggestion } from './lib/progressiveOverload';
-import { getWorkoutPreferences, type WorkoutPreferences } from './storage';
+import { getWorkoutPreferences, DEFAULT_WORKOUT_PREFS, type WorkoutPreferences } from './storage';
 import { exerciseMatchesQuery, getExerciseDisplayName, getMuscleLabels } from './lib/exerciseTranslations';
 import { C } from './theme/colors';
 
@@ -34,6 +34,48 @@ type WorkoutCard = {
 
 function mkId() {
   return Math.random().toString(36).slice(2);
+}
+
+function isTimeBased(exercise: Exercise): boolean {
+  return (exercise.logging_type ?? 'reps') === 'time';
+}
+
+function exerciseRefOf(exercise: Exercise): string {
+  return exercise.id || exercise.name;
+}
+
+function generateInitialSets(
+  exercise: Exercise,
+  suggestion: OverloadSuggestion | null,
+  count: number,
+  weightUnit: 'kg' | 'lbs',
+): LocalSet[] {
+  const isTime = isTimeBased(exercise);
+  return Array.from({ length: Math.max(1, count) }, (_, i) => ({
+    id: generateId(),
+    weight: !isTime && suggestion ? String(suggestion.weight) : '',
+    reps: !isTime && suggestion && !suggestion.isAmrap ? String(suggestion.reps) : '',
+    durationSeconds: '',
+    unit: weightUnit,
+    loggedAt: null,
+    isWarmup: false,
+    position: i,
+  }));
+}
+
+// Blank fields are stored as a -1 sentinel (weight=0 is a legitimate bodyweight
+// value, so it can't double as "blank"). A set can only ever reach a real
+// (non-'pending') logged_at once its required fields are non-blank, so every
+// history/suggestion/PR query already excluding 'pending' rows never observes -1.
+function toDbFields(set: LocalSet, isTime: boolean) {
+  return {
+    reps: isTime ? -1 : (set.reps.trim() ? parseFloat(set.reps) : -1),
+    difficulty: 0,
+    weight: set.weight.trim() ? parseFloat(set.weight) : -1,
+    unit: set.unit,
+    logged_at: set.loggedAt ? set.loggedAt.toISOString() : 'pending',
+    duration_seconds: isTime ? (set.durationSeconds.trim() ? (parseInt(set.durationSeconds, 10) || 0) : null) : null,
+  };
 }
 
 export default function GeneratedWorkoutScreen() {
@@ -60,9 +102,12 @@ export default function GeneratedWorkoutScreen() {
 
   // Per-card state keyed by cardId (stable across add/delete)
   const [cardSets, setCardSets] = useState<Record<string, LocalSet[]>>({});
-  const [drafts, setDrafts] = useState<Record<string, { weight: string; secondary: string }>>({});
   const [suggestions, setSuggestions] = useState<Record<string, OverloadSuggestion | null>>({});
   const [localPrefs, setLocalPrefs] = useState<WorkoutPreferences | null>(null);
+
+  // Cards are generated locally (no DB writes) until the user first interacts
+  // with them — this ref tracks which cards have been materialized to the DB.
+  const materializedCardIds = useRef<Set<string>>(new Set());
 
   // Lazy workout creation — pre-wired for resume mode
   const workoutRef = useRef<Promise<string> | null>(
@@ -79,10 +124,17 @@ export default function GeneratedWorkoutScreen() {
   const [pickerSearch, setPickerSearch] = useState('');
   const [showCreateForAdd, setShowCreateForAdd] = useState(false);
 
+  // Remove-sets multi-select mode (scoped to the active card)
+  const [removeMode, setRemoveMode] = useState(false);
+  const [selectedForRemoval, setSelectedForRemoval] = useState<Set<string>>(new Set());
+  const [pendingRemoval, setPendingRemoval] = useState<{ cardId: string; ids: string[] } | null>(null);
+
   // Delete confirmations
-  const [deletingSet, setDeletingSet] = useState<{ cardId: string; setId: string } | null>(null);
   const [deletingCardId, setDeletingCardId] = useState<string | null>(null);
   const [showFinishModal, setShowFinishModal] = useState(false);
+
+  // Warns before advancing past an exercise with unchecked sets
+  const [showUnfinishedWarning, setShowUnfinishedWarning] = useState(false);
 
   // The stack navigator's own dismiss transition doesn't animate reliably
   // for this modal on every platform, so the slide-down on exit is driven
@@ -97,17 +149,25 @@ export default function GeneratedWorkoutScreen() {
     });
   };
 
+  const selectCard = (cardId: string | null) => {
+    setActiveCardId(cardId);
+    setRemoveMode(false);
+    setSelectedForRemoval(new Set());
+  };
+
   useEffect(() => {
     if (!pending && !resumeWorkoutId) router.back();
     getWorkoutPreferences().then(setLocalPrefs);
   }, []);
 
+  // Resume an in-progress workout: restore already-materialized cards from the
+  // DB (including unchecked 'pending' rows), and generate fresh sets locally
+  // for any planned exercise that was never opened in a previous session.
   useEffect(() => {
-    if (!resumeWorkoutId) return;
+    if (!resumeWorkoutId || !localPrefs) return;
     Promise.all([getSetsForWorkout(resumeWorkoutId), getAllExercises()]).then(
       async ([dbSets, allExercises]) => {
         await restorePendingWorkout(allExercises);
-        // Group DB sets by exercise_id
         const grouped = new Map<string, typeof dbSets>();
         for (const s of dbSets) {
           if (s.logged_at === 'seed') continue;
@@ -117,28 +177,46 @@ export default function GeneratedWorkoutScreen() {
 
         const newCards: WorkoutCard[] = [];
         const newCardSets: Record<string, LocalSet[]> = {};
+        const newSuggestions: Record<string, OverloadSuggestion | null> = {};
         const handledExIds = new Set<string>();
+        const materializedIds: string[] = [];
+        const generationTasks: Promise<void>[] = [];
 
         const toLocalSets = (exSets: typeof dbSets): LocalSet[] =>
-          [...exSets]
-            .filter((s) => s.logged_at !== 'pending')
-            .reverse()
-            .map((s) => ({
-              id: s.id,
-              weight: s.weight ? String(s.weight) : '',
-              reps: s.reps ? String(s.reps) : '',
-              durationSeconds: s.duration_seconds ? String(s.duration_seconds) : '',
-              unit: s.unit as 'kg' | 'lbs',
-              loggedAt: new Date(s.logged_at),
-            }));
+          exSets.map((s) => ({
+            id: s.id,
+            weight: s.weight === -1 ? '' : String(s.weight),
+            reps: s.reps === -1 ? '' : String(s.reps),
+            durationSeconds: s.duration_seconds != null ? String(s.duration_seconds) : '',
+            unit: s.unit as 'kg' | 'lbs',
+            loggedAt: s.logged_at === 'pending' ? null : new Date(s.logged_at),
+            isWarmup: s.is_warmup === 1,
+            position: s.position,
+          }));
 
         const addCard = (exercise: Exercise, slotType: string, exId: string) => {
           const cardId = mkId();
           const exSets = grouped.get(exId) ?? [];
-          const localSets = toLocalSets(exSets);
           newCards.push({ cardId, slotType, exercise });
-          newCardSets[cardId] = localSets;
           handledExIds.add(exId);
+
+          if (exSets.length > 0) {
+            newCardSets[cardId] = toLocalSets(exSets);
+            materializedIds.push(cardId);
+            return;
+          }
+
+          if (isTimeBased(exercise)) {
+            newCardSets[cardId] = generateInitialSets(exercise, null, localPrefs.sets_per_exercise, weightUnit);
+            return;
+          }
+          generationTasks.push(
+            getLastSetsForExercise(exerciseRefOf(exercise)).then((sets) => {
+              const suggestion = computeProgressSuggestion(sets, exercise.exercise_type, localPrefs.progress_reps, weightUnit, t);
+              newSuggestions[cardId] = suggestion;
+              newCardSets[cardId] = generateInitialSets(exercise, suggestion, localPrefs.sets_per_exercise, weightUnit);
+            }),
+          );
         };
 
         // First pass: pending slots in their original planned order (preserves generated sequence)
@@ -155,27 +233,48 @@ export default function GeneratedWorkoutScreen() {
           addCard(exercise, exercise.exercise_type || 'accessory', exId);
         }
 
+        await Promise.all(generationTasks);
+
+        // Suggestions for cards that already have sets too, for the overload hint banner.
+        await Promise.all(
+          newCards
+            .filter((c) => !isTimeBased(c.exercise) && !(c.cardId in newSuggestions))
+            .map(async (c) => {
+              const sets = await getLastSetsForExercise(exerciseRefOf(c.exercise));
+              newSuggestions[c.cardId] = computeProgressSuggestion(sets, c.exercise.exercise_type, localPrefs.progress_reps, weightUnit, t);
+            }),
+        );
+
+        materializedIds.forEach((id) => materializedCardIds.current.add(id));
         setCards(newCards);
         setCardSets(newCardSets);
+        setSuggestions(newSuggestions);
         setActiveCardId(newCards[0]?.cardId ?? null);
       },
     );
-  }, [resumeWorkoutId]);
+  }, [resumeWorkoutId, localPrefs]);
 
+  // Fresh workout: generate local (not-yet-persisted) sets for the initial slots.
   useEffect(() => {
-    if (!localPrefs) return;
+    if (!localPrefs || resumeWorkoutId) return;
     Promise.all(
-      cards
-        .filter((card) => (card.exercise.logging_type ?? 'reps') !== 'time')
-        .map(async (card) => {
-          const exerciseRef = card.exercise.id || card.exercise.name;
-          const sets = await getLastSetsForExercise(exerciseRef);
-          return { cardId: card.cardId, suggestion: computeProgressSuggestion(sets, card.exercise.exercise_type, localPrefs.progress_reps, weightUnit, t) };
-        }),
+      cards.map(async (card) => {
+        if (isTimeBased(card.exercise)) return { cardId: card.cardId, suggestion: null as OverloadSuggestion | null };
+        const sets = await getLastSetsForExercise(exerciseRefOf(card.exercise));
+        return { cardId: card.cardId, suggestion: computeProgressSuggestion(sets, card.exercise.exercise_type, localPrefs.progress_reps, weightUnit, t) };
+      }),
     ).then((results) => {
-      const map: Record<string, OverloadSuggestion | null> = {};
-      for (const { cardId, suggestion } of results) map[cardId] = suggestion;
-      setSuggestions(map);
+      const suggMap: Record<string, OverloadSuggestion | null> = {};
+      for (const { cardId, suggestion } of results) suggMap[cardId] = suggestion;
+      setSuggestions(suggMap);
+      setCardSets((prev) => {
+        const next = { ...prev };
+        for (const card of cards) {
+          if (next[card.cardId]) continue;
+          next[card.cardId] = generateInitialSets(card.exercise, suggMap[card.cardId] ?? null, localPrefs.sets_per_exercise, weightUnit);
+        }
+        return next;
+      });
     });
   }, [localPrefs]);
 
@@ -194,78 +293,211 @@ export default function GeneratedWorkoutScreen() {
 
   // ─── Set operations ─────────────────────────────────────────────────────────
 
-  const confirmDraft = async (cardId: string) => {
-    const draft = drafts[cardId];
-    if (!draft?.weight.trim() || !draft?.secondary.trim()) return;
+  // Persists a whole card's local sets to the DB for the first time.
+  const materializeCard = async (cardId: string, exerciseRef: string, isTime: boolean, sets: LocalSet[]) => {
+    if (materializedCardIds.current.has(cardId)) return;
+    materializedCardIds.current.add(cardId);
+    const workoutId = await ensureWorkout();
+    for (const s of sets) {
+      const input: NewSetInput = {
+        id: s.id,
+        workout_id: workoutId,
+        exercise_id: exerciseRef,
+        is_warmup: s.isWarmup ? 1 : 0,
+        position: s.position,
+        ...toDbFields(s, isTime),
+      };
+      await insertSet(input);
+    }
+  };
+
+  // Either materializes the whole card (first interaction) or updates one already-persisted set.
+  const materializeOrUpdate = async (cardId: string, exerciseRef: string, isTime: boolean, allSets: LocalSet[], changedSet: LocalSet) => {
+    if (!materializedCardIds.current.has(cardId)) {
+      await materializeCard(cardId, exerciseRef, isTime, allSets);
+    } else {
+      await editSet(changedSet.id, toDbFields(changedSet, isTime));
+    }
+  };
+
+  // Either materializes the whole card (including the new set) or inserts just the new set.
+  const materializeOrInsert = async (cardId: string, exerciseRef: string, isTime: boolean, allSets: LocalSet[], newSet: LocalSet) => {
+    if (!materializedCardIds.current.has(cardId)) {
+      await materializeCard(cardId, exerciseRef, isTime, allSets);
+    } else {
+      const workoutId = await ensureWorkout();
+      await insertSet({
+        id: newSet.id,
+        workout_id: workoutId,
+        exercise_id: exerciseRef,
+        is_warmup: newSet.isWarmup ? 1 : 0,
+        position: newSet.position,
+        ...toDbFields(newSet, isTime),
+      });
+    }
+  };
+
+  const toggleSetChecked = (cardId: string, setId: string) => {
     const card = cards.find((c) => c.cardId === cardId);
     if (!card) return;
-    const isTime = (card.exercise.logging_type ?? 'reps') === 'time';
-    const exerciseRef = card.exercise.id || card.exercise.name;
-    const now = new Date();
+    const isTime = isTimeBased(card.exercise);
+    const current = cardSets[cardId] ?? [];
+    const target = current.find((s) => s.id === setId);
+    if (!target) return;
 
-    const workoutId = await ensureWorkout();
-    const newId = await insertSet({
-      workout_id: workoutId,
-      exercise_id: exerciseRef,
-      reps: isTime ? 0 : (parseFloat(draft.secondary) || 0),
-      difficulty: 0,
-      weight: parseFloat(draft.weight) || 0,
-      unit: weightUnit,
-      logged_at: now.toISOString(),
-      duration_seconds: isTime ? (parseInt(draft.secondary, 10) || 0) : null,
+    let nextSet: LocalSet;
+    if (target.loggedAt !== null) {
+      nextSet = { ...target, loggedAt: null };
+    } else {
+      if (!isSetFilled(target, isTime ? 'time' : 'reps')) return;
+      nextSet = { ...target, loggedAt: new Date() };
+    }
+    const nextSets = current.map((s) => (s.id === setId ? nextSet : s));
+    setCardSets((prev) => ({ ...prev, [cardId]: nextSets }));
+    materializeOrUpdate(cardId, exerciseRefOf(card.exercise), isTime, nextSets, nextSet);
+  };
+
+  const updateSetField = (cardId: string, setId: string, field: 'weight' | 'reps' | 'durationSeconds', value: string) => {
+    const current = cardSets[cardId] ?? [];
+    const nextSets = current.map((s) => {
+      if (s.id !== setId) return s;
+      const updated: LocalSet = { ...s, [field]: value };
+      if (!value.trim() && updated.loggedAt !== null) updated.loggedAt = null;
+      return updated;
     });
-
-    const saved: LocalSet = {
-      id: newId,
-      weight: draft.weight,
-      reps: isTime ? '' : draft.secondary,
-      durationSeconds: isTime ? draft.secondary : '',
-      unit: weightUnit,
-      loggedAt: now,
-    };
-    setCardSets((prev) => ({ ...prev, [cardId]: [saved, ...(prev[cardId] ?? [])] }));
-    setDrafts((prev) => ({ ...prev, [cardId]: { weight: '', secondary: '' } }));
+    setCardSets((prev) => ({ ...prev, [cardId]: nextSets }));
   };
 
-  const updateSetWeight = (cardId: string, setId: string, value: string) => {
-    setCardSets((prev) => ({
-      ...prev,
-      [cardId]: (prev[cardId] ?? []).map((s) => (s.id === setId ? { ...s, weight: value } : s)),
-    }));
+  const onSetWeightChange = (cardId: string, setId: string, value: string) => {
+    updateSetField(cardId, setId, 'weight', value);
   };
 
-  const updateSetSecondary = (cardId: string, setId: string, value: string) => {
+  const onSetSecondaryChange = (cardId: string, setId: string, value: string) => {
     const card = cards.find((c) => c.cardId === cardId);
-    const isTime = (card?.exercise.logging_type ?? 'reps') === 'time';
-    setCardSets((prev) => ({
-      ...prev,
-      [cardId]: (prev[cardId] ?? []).map((s) =>
-        s.id === setId ? { ...s, [isTime ? 'durationSeconds' : 'reps']: value } : s,
-      ),
-    }));
+    const isTime = card ? isTimeBased(card.exercise) : false;
+    updateSetField(cardId, setId, isTime ? 'durationSeconds' : 'reps', value);
   };
 
-  const saveSet = (cardId: string, setId: string) => {
+  const onSetBlur = (cardId: string, setId: string) => {
     const card = cards.find((c) => c.cardId === cardId);
-    const isTime = (card?.exercise.logging_type ?? 'reps') === 'time';
-    const set = (cardSets[cardId] ?? []).find((s) => s.id === setId);
+    if (!card) return;
+    const isTime = isTimeBased(card.exercise);
+    const sets = cardSets[cardId] ?? [];
+    const set = sets.find((s) => s.id === setId);
     if (!set) return;
-    editSet(setId, {
-      reps: isTime ? 0 : (parseFloat(set.reps) || 0),
-      difficulty: 0,
-      weight: parseFloat(set.weight) || 0,
-      unit: set.unit,
-      logged_at: set.loggedAt ? set.loggedAt.toISOString() : 'pending',
-      duration_seconds: isTime ? (parseInt(set.durationSeconds, 10) || 0) : null,
+    materializeOrUpdate(cardId, exerciseRefOf(card.exercise), isTime, sets, set);
+  };
+
+  const addWarmupSet = (cardId: string) => {
+    const card = cards.find((c) => c.cardId === cardId);
+    if (!card) return;
+    const current = cardSets[cardId] ?? [];
+    const minPos = current.length ? Math.min(...current.map((s) => s.position)) : 0;
+    const newSet: LocalSet = {
+      id: generateId(),
+      weight: '',
+      reps: '',
+      durationSeconds: '',
+      unit: weightUnit,
+      loggedAt: null,
+      isWarmup: true,
+      position: minPos - 1,
+    };
+    const nextSets = [newSet, ...current];
+    setCardSets((prev) => ({ ...prev, [cardId]: nextSets }));
+    materializeOrInsert(cardId, exerciseRefOf(card.exercise), isTimeBased(card.exercise), nextSets, newSet);
+  };
+
+  const addSet = (cardId: string) => {
+    const card = cards.find((c) => c.cardId === cardId);
+    if (!card) return;
+    const current = cardSets[cardId] ?? [];
+    const last = current[current.length - 1];
+    const maxPos = current.length ? Math.max(...current.map((s) => s.position)) : -1;
+    const newSet: LocalSet = {
+      id: generateId(),
+      weight: last?.weight ?? '',
+      reps: last?.reps ?? '',
+      durationSeconds: last?.durationSeconds ?? '',
+      unit: weightUnit,
+      loggedAt: null,
+      isWarmup: false,
+      position: maxPos + 1,
+    };
+    const nextSets = [...current, newSet];
+    setCardSets((prev) => ({ ...prev, [cardId]: nextSets }));
+    materializeOrInsert(cardId, exerciseRefOf(card.exercise), isTimeBased(card.exercise), nextSets, newSet);
+  };
+
+  const regenerateSets = (cardId: string) => {
+    const card = cards.find((c) => c.cardId === cardId);
+    if (!card || !localPrefs) return;
+    const suggestion = suggestions[cardId] ?? null;
+    const nextSets = generateInitialSets(card.exercise, suggestion, localPrefs.sets_per_exercise, weightUnit);
+    setCardSets((prev) => ({ ...prev, [cardId]: nextSets }));
+  };
+
+  const enterRemoveMode = () => {
+    setRemoveMode(true);
+    setSelectedForRemoval(new Set());
+  };
+
+  const cancelRemoveMode = () => {
+    setRemoveMode(false);
+    setSelectedForRemoval(new Set());
+  };
+
+  const toggleSelectForRemoval = (setId: string) => {
+    setSelectedForRemoval((prev) => {
+      const next = new Set(prev);
+      if (next.has(setId)) next.delete(setId);
+      else next.add(setId);
+      return next;
     });
   };
 
-  const confirmDeleteSet = async () => {
-    if (!deletingSet) return;
-    const { cardId, setId } = deletingSet;
-    await removeSet(setId);
-    setCardSets((prev) => ({ ...prev, [cardId]: (prev[cardId] ?? []).filter((s) => s.id !== setId) }));
-    setDeletingSet(null);
+  const requestConfirmRemove = (cardId: string) => {
+    if (selectedForRemoval.size === 0) return;
+    setPendingRemoval({ cardId, ids: [...selectedForRemoval] });
+  };
+
+  const confirmRemoveSets = async () => {
+    if (!pendingRemoval) return;
+    const { cardId, ids } = pendingRemoval;
+    if (materializedCardIds.current.has(cardId)) {
+      await Promise.all(ids.map((id) => removeSet(id)));
+    }
+    const idSet = new Set(ids);
+    setCardSets((prev) => {
+      const remaining = (prev[cardId] ?? []).filter((s) => !idSet.has(s.id));
+      if (remaining.length === 0) materializedCardIds.current.delete(cardId);
+      return { ...prev, [cardId]: remaining };
+    });
+    setPendingRemoval(null);
+    setRemoveMode(false);
+    setSelectedForRemoval(new Set());
+  };
+
+  // ─── Advance to next exercise / finish ──────────────────────────────────────
+
+  const advance = () => {
+    const activeIndex = cards.findIndex((c) => c.cardId === activeCardId);
+    const nextCard = cards[activeIndex + 1];
+    if (nextCard) {
+      selectCard(nextCard.cardId);
+    } else {
+      setShowFinishModal(true);
+    }
+  };
+
+  const requestAdvance = () => {
+    const sets = cardSets[activeCardId ?? ''] ?? [];
+    const allChecked = sets.length > 0 && sets.every((s) => s.loggedAt !== null);
+    if (allChecked) {
+      advance();
+    } else {
+      setShowUnfinishedWarning(true);
+    }
   };
 
   // ─── Add / delete cards ──────────────────────────────────────────────────────
@@ -277,15 +509,20 @@ export default function GeneratedWorkoutScreen() {
       exercise,
     };
     setCards((prev) => [...prev, newCard]);
-    setActiveCardId(newCard.cardId);
+    selectCard(newCard.cardId);
     setShowPicker(false);
     setPickerSearch('');
-    if (localPrefs && (exercise.logging_type ?? 'reps') !== 'time') {
-      const exerciseRef = exercise.id || exercise.name;
-      getLastSetsForExercise(exerciseRef).then((sets) => {
-        setSuggestions((prev) => ({ ...prev, [newCard.cardId]: computeProgressSuggestion(sets, exercise.exercise_type, localPrefs.progress_reps, weightUnit, t) }));
-      });
+
+    const setsPerExercise = localPrefs?.sets_per_exercise ?? DEFAULT_WORKOUT_PREFS.sets_per_exercise;
+    if (isTimeBased(exercise)) {
+      setCardSets((prev) => ({ ...prev, [newCard.cardId]: generateInitialSets(exercise, null, setsPerExercise, weightUnit) }));
+      return;
     }
+    getLastSetsForExercise(exerciseRefOf(exercise)).then((sets) => {
+      const suggestion = localPrefs ? computeProgressSuggestion(sets, exercise.exercise_type, localPrefs.progress_reps, weightUnit, t) : null;
+      setSuggestions((prev) => ({ ...prev, [newCard.cardId]: suggestion }));
+      setCardSets((prev) => ({ ...prev, [newCard.cardId]: generateInitialSets(exercise, suggestion, setsPerExercise, weightUnit) }));
+    });
   };
 
   const confirmDeleteCard = async () => {
@@ -294,14 +531,14 @@ export default function GeneratedWorkoutScreen() {
       const workoutId = await workoutRef.current;
       const card = cards.find((c) => c.cardId === deletingCardId);
       if (card) {
-        const exerciseRef = card.exercise.id || card.exercise.name;
+        const exerciseRef = exerciseRefOf(card.exercise);
         await deleteSetsByExercise(workoutId, exerciseRef);
       }
     }
+    materializedCardIds.current.delete(deletingCardId);
     const remaining = cards.filter((c) => c.cardId !== deletingCardId);
     setCards(remaining);
     setCardSets((prev) => { const n = { ...prev }; delete n[deletingCardId!]; return n; });
-    setDrafts((prev) => { const n = { ...prev }; delete n[deletingCardId!]; return n; });
     setSuggestions((prev) => { const n = { ...prev }; delete n[deletingCardId!]; return n; });
     setActiveCardId((prev) => (prev === deletingCardId ? (remaining[0]?.cardId ?? null) : prev));
     setDeletingCardId(null);
@@ -340,19 +577,28 @@ export default function GeneratedWorkoutScreen() {
   const selectAlternative = async (cardId: string, exercise: Exercise) => {
     const card = cards.find((c) => c.cardId === cardId);
     if (!card) return;
-    const oldExerciseId = card.exercise.id || card.exercise.name;
+    const oldExerciseId = exerciseRefOf(card.exercise);
     updatePendingSlotExercise(oldExerciseId, exercise);
+    if (workoutRef.current) {
+      const workoutId = await workoutRef.current;
+      await deleteSetsByExercise(workoutId, oldExerciseId);
+    }
+    materializedCardIds.current.delete(cardId);
     setCards((prev) => prev.map((c) => (c.cardId === cardId ? { ...c, exercise } : c)));
-    setDrafts((prev) => { const n = { ...prev }; delete n[cardId]; return n; });
     setSuggestions((prev) => { const n = { ...prev }; delete n[cardId]; return n; });
     setSwitchingCardId(null);
     setSwitchSearch('');
-    if (localPrefs && (exercise.logging_type ?? 'reps') !== 'time') {
-      const exerciseRef = exercise.id || exercise.name;
-      getLastSetsForExercise(exerciseRef).then((sets) => {
-        setSuggestions((prev) => ({ ...prev, [cardId]: computeProgressSuggestion(sets, exercise.exercise_type, localPrefs.progress_reps, weightUnit, t) }));
-      });
+
+    const setsPerExercise = localPrefs?.sets_per_exercise ?? DEFAULT_WORKOUT_PREFS.sets_per_exercise;
+    if (isTimeBased(exercise)) {
+      setCardSets((prev) => ({ ...prev, [cardId]: generateInitialSets(exercise, null, setsPerExercise, weightUnit) }));
+      return;
     }
+    getLastSetsForExercise(exerciseRefOf(exercise)).then((sets) => {
+      const suggestion = localPrefs ? computeProgressSuggestion(sets, exercise.exercise_type, localPrefs.progress_reps, weightUnit, t) : null;
+      setSuggestions((prev) => ({ ...prev, [cardId]: suggestion }));
+      setCardSets((prev) => ({ ...prev, [cardId]: generateInitialSets(exercise, suggestion, setsPerExercise, weightUnit) }));
+    });
   };
 
   const closeSwitchModal = () => {
@@ -372,7 +618,7 @@ export default function GeneratedWorkoutScreen() {
     : '';
 
   const activeCard = cards.find((c) => c.cardId === activeCardId) ?? null;
-  const activeDraft = activeCardId ? (drafts[activeCardId] ?? { weight: '', secondary: '' }) : { weight: '', secondary: '' };
+  const isLastExercise = cards.findIndex((c) => c.cardId === activeCardId) === cards.length - 1;
 
   return (
     <Animated.View style={[{ flex: 1 }, panelStyle]}>
@@ -407,9 +653,9 @@ export default function GeneratedWorkoutScreen() {
 
       {/* Exercise tab strip */}
       <ExerciseTabStrip
-        cards={cards.map((c) => ({ cardId: c.cardId, hasSets: (cardSets[c.cardId] ?? []).length > 0 }))}
+        cards={cards.map((c) => ({ cardId: c.cardId, hasSets: (cardSets[c.cardId] ?? []).some((s) => s.loggedAt !== null) }))}
         activeCardId={activeCardId}
-        onSelect={setActiveCardId}
+        onSelect={selectCard}
         onAdd={() => setShowPicker(true)}
       />
 
@@ -429,18 +675,25 @@ export default function GeneratedWorkoutScreen() {
             slotType={activeCard.slotType}
             exercise={activeCard.exercise}
             sets={cardSets[activeCard.cardId] ?? []}
-            draft={activeDraft}
             suggestion={suggestions[activeCard.cardId] ?? null}
             weightUnit={weightUnit}
+            removeMode={removeMode}
+            selectedForRemoval={selectedForRemoval}
             onSwitch={() => setSwitchingCardId(activeCard.cardId)}
             onDelete={() => setDeletingCardId(activeCard.cardId)}
-            onDraftWeightChange={(v) => setDrafts((prev) => ({ ...prev, [activeCard.cardId]: { ...activeDraft, weight: v } }))}
-            onDraftSecondaryChange={(v) => setDrafts((prev) => ({ ...prev, [activeCard.cardId]: { ...activeDraft, secondary: v } }))}
-            onConfirmDraft={() => confirmDraft(activeCard.cardId)}
-            onSetWeightChange={(setId, v) => updateSetWeight(activeCard.cardId, setId, v)}
-            onSetSecondaryChange={(setId, v) => updateSetSecondary(activeCard.cardId, setId, v)}
-            onSetBlur={(setId) => saveSet(activeCard.cardId, setId)}
-            onSetDelete={(setId) => setDeletingSet({ cardId: activeCard.cardId, setId })}
+            onSetWeightChange={(setId, v) => onSetWeightChange(activeCard.cardId, setId, v)}
+            onSetSecondaryChange={(setId, v) => onSetSecondaryChange(activeCard.cardId, setId, v)}
+            onSetBlur={(setId) => onSetBlur(activeCard.cardId, setId)}
+            onToggleChecked={(setId) => toggleSetChecked(activeCard.cardId, setId)}
+            onToggleSelectForRemoval={toggleSelectForRemoval}
+            onAddWarmupSet={() => addWarmupSet(activeCard.cardId)}
+            onAddSet={() => addSet(activeCard.cardId)}
+            onEnterRemoveMode={enterRemoveMode}
+            onCancelRemoveMode={cancelRemoveMode}
+            onConfirmRemove={() => requestConfirmRemove(activeCard.cardId)}
+            onGenerateSets={() => regenerateSets(activeCard.cardId)}
+            isLastExercise={isLastExercise}
+            onAdvance={requestAdvance}
           />
         ) : (
           <TouchableOpacity
@@ -655,15 +908,25 @@ export default function GeneratedWorkoutScreen() {
         </View>
       </Modal>
 
-      {/* Delete set confirmation */}
+      {/* Unfinished sets warning */}
       <ConfirmModal
-        visible={deletingSet !== null}
-        title={t('deleteSetTitle')}
-        message={t('deleteSetMessage')}
-        confirmLabel={t('common:delete')}
+        visible={showUnfinishedWarning}
+        title={t('unfinishedSetsTitle')}
+        message={t('unfinishedSetsMessage')}
+        confirmLabel={t('continueAnyway')}
+        onCancel={() => setShowUnfinishedWarning(false)}
+        onConfirm={() => { setShowUnfinishedWarning(false); advance(); }}
+      />
+
+      {/* Remove sets confirmation */}
+      <ConfirmModal
+        visible={pendingRemoval !== null}
+        title={t('removeSetsTitle')}
+        message={t('removeSetsMessage', { count: pendingRemoval?.ids.length ?? 0 })}
+        confirmLabel={t('remove')}
         destructive
-        onCancel={() => setDeletingSet(null)}
-        onConfirm={confirmDeleteSet}
+        onCancel={() => setPendingRemoval(null)}
+        onConfirm={confirmRemoveSets}
       />
 
       {/* Delete card confirmation */}

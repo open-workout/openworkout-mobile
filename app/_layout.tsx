@@ -37,6 +37,14 @@ async function initializeDb(database: SQLiteDatabase) {
   if (setCols.length > 0 && !setCols.find((c) => c.name === 'duration_seconds')) {
     await database.execAsync('ALTER TABLE sets ADD COLUMN duration_seconds INTEGER;');
   }
+  // Migration: add is_warmup column to sets if missing
+  if (setCols.length > 0 && !setCols.find((c) => c.name === 'is_warmup')) {
+    await database.execAsync('ALTER TABLE sets ADD COLUMN is_warmup INTEGER NOT NULL DEFAULT 0;');
+  }
+  // Migration: add position column to sets if missing (explicit ordering for pre-generated sets)
+  if (setCols.length > 0 && !setCols.find((c) => c.name === 'position')) {
+    await database.execAsync('ALTER TABLE sets ADD COLUMN position INTEGER NOT NULL DEFAULT 0;');
+  }
 
   // Migration: add logging_type column to exercises if missing (reps vs. time based)
   if (exerciseCols.length > 0 && !exerciseCols.find((c) => c.name === 'logging_type')) {
@@ -85,7 +93,9 @@ async function initializeDb(database: SQLiteDatabase) {
       logged_at        TEXT    NOT NULL,
       created_at       INTEGER NOT NULL,
       is_pr            INTEGER NOT NULL DEFAULT 0,
-      duration_seconds INTEGER
+      duration_seconds INTEGER,
+      is_warmup        INTEGER NOT NULL DEFAULT 0,
+      position         INTEGER NOT NULL DEFAULT 0
     );
   `);
   await database.execAsync(`

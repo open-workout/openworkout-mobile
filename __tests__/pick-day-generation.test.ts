@@ -26,6 +26,7 @@ const DEFAULT_PREFS: WorkoutPreferences = {
   isolation_exercises: 1,
   progress_reps: 8,
   weekly_goal: 3,
+  sets_per_exercise: 3,
 };
 
 /** Returns the expanded muscle list for a named day in a named preset split. */

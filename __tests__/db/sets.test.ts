@@ -23,6 +23,7 @@ const BASE_INPUT = {
   weight: 80,
   unit: 'kg',
   logged_at: '2026-05-26T08:30:00.000Z',
+  position: 0,
 };
 
 describe('insertSet', () => {
@@ -123,9 +124,9 @@ describe('getSetsForWorkout', () => {
     );
   });
 
-  it('orders results by created_at ASC', async () => {
+  it('orders results by position ASC, created_at ASC', async () => {
     await getSetsForWorkout('w1');
     const sql = mockDb.getAllAsync.mock.calls[0][0] as string;
-    expect(sql.toLowerCase()).toContain('order by created_at asc');
+    expect(sql.toLowerCase()).toContain('order by position asc, created_at asc');
   });
 });

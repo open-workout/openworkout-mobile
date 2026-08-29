@@ -3,6 +3,7 @@ import type { WorkoutSet } from '../db/sets';
 export type OverloadSuggestion = {
   weight: number;
   reps: number;
+  isAmrap: boolean;
   label: string;
 };
 
@@ -24,10 +25,11 @@ export function computeProgressSuggestion(
     a.weight > b.weight || (a.weight === b.weight && a.reps >= b.reps) ? a : b,
   );
   const inc = INCREMENT[exerciseType] ?? 2.5;
-  const weight = best.reps >= progressReps ? best.weight + inc : best.weight;
-  const reps = best.reps >= progressReps ? best.reps : best.reps + 2;
-  const label = best.reps >= progressReps
+  const isAmrap = best.reps >= progressReps;
+  const weight = isAmrap ? best.weight + inc : best.weight;
+  const reps = isAmrap ? best.reps : best.reps + 2;
+  const label = isAmrap
     ? t('amrapLabel', { weight, unit: weightUnit })
     : t('tryLabel', { weight, unit: weightUnit, reps });
-  return { weight, reps, label };
+  return { weight, reps, isAmrap, label };
 }

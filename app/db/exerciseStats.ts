@@ -20,9 +20,9 @@ export async function refreshExerciseStats(workoutId: string, finishedAt: string
   const finishedMs = new Date(finishedAt).getTime();
   const cutoff21Days = finishedMs - 21 * 24 * 60 * 60 * 1000;
 
-  type SetRow = { exercise_id: string; weight: number; reps: number; unit: string; logged_at: string };
+  type SetRow = { exercise_id: string; weight: number; reps: number; unit: string; logged_at: string; is_warmup: number };
   const workoutSets = await db.getAllAsync<SetRow>(
-    `SELECT exercise_id, weight, reps, unit, logged_at FROM sets WHERE workout_id = ? ORDER BY created_at DESC`,
+    `SELECT exercise_id, weight, reps, unit, logged_at, is_warmup FROM sets WHERE workout_id = ? ORDER BY created_at DESC`,
     workoutId,
   );
 
@@ -41,7 +41,7 @@ export async function refreshExerciseStats(workoutId: string, finishedAt: string
     );
 
     const lastSet = workoutSets.find(
-      (s) => s.exercise_id === exerciseId && s.logged_at !== 'seed' && s.logged_at !== 'pending',
+      (s) => s.exercise_id === exerciseId && s.logged_at !== 'seed' && s.logged_at !== 'pending' && s.is_warmup === 0,
     );
 
     await db.runAsync(

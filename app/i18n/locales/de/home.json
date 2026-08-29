@@ -8,8 +8,6 @@
   "noMoreWorkouts": "Keine weiteren Workouts",
   "noFinishedWorkoutsYet": "Noch keine abgeschlossenen Workouts",
   "inProgress": "Läuft",
-  "todayLabel": "Als Nächstes",
-  "noSplitConfiguredShort": "Trainingsplan einrichten",
   "weekStreak": "{{count}} Wochen-Serie",
   "streakSubtitle": "{{current}}/{{goal}} diese Woche · {{total}} Workouts insgesamt"
 }

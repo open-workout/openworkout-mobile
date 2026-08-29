@@ -11,6 +11,7 @@ export type WorkoutPreferences = {
   isolation_exercises: number;
   progress_reps: number;
   weekly_goal: number;
+  sets_per_exercise: number;
 };
 
 export const DEFAULT_WORKOUT_PREFS: WorkoutPreferences = {
@@ -19,6 +20,7 @@ export const DEFAULT_WORKOUT_PREFS: WorkoutPreferences = {
   isolation_exercises: 1,
   progress_reps: 8,
   weekly_goal: 3,
+  sets_per_exercise: 3,
 };
 
 export async function markOnboardingDone(): Promise<void> {

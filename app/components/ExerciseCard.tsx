@@ -29,6 +29,8 @@ type Props = {
   onCancelRemoveMode: () => void;
   onConfirmRemove: () => void;
   onGenerateSets: () => void;
+  isLastExercise: boolean;
+  onAdvance: () => void;
 };
 
 // The single-exercise pane shown below the horizontal exercise tab strip
@@ -55,6 +57,8 @@ export function ExerciseCard({
   onCancelRemoveMode,
   onConfirmRemove,
   onGenerateSets,
+  isLastExercise,
+  onAdvance,
 }: Props) {
   const { t, i18n } = useTranslation('workout');
   const locale = i18n.language;
@@ -188,6 +192,19 @@ export function ExerciseCard({
             </>
           )}
         </View>
+
+        {!removeMode && (
+          <TouchableOpacity
+            onPress={onAdvance}
+            activeOpacity={0.85}
+            style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, marginHorizontal: 12, marginBottom: 12, paddingVertical: 13, borderRadius: 10, backgroundColor: accent.green }}
+          >
+            <Text style={{ color: '#052e1c', fontSize: 14, fontWeight: '800' }}>
+              {isLastExercise ? t('finish') : t('nextExercise')}
+            </Text>
+            <Ionicons name={isLastExercise ? 'checkmark-circle' : 'arrow-forward-circle'} size={17} color="#052e1c" />
+          </TouchableOpacity>
+        )}
       </View>
     </View>
   );

@@ -45,5 +45,9 @@
   "removeSetsMessage_other": "Remove these {{count}} sets?",
   "warmupBadge": "Warmup",
   "noSetsYet": "No sets yet",
-  "generateSets": "Generate sets"
+  "generateSets": "Generate sets",
+  "nextExercise": "Next Exercise",
+  "unfinishedSetsTitle": "Sets Not Checked Off",
+  "unfinishedSetsMessage": "Not all sets in this exercise are checked off yet. Continue anyway?",
+  "continueAnyway": "Continue Anyway"
 }

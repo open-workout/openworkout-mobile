@@ -45,5 +45,9 @@
   "removeSetsMessage_other": "Retirer ces {{count}} séries ?",
   "warmupBadge": "Échauffement",
   "noSetsYet": "Aucune série pour l'instant",
-  "generateSets": "Générer des séries"
+  "generateSets": "Générer des séries",
+  "nextExercise": "Exercice suivant",
+  "unfinishedSetsTitle": "Séries non cochées",
+  "unfinishedSetsMessage": "Toutes les séries de cet exercice ne sont pas cochées. Continuer quand même ?",
+  "continueAnyway": "Continuer quand même"
 }

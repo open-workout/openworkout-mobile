@@ -133,6 +133,9 @@ export default function GeneratedWorkoutScreen() {
   const [deletingCardId, setDeletingCardId] = useState<string | null>(null);
   const [showFinishModal, setShowFinishModal] = useState(false);
 
+  // Warns before advancing past an exercise with unchecked sets
+  const [showUnfinishedWarning, setShowUnfinishedWarning] = useState(false);
+
   // The stack navigator's own dismiss transition doesn't animate reliably
   // for this modal on every platform, so the slide-down on exit is driven
   // here instead: translate the panel off-screen first, then dismiss the
@@ -475,6 +478,28 @@ export default function GeneratedWorkoutScreen() {
     setSelectedForRemoval(new Set());
   };
 
+  // ─── Advance to next exercise / finish ──────────────────────────────────────
+
+  const advance = () => {
+    const activeIndex = cards.findIndex((c) => c.cardId === activeCardId);
+    const nextCard = cards[activeIndex + 1];
+    if (nextCard) {
+      selectCard(nextCard.cardId);
+    } else {
+      setShowFinishModal(true);
+    }
+  };
+
+  const requestAdvance = () => {
+    const sets = cardSets[activeCardId ?? ''] ?? [];
+    const allChecked = sets.length > 0 && sets.every((s) => s.loggedAt !== null);
+    if (allChecked) {
+      advance();
+    } else {
+      setShowUnfinishedWarning(true);
+    }
+  };
+
   // ─── Add / delete cards ──────────────────────────────────────────────────────
 
   const addCard = (exercise: Exercise) => {
@@ -593,6 +618,7 @@ export default function GeneratedWorkoutScreen() {
     : '';
 
   const activeCard = cards.find((c) => c.cardId === activeCardId) ?? null;
+  const isLastExercise = cards.findIndex((c) => c.cardId === activeCardId) === cards.length - 1;
 
   return (
     <Animated.View style={[{ flex: 1 }, panelStyle]}>
@@ -666,6 +692,8 @@ export default function GeneratedWorkoutScreen() {
             onCancelRemoveMode={cancelRemoveMode}
             onConfirmRemove={() => requestConfirmRemove(activeCard.cardId)}
             onGenerateSets={() => regenerateSets(activeCard.cardId)}
+            isLastExercise={isLastExercise}
+            onAdvance={requestAdvance}
           />
         ) : (
           <TouchableOpacity
@@ -879,6 +907,16 @@ export default function GeneratedWorkoutScreen() {
           </View>
         </View>
       </Modal>
+
+      {/* Unfinished sets warning */}
+      <ConfirmModal
+        visible={showUnfinishedWarning}
+        title={t('unfinishedSetsTitle')}
+        message={t('unfinishedSetsMessage')}
+        confirmLabel={t('continueAnyway')}
+        onCancel={() => setShowUnfinishedWarning(false)}
+        onConfirm={() => { setShowUnfinishedWarning(false); advance(); }}
+      />
 
       {/* Remove sets confirmation */}
       <ConfirmModal

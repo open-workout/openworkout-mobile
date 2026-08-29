@@ -45,5 +45,9 @@
   "removeSetsMessage_other": "¿Quitar estas {{count}} series?",
   "warmupBadge": "Calentamiento",
   "noSetsYet": "Aún no hay series",
-  "generateSets": "Generar series"
+  "generateSets": "Generar series",
+  "nextExercise": "Siguiente ejercicio",
+  "unfinishedSetsTitle": "Series sin marcar",
+  "unfinishedSetsMessage": "No todas las series de este ejercicio están marcadas. ¿Continuar de todos modos?",
+  "continueAnyway": "Continuar de todos modos"
 }

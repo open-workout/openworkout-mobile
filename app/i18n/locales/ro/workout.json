@@ -47,5 +47,9 @@
   "removeSetsMessage_other": "Elimini aceste {{count}} de seturi?",
   "warmupBadge": "Încălzire",
   "noSetsYet": "Niciun set încă",
-  "generateSets": "Generează seturi"
+  "generateSets": "Generează seturi",
+  "nextExercise": "Exercițiul următor",
+  "unfinishedSetsTitle": "Seturi nebifate",
+  "unfinishedSetsMessage": "Nu toate seturile acestui exercițiu sunt bifate. Continui oricum?",
+  "continueAnyway": "Continuă oricum"
 }

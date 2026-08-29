@@ -45,5 +45,9 @@
   "removeSetsMessage_other": "Diese {{count}} Sätze entfernen?",
   "warmupBadge": "Aufwärmen",
   "noSetsYet": "Noch keine Sätze",
-  "generateSets": "Sätze generieren"
+  "generateSets": "Sätze generieren",
+  "nextExercise": "Nächste Übung",
+  "unfinishedSetsTitle": "Sätze nicht abgehakt",
+  "unfinishedSetsMessage": "Nicht alle Sätze dieser Übung sind abgehakt. Trotzdem fortfahren?",
+  "continueAnyway": "Trotzdem fortfahren"
 }

@@ -8,8 +8,6 @@
   "noMoreWorkouts": "Plus de séances",
   "noFinishedWorkoutsYet": "Aucune séance terminée pour l'instant",
   "inProgress": "En cours",
-  "todayLabel": "À suivre",
-  "noSplitConfiguredShort": "Configurer un split",
   "weekStreak": "{{count}} semaines de suite",
   "streakSubtitle": "{{current}}/{{goal}} cette semaine · {{total}} séances au total"
 }

@@ -8,8 +8,6 @@
   "noMoreWorkouts": "No more workouts",
   "noFinishedWorkoutsYet": "No finished workouts yet",
   "inProgress": "In Progress",
-  "todayLabel": "Next Up",
-  "noSplitConfiguredShort": "Set up a split",
   "weekStreak": "{{count}} week streak",
   "streakSubtitle": "{{current}}/{{goal}} this week · {{total}} workouts total"
 }

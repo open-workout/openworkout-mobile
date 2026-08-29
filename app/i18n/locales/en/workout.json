@@ -21,8 +21,6 @@
   "searchExercisesPlaceholder": "Search exercises...",
   "newExercise": "New exercise",
   "createQuery": "Create \"{{query}}\"",
-  "deleteSetTitle": "Delete Set",
-  "deleteThisSet": "Delete this set?",
   "deleteExerciseConfirmMessage": "Delete this exercise and all its sets?",
   "repsUnit": "reps",
   "amrapLabel": "{{weight}} {{unit}}: AMRAP",
@@ -37,6 +35,15 @@
   "removeExerciseTitle": "Remove Exercise",
   "removeExerciseMessage": "Remove \"{{name}}\" from this workout?",
   "remove": "Remove",
-  "deleteSetMessage": "Remove this set?",
-  "switch": "Switch"
+  "switch": "Switch",
+  "addWarmupSet": "Add warmup set",
+  "addSet": "Add set",
+  "removeSet": "Remove set",
+  "removeSelected": "Remove ({{count}})",
+  "removeSetsTitle": "Remove Sets",
+  "removeSetsMessage_one": "Remove this set?",
+  "removeSetsMessage_other": "Remove these {{count}} sets?",
+  "warmupBadge": "Warmup",
+  "noSetsYet": "No sets yet",
+  "generateSets": "Generate sets"
 }

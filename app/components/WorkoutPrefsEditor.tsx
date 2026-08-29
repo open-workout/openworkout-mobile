@@ -26,6 +26,7 @@ const FIELD_INFO_KEY: Record<Field, string> = {
   isolation_exercises: 'isolationInfoMessage',
   progress_reps: 'progressRepsInfoMessage',
   weekly_goal: 'weeklyGoalInfoMessage',
+  sets_per_exercise: 'setsPerExerciseInfoMessage',
 };
 
 export default function WorkoutPrefsEditor({ prefs, onChange }: Props) {
@@ -39,6 +40,7 @@ export default function WorkoutPrefsEditor({ prefs, onChange }: Props) {
   const fieldTitle = (field: Field): string => {
     if (field === 'progress_reps') return t('workoutPrefs.progressReps');
     if (field === 'weekly_goal') return t('workoutPrefs.weeklyGoal');
+    if (field === 'sets_per_exercise') return t('workoutPrefs.setsPerExercise');
     return tExplore(`addExerciseModal.exerciseTypes.${EXERCISE_TYPE_KEY[field]}.label`);
   };
 
@@ -50,6 +52,21 @@ export default function WorkoutPrefsEditor({ prefs, onChange }: Props) {
   return (
     <View style={{ gap: 24 }}>
       <Section label={t('workoutPrefs.exercisesPerWorkout')} rows={exerciseRows} prefs={prefs} onSet={set} onInfo={setInfoField} />
+      <View>
+        <Text style={{ color: '#52525b', fontSize: 10, fontWeight: '700', textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 12 }}>
+          {t('workoutPrefs.setsPerExercise')}
+        </Text>
+        <View style={{ backgroundColor: 'rgba(24,24,27,0.6)', borderWidth: 1, borderColor: 'rgba(39,39,42,0.8)', borderRadius: 16, overflow: 'hidden' }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 20, paddingVertical: 14 }}>
+            <RowLabel label={t('workoutPrefs.setsPerExercise')} field="sets_per_exercise" onInfo={setInfoField} />
+            <Stepper
+              value={prefs.sets_per_exercise}
+              onDecrement={() => onChange({ ...prefs, sets_per_exercise: Math.max(1, prefs.sets_per_exercise - 1) })}
+              onIncrement={() => onChange({ ...prefs, sets_per_exercise: Math.min(10, prefs.sets_per_exercise + 1) })}
+            />
+          </View>
+        </View>
+      </View>
       <View>
         <Text style={{ color: '#52525b', fontSize: 10, fontWeight: '700', textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 12 }}>
           {t('workoutPrefs.progressiveOverload')}

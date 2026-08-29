@@ -12,9 +12,12 @@ export type WorkoutSet = {
   created_at: number;
   is_pr: number;
   duration_seconds: number | null;
+  is_warmup: number;
+  position: number;
 };
 
 export type NewSetInput = {
+  id?: string;
   workout_id: string;
   exercise_id: string;
   reps: number;
@@ -23,6 +26,8 @@ export type NewSetInput = {
   unit: string;
   logged_at: string;
   duration_seconds?: number | null;
+  is_warmup?: number;
+  position: number;
 };
 
 export type UpdateSetInput = {
@@ -46,20 +51,22 @@ type RawSetRow = {
   created_at: number;
   is_pr: number;
   duration_seconds: number | null;
+  is_warmup: number;
+  position: number;
 };
 
-function generateId(): string {
+export function generateId(): string {
   return `${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 7)}`;
 }
 
 export async function insertSet(input: NewSetInput): Promise<string> {
   const db = await getDb();
-  const id = generateId();
+  const id = input.id ?? generateId();
   await db.runAsync(
     `INSERT INTO sets
        (id, workout_id, exercise_id,
-        reps, difficulty, weight, unit, logged_at, created_at, duration_seconds)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        reps, difficulty, weight, unit, logged_at, created_at, duration_seconds, is_warmup, position)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     id,
     input.workout_id,
     input.exercise_id,
@@ -70,6 +77,8 @@ export async function insertSet(input: NewSetInput): Promise<string> {
     input.logged_at,
     Date.now(),
     input.duration_seconds ?? null,
+    input.is_warmup ?? 0,
+    input.position,
   );
   return id;
 }
@@ -102,10 +111,15 @@ export async function deleteSetsByExercise(workoutId: string, exerciseId: string
   );
 }
 
+export async function deletePendingSetsForWorkout(workoutId: string): Promise<void> {
+  const db = await getDb();
+  await db.runAsync(`DELETE FROM sets WHERE workout_id = ? AND logged_at = 'pending'`, workoutId);
+}
+
 export async function getSetsForWorkout(workoutId: string): Promise<WorkoutSet[]> {
   const db = await getDb();
   const rows = await db.getAllAsync<RawSetRow>(
-    `SELECT * FROM sets WHERE workout_id = ? ORDER BY created_at ASC`,
+    `SELECT * FROM sets WHERE workout_id = ? ORDER BY position ASC, created_at ASC`,
     workoutId,
   );
   return rows;
@@ -125,6 +139,7 @@ export async function getLastSetsForExercise(exerciseId: string): Promise<Workou
     `SELECT * FROM sets
      WHERE workout_id = ? AND exercise_id = ?
        AND logged_at NOT IN ('seed', 'pending')
+       AND is_warmup = 0
      ORDER BY created_at ASC`,
     workout.id,
     exerciseId,
@@ -137,7 +152,7 @@ export async function detectAndMarkPRs(workoutId: string): Promise<number> {
   type SetRow = { id: string; exercise_id: string; weight: number; reps: number };
   const workoutSets = await db.getAllAsync<SetRow>(
     `SELECT id, exercise_id, weight, reps FROM sets
-     WHERE workout_id = ? AND logged_at NOT IN ('seed', 'pending')`,
+     WHERE workout_id = ? AND logged_at NOT IN ('seed', 'pending') AND is_warmup = 0`,
     workoutId,
   );
 
@@ -152,7 +167,8 @@ export async function detectAndMarkPRs(workoutId: string): Promise<number> {
        WHERE s.exercise_id = ?
          AND w.finished_at IS NOT NULL
          AND s.workout_id != ?
-         AND s.logged_at NOT IN ('seed', 'pending')`,
+         AND s.logged_at NOT IN ('seed', 'pending')
+         AND s.is_warmup = 0`,
       exerciseId,
       workoutId,
     );
@@ -168,7 +184,8 @@ export async function detectAndMarkPRs(workoutId: string): Promise<number> {
            AND s.weight = ?
            AND w.finished_at IS NOT NULL
            AND s.workout_id != ?
-           AND s.logged_at NOT IN ('seed', 'pending')`,
+           AND s.logged_at NOT IN ('seed', 'pending')
+           AND s.is_warmup = 0`,
         exerciseId,
         maxWeight,
         workoutId,
@@ -207,7 +224,8 @@ export async function getTotalVolume(): Promise<number> {
      FROM sets s
      JOIN workouts w ON s.workout_id = w.id
      WHERE w.finished_at IS NOT NULL
-       AND s.logged_at NOT IN ('seed', 'pending')`,
+       AND s.logged_at NOT IN ('seed', 'pending')
+       AND s.is_warmup = 0`,
   );
   return row?.total ?? 0;
 }

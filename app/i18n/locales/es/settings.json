@@ -30,6 +30,8 @@
     "accessoryInfoMessage": "Los ejercicios accesorios apoyan tus levantamientos principales trabajando grupos musculares de apoyo (p. ej. remo, zancadas, fondos). Completan una sesión y ayudan a corregir puntos débiles.",
     "isolationInfoMessage": "Los ejercicios de aislamiento trabajan un solo músculo y articulación (p. ej. curl de bíceps, extensiones de pierna). Se usan para ganar volumen o corregir debilidades específicas.",
     "progressRepsInfoMessage": "El número de repeticiones que activa un aumento de peso. Al alcanzar ese número de repeticiones en una serie, la app sugiere añadir peso la próxima vez; hasta entonces, sugiere añadir repeticiones.",
+    "setsPerExercise": "Series por ejercicio",
+    "setsPerExerciseInfoMessage": "Cuántas series se rellenan de antemano con el peso y las repeticiones sugeridos al abrir un ejercicio durante un entrenamiento. Siempre puedes añadir o quitar series sobre la marcha.",
     "streak": "Racha",
     "weeklyGoal": "Meta semanal",
     "weeklyGoalInfoMessage": "Cuántos entrenamientos por semana cuentan para tu meta de racha. Se muestra en Inicio como tu progreso semanal."

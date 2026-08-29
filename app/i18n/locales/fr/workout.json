@@ -21,8 +21,6 @@
   "searchExercisesPlaceholder": "Rechercher des exercices...",
   "newExercise": "Nouvel exercice",
   "createQuery": "Créer « {{query}} »",
-  "deleteSetTitle": "Supprimer la série",
-  "deleteThisSet": "Supprimer cette série ?",
   "deleteExerciseConfirmMessage": "Supprimer cet exercice et toutes ses séries ?",
   "repsUnit": "répétitions",
   "amrapLabel": "{{weight}} {{unit}} : AMRAP",
@@ -37,6 +35,15 @@
   "removeExerciseTitle": "Retirer l'exercice",
   "removeExerciseMessage": "Retirer « {{name}} » de cette séance ?",
   "remove": "Retirer",
-  "deleteSetMessage": "Supprimer cette série ?",
-  "switch": "Changer"
+  "switch": "Changer",
+  "addWarmupSet": "Ajouter une série d'échauffement",
+  "addSet": "Ajouter une série",
+  "removeSet": "Retirer une série",
+  "removeSelected": "Retirer ({{count}})",
+  "removeSetsTitle": "Retirer des séries",
+  "removeSetsMessage_one": "Retirer cette série ?",
+  "removeSetsMessage_other": "Retirer ces {{count}} séries ?",
+  "warmupBadge": "Échauffement",
+  "noSetsYet": "Aucune série pour l'instant",
+  "generateSets": "Générer des séries"
 }

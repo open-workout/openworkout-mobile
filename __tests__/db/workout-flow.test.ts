@@ -42,6 +42,7 @@ describe('adding an exercise to an active workout', () => {
       weight: 0,
       unit: 'kg',
       logged_at: STARTED_AT,
+      position: 0,
     });
 
     const [sql, id, workoutId, exerciseId] = mockDb.runAsync.mock.calls[0] as string[];
@@ -52,8 +53,8 @@ describe('adding an exercise to an active workout', () => {
   });
 
   it('adding two exercises creates two sets with distinct exercise_ids', async () => {
-    await insertSet({ workout_id: 'w1', exercise_id: 'ex1', reps: 0, difficulty: 0, weight: 0, unit: 'kg', logged_at: STARTED_AT });
-    await insertSet({ workout_id: 'w1', exercise_id: 'ex2', reps: 0, difficulty: 0, weight: 0, unit: 'kg', logged_at: STARTED_AT });
+    await insertSet({ workout_id: 'w1', exercise_id: 'ex1', reps: 0, difficulty: 0, weight: 0, unit: 'kg', logged_at: STARTED_AT, position: 0 });
+    await insertSet({ workout_id: 'w1', exercise_id: 'ex2', reps: 0, difficulty: 0, weight: 0, unit: 'kg', logged_at: STARTED_AT, position: 1 });
 
     const firstExId = mockDb.runAsync.mock.calls[0][3];
     const secondExId = mockDb.runAsync.mock.calls[1][3];

@@ -11,3 +11,5 @@ android
 node_modules
 
 .env
+
+*.csv

@@ -1,4 +1,4 @@
-import { View, Text, ScrollView, TouchableOpacity, StatusBar, Modal, TextInput, Platform } from 'react-native';
+import { View, Text, ScrollView, FlatList, TouchableOpacity, StatusBar, Modal, TextInput, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter, useLocalSearchParams } from 'expo-router';
@@ -250,45 +250,47 @@ export default function EditRoutineScreen() {
             )}
           </View>
 
-          <ScrollView
+          <FlatList
             testID="routine-exercise-picker-list"
             style={{ flex: 1 }}
             keyboardShouldPersistTaps="handled"
             contentContainerStyle={{ paddingBottom: pickerListBottomPadding }}
-          >
-            <TouchableOpacity
-              onPress={() => { setShowPicker(false); setShowCreate(true); }}
-              style={{ flexDirection: 'row', alignItems: 'center', gap: 10, paddingHorizontal: 20, paddingVertical: 16, borderBottomWidth: 1, borderBottomColor: C.border }}
-            >
-              <View style={{ width: 28, height: 28, borderRadius: 8, backgroundColor: C.card, borderWidth: 1, borderColor: C.borderAlt, alignItems: 'center', justifyContent: 'center' }}>
-                <Ionicons name="add" size={18} color={C.text} />
-              </View>
-              <Text style={{ color: C.text, fontSize: 15, fontWeight: '600' }}>{t('createExercise')}</Text>
-            </TouchableOpacity>
-
-            {pickerCandidates.length === 0 && pickerSearch.length > 0 ? (
-              <View style={{ alignItems: 'center', paddingTop: 48, paddingHorizontal: 32 }}>
-                <Text style={{ color: C.textDim, fontSize: 15, textAlign: 'center' }}>
-                  {t('noExercisesMatchSearch')}
-                </Text>
-              </View>
-            ) : (
-              pickerCandidates.map((candidate) => (
-                <TouchableOpacity
-                  key={candidate.id ?? candidate.name}
-                  onPress={() => addExercise(candidate)}
-                  style={{ paddingHorizontal: 20, paddingVertical: 16, borderBottomWidth: 1, borderBottomColor: C.border }}
-                >
-                  <Text style={{ color: C.text, fontSize: 16, fontWeight: '600' }}>{getExerciseDisplayName(candidate, locale)}</Text>
-                  {candidate.primary_muscles.length > 0 && (
-                    <Text style={{ color: C.textDim, fontSize: 13, marginTop: 2 }}>
-                      {getMuscleLabels(candidate.primary_muscles, locale).join(', ')}
-                    </Text>
-                  )}
-                </TouchableOpacity>
-              ))
+            data={pickerCandidates}
+            keyExtractor={(candidate) => candidate.id ?? candidate.name}
+            ListHeaderComponent={
+              <TouchableOpacity
+                onPress={() => { setShowPicker(false); setShowCreate(true); }}
+                style={{ flexDirection: 'row', alignItems: 'center', gap: 10, paddingHorizontal: 20, paddingVertical: 16, borderBottomWidth: 1, borderBottomColor: C.border }}
+              >
+                <View style={{ width: 28, height: 28, borderRadius: 8, backgroundColor: C.card, borderWidth: 1, borderColor: C.borderAlt, alignItems: 'center', justifyContent: 'center' }}>
+                  <Ionicons name="add" size={18} color={C.text} />
+                </View>
+                <Text style={{ color: C.text, fontSize: 15, fontWeight: '600' }}>{t('createExercise')}</Text>
+              </TouchableOpacity>
+            }
+            ListEmptyComponent={
+              pickerSearch.length > 0 ? (
+                <View style={{ alignItems: 'center', paddingTop: 48, paddingHorizontal: 32 }}>
+                  <Text style={{ color: C.textDim, fontSize: 15, textAlign: 'center' }}>
+                    {t('noExercisesMatchSearch')}
+                  </Text>
+                </View>
+              ) : null
+            }
+            renderItem={({ item: candidate }) => (
+              <TouchableOpacity
+                onPress={() => addExercise(candidate)}
+                style={{ paddingHorizontal: 20, paddingVertical: 16, borderBottomWidth: 1, borderBottomColor: C.border }}
+              >
+                <Text style={{ color: C.text, fontSize: 16, fontWeight: '600' }}>{getExerciseDisplayName(candidate, locale)}</Text>
+                {candidate.primary_muscles.length > 0 && (
+                  <Text style={{ color: C.textDim, fontSize: 13, marginTop: 2 }}>
+                    {getMuscleLabels(candidate.primary_muscles, locale).join(', ')}
+                  </Text>
+                )}
+              </TouchableOpacity>
             )}
-          </ScrollView>
+          />
         </SafeAreaView>
       </Modal>
 

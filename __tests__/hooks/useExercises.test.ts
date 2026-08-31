@@ -20,6 +20,11 @@ const MOCK_EXERCISES: Exercise[] = [
     weight_direction: 1,
     logging_type: 'reps',
     created_at: 1000,
+    animation_name: null,
+    can_be_done_in_reps: true,
+    can_be_done_in_time: true,
+    can_be_done_in_distance: false,
+    requires_weight: true,
   },
 ];
 

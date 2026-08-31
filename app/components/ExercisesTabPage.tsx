@@ -1,4 +1,4 @@
-import { View, Text, ScrollView, TouchableOpacity, TextInput, StatusBar, ActivityIndicator, KeyboardAvoidingView, Platform } from "react-native";
+import { View, Text, ScrollView, FlatList, TouchableOpacity, TextInput, StatusBar, ActivityIndicator, KeyboardAvoidingView, Platform } from "react-native";
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useState, useMemo } from 'react';
@@ -117,36 +117,38 @@ export default function ExercisesTabPage() {
         </View>
       ) : (
         <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
-          <ScrollView
+          <FlatList
             style={{ flex: 1 }}
             showsVerticalScrollIndicator={false}
             contentContainerStyle={{ paddingHorizontal: 24, paddingBottom: 24 }}
-          >
-            {filtered.length === 0 ? (
-              <Text style={{ color: '#52525b', fontSize: 14, marginTop: 32, textAlign: 'center' }}>
-                {t('noExercisesFound')}
-              </Text>
-            ) : (
-              <>
+            data={filtered}
+            keyExtractor={(ex) => ex.id ?? ex.name}
+            extraData={expandedKey}
+            ListHeaderComponent={
+              filtered.length > 0 ? (
                 <Text style={{ color: '#71717a', fontSize: 11, fontWeight: '700', textTransform: 'uppercase', letterSpacing: 1, marginTop: 16, marginBottom: 12 }}>
                   {t('exerciseCount', { count: filtered.length })}
                 </Text>
-                {filtered.map((ex) => {
-                  const key = ex.id ?? ex.name;
-                  return (
-                    <ExerciseRow
-                      key={key}
-                      exercise={ex}
-                      expanded={expandedKey === key}
-                      onToggle={() => setExpandedKey(expandedKey === key ? null : key)}
-                      onEdit={() => setEditingExercise(ex)}
-                      onDelete={() => setDeletingExercise(ex)}
-                    />
-                  );
-                })}
-              </>
-            )}
-          </ScrollView>
+              ) : null
+            }
+            ListEmptyComponent={
+              <Text style={{ color: '#52525b', fontSize: 14, marginTop: 32, textAlign: 'center' }}>
+                {t('noExercisesFound')}
+              </Text>
+            }
+            renderItem={({ item: ex }) => {
+              const key = ex.id ?? ex.name;
+              return (
+                <ExerciseRow
+                  exercise={ex}
+                  expanded={expandedKey === key}
+                  onToggle={() => setExpandedKey(expandedKey === key ? null : key)}
+                  onEdit={() => setEditingExercise(ex)}
+                  onDelete={() => setDeletingExercise(ex)}
+                />
+              );
+            }}
+          />
         </KeyboardAvoidingView>
       )}
 

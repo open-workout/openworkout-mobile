@@ -15,7 +15,12 @@ function ex(
   primary: string[],
   secondary: string[] = [],
 ): Exercise {
-  return { id: name, name, exercise_type: type, primary_muscles: primary, secondary_muscles: secondary, alt_names: [], description: '', weight_direction: 1, logging_type: 'reps', created_at: 0 };
+  return {
+    id: name, name, exercise_type: type, primary_muscles: primary, secondary_muscles: secondary,
+    alt_names: [], description: '', weight_direction: 1, logging_type: 'reps', created_at: 0,
+    animation_name: null, can_be_done_in_reps: true, can_be_done_in_time: true,
+    can_be_done_in_distance: false, requires_weight: true,
+  };
 }
 
 const NO_STATS = new Map<string, ExerciseStat>();

@@ -13,6 +13,11 @@ export type Exercise = {
   weight_direction: number;
   logging_type: LoggingType;
   created_at: number;
+  animation_name: string | null;
+  can_be_done_in_reps: boolean;
+  can_be_done_in_time: boolean;
+  can_be_done_in_distance: boolean;
+  requires_weight: boolean;
 };
 
 export type NewExerciseInput = {
@@ -37,6 +42,11 @@ type RawRow = {
   weight_direction: number;
   logging_type: string;
   created_at: number;
+  animation_name: string | null;
+  can_be_done_in_reps: number;
+  can_be_done_in_time: number;
+  can_be_done_in_distance: number;
+  requires_weight: number;
 };
 
 function parseRow(row: RawRow): Exercise {
@@ -46,6 +56,10 @@ function parseRow(row: RawRow): Exercise {
     secondary_muscles: JSON.parse(row.secondary_muscles || '[]'),
     alt_names: JSON.parse(row.alt_names || '[]'),
     logging_type: row.logging_type === 'time' ? 'time' : 'reps',
+    can_be_done_in_reps: !!row.can_be_done_in_reps,
+    can_be_done_in_time: !!row.can_be_done_in_time,
+    can_be_done_in_distance: !!row.can_be_done_in_distance,
+    requires_weight: !!row.requires_weight,
   };
 }
 

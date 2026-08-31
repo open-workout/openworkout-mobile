@@ -6,6 +6,7 @@ import { I18nextProvider } from 'react-i18next';
 import '@/global.css';
 import { setDb } from './db/database';
 import { SEED_EXERCISES } from './constants/exerciseData';
+import exercisesJson from './constants/exercises.json';
 import i18n from './i18n';
 import { getLanguage } from './storage';
 import { C } from './theme/colors';
@@ -49,6 +50,23 @@ async function initializeDb(database: SQLiteDatabase) {
   // Migration: add logging_type column to exercises if missing (reps vs. time based)
   if (exerciseCols.length > 0 && !exerciseCols.find((c) => c.name === 'logging_type')) {
     await database.execAsync(`ALTER TABLE exercises ADD COLUMN logging_type TEXT NOT NULL DEFAULT 'reps';`);
+  }
+
+  // Migration: add capability columns to exercises if missing (from the imported exercise dataset)
+  if (exerciseCols.length > 0 && !exerciseCols.find((c) => c.name === 'animation_name')) {
+    await database.execAsync('ALTER TABLE exercises ADD COLUMN animation_name TEXT;');
+  }
+  if (exerciseCols.length > 0 && !exerciseCols.find((c) => c.name === 'can_be_done_in_reps')) {
+    await database.execAsync('ALTER TABLE exercises ADD COLUMN can_be_done_in_reps INTEGER NOT NULL DEFAULT 1;');
+  }
+  if (exerciseCols.length > 0 && !exerciseCols.find((c) => c.name === 'can_be_done_in_time')) {
+    await database.execAsync('ALTER TABLE exercises ADD COLUMN can_be_done_in_time INTEGER NOT NULL DEFAULT 1;');
+  }
+  if (exerciseCols.length > 0 && !exerciseCols.find((c) => c.name === 'can_be_done_in_distance')) {
+    await database.execAsync('ALTER TABLE exercises ADD COLUMN can_be_done_in_distance INTEGER NOT NULL DEFAULT 0;');
+  }
+  if (exerciseCols.length > 0 && !exerciseCols.find((c) => c.name === 'requires_weight')) {
+    await database.execAsync('ALTER TABLE exercises ADD COLUMN requires_weight INTEGER NOT NULL DEFAULT 0;');
   }
 
   // Migration: add split_day_name column to workouts if missing (tracks split rotation)
@@ -148,6 +166,55 @@ async function initializeDb(database: SQLiteDatabase) {
           ex.weight_direction,
           ex.logging_type ?? 'reps',
           now,
+        );
+      }
+    });
+  }
+
+  // Seed the larger imported exercise dataset (independent of the check above, since
+  // installs that already had the original SEED_EXERCISES seeded would otherwise never
+  // pick this up). Gated on its own one-time marker so it only runs once.
+  const jsonSeeded = await database.getFirstAsync<{ id: string }>(
+    `SELECT id FROM exercises WHERE id LIKE 'seedjson_%' LIMIT 1`,
+  );
+  if (!jsonSeeded) {
+    const now = Date.now();
+    await database.withTransactionAsync(async () => {
+      for (const ex of exercisesJson as Array<{
+        id: string;
+        name: string;
+        animationName: string;
+        canBeDoneInReps: boolean;
+        canBeDoneInTime: boolean;
+        canBeDoneInDistance: boolean;
+        requiresWeight: boolean;
+        primaryMuscles: string[];
+      }>) {
+        const id = `seedjson_${ex.id}`;
+        const weightDirection = /assisted/i.test(ex.name) ? -1 : 1;
+        const loggingType = ex.canBeDoneInReps ? 'reps' : 'time';
+        await database.runAsync(
+          `INSERT INTO exercises
+             (id, name, exercise_type, primary_muscles, secondary_muscles,
+              alt_names, description, weight_direction, logging_type, created_at,
+              animation_name, can_be_done_in_reps, can_be_done_in_time,
+              can_be_done_in_distance, requires_weight)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+          id,
+          ex.name,
+          'accessory',
+          JSON.stringify(ex.primaryMuscles),
+          '[]',
+          '[]',
+          '',
+          weightDirection,
+          loggingType,
+          now,
+          ex.animationName,
+          ex.canBeDoneInReps ? 1 : 0,
+          ex.canBeDoneInTime ? 1 : 0,
+          ex.canBeDoneInDistance ? 1 : 0,
+          ex.requiresWeight ? 1 : 0,
         );
       }
     });

@@ -11,6 +11,7 @@ import {
   exerciseMatchesQuery,
   getExerciseDisplayName,
   getMuscleLabel,
+  getEquipmentLabel,
   getCategoryLabel,
 } from '../lib/exerciseTranslations';
 import { accent } from '../theme/colors';
@@ -256,6 +257,19 @@ function ExerciseRow({ exercise, expanded, onToggle, onEdit, onDelete }: {
                 {exercise.secondary_muscles.map((m) => (
                   <View key={m} style={{ backgroundColor: '#18181b', borderWidth: 1, borderColor: '#27272a', borderRadius: 20, paddingHorizontal: 10, paddingVertical: 4 }}>
                     <Text style={{ color: '#71717a', fontSize: 12 }}>{getMuscleLabel(m, locale)}</Text>
+                  </View>
+                ))}
+              </View>
+            </View>
+          )}
+
+          {exercise.equipment.length > 0 && (
+            <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 8 }}>
+              <Text style={{ color: '#52525b', fontSize: 11, fontWeight: '700', textTransform: 'uppercase', letterSpacing: 0.8, width: 72, paddingTop: 4 }}>{t('equipment')}</Text>
+              <View style={{ flex: 1, flexDirection: 'row', flexWrap: 'wrap', gap: 6 }}>
+                {exercise.equipment.map((eq) => (
+                  <View key={eq} style={{ backgroundColor: '#1c1c1f', borderWidth: 1, borderColor: '#3f3f46', borderRadius: 20, paddingHorizontal: 10, paddingVertical: 4 }}>
+                    <Text style={{ color: '#d4d4d8', fontSize: 12 }}>{getEquipmentLabel(eq, locale)}</Text>
                   </View>
                 ))}
               </View>

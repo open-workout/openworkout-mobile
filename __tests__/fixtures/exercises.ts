@@ -20,6 +20,9 @@ export const FIXTURE_EXERCISES: Exercise[] = [
     can_be_done_in_time: true,
     can_be_done_in_distance: false,
     requires_weight: true,
+    equipment: [],
+    csv_id: null,
+    human_readable_id: null,
   },
   {
     id: 'ex-squat',
@@ -37,6 +40,9 @@ export const FIXTURE_EXERCISES: Exercise[] = [
     can_be_done_in_time: true,
     can_be_done_in_distance: false,
     requires_weight: true,
+    equipment: [],
+    csv_id: null,
+    human_readable_id: null,
   },
   {
     id: 'ex-cable-fly',
@@ -54,6 +60,9 @@ export const FIXTURE_EXERCISES: Exercise[] = [
     can_be_done_in_time: true,
     can_be_done_in_distance: false,
     requires_weight: true,
+    equipment: [],
+    csv_id: null,
+    human_readable_id: null,
   },
   {
     id: 'ex-deadlift',
@@ -71,6 +80,9 @@ export const FIXTURE_EXERCISES: Exercise[] = [
     can_be_done_in_time: true,
     can_be_done_in_distance: false,
     requires_weight: true,
+    equipment: [],
+    csv_id: null,
+    human_readable_id: null,
   },
   {
     id: 'ex-cable-row',
@@ -88,6 +100,9 @@ export const FIXTURE_EXERCISES: Exercise[] = [
     can_be_done_in_time: true,
     can_be_done_in_distance: false,
     requires_weight: true,
+    equipment: [],
+    csv_id: null,
+    human_readable_id: null,
   },
   {
     id: 'ex-pushup',
@@ -105,6 +120,9 @@ export const FIXTURE_EXERCISES: Exercise[] = [
     can_be_done_in_time: true,
     can_be_done_in_distance: false,
     requires_weight: false,
+    equipment: [],
+    csv_id: null,
+    human_readable_id: null,
   },
   {
     id: 'ex-cable-curl',
@@ -122,6 +140,9 @@ export const FIXTURE_EXERCISES: Exercise[] = [
     can_be_done_in_time: true,
     can_be_done_in_distance: false,
     requires_weight: true,
+    equipment: [],
+    csv_id: null,
+    human_readable_id: null,
   },
 ];
 

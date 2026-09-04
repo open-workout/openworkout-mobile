@@ -20,6 +20,7 @@ function ex(
     alt_names: [], description: '', weight_direction: 1, logging_type: 'reps', created_at: 0,
     animation_name: null, can_be_done_in_reps: true, can_be_done_in_time: true,
     can_be_done_in_distance: false, requires_weight: true,
+    equipment: [], csv_id: null, human_readable_id: null,
   };
 }
 

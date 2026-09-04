@@ -22,6 +22,12 @@
   "deleteCustomExercisesTitle": "Delete My Custom Exercises",
   "deleteCustomExercisesMessage": "This will permanently delete all exercises you have created. Pre-loaded exercises will not be affected.",
   "selectLanguage": "Select Language",
+  "devSection": "Developer",
+  "resetExerciseLibrary": "Reset Exercise Library",
+  "resetExerciseLibraryTitle": "Reset Exercise Library",
+  "resetExerciseLibraryMessage": "Deletes and re-seeds the CSV-imported exercises from the latest generated dataset. Custom exercises and workout history are not affected.",
+  "resetExerciseLibraryConfirm": "Reset",
+  "resetExerciseLibraryDone": "Exercise library reset",
   "workoutPrefs": {
     "exercisesPerWorkout": "Exercises per workout",
     "progressiveOverload": "Progressive Overload",

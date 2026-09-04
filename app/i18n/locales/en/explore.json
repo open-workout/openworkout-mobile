@@ -8,6 +8,7 @@
   "primary": "Primary",
   "secondary": "Secondary",
   "notes": "Notes",
+  "equipment": "Equipment",
   "exercise": "exercise",
   "exerciseType": {
     "compound": "Compound",

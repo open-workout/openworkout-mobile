@@ -1,6 +1,7 @@
 jest.mock('../../app/db/exercises', () => ({
   getAllExercises: jest.fn(),
   insertExercise: jest.fn(),
+  subscribeToExerciseChanges: jest.fn(() => () => {}),
 }));
 
 import { renderHook, act, waitFor } from '@testing-library/react-native';
@@ -25,6 +26,9 @@ const MOCK_EXERCISES: Exercise[] = [
     can_be_done_in_time: true,
     can_be_done_in_distance: false,
     requires_weight: true,
+    equipment: [],
+    csv_id: null,
+    human_readable_id: null,
   },
 ];
 

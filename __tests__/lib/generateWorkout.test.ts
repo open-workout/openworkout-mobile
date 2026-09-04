@@ -32,6 +32,9 @@ function ex(
     can_be_done_in_time: true,
     can_be_done_in_distance: false,
     requires_weight: true,
+    equipment: [],
+    csv_id: null,
+    human_readable_id: null,
   };
 }
 

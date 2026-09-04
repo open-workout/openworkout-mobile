@@ -2,6 +2,7 @@ import type { Exercise } from '../db/exercises';
 import type { SupportedLanguage } from '../i18n/resources';
 import { MUSCLE_LABELS } from '../i18n/muscles/labels';
 import { CATEGORY_LABELS } from '../i18n/muscles/categoryLabels';
+import { EQUIPMENT_LABELS } from '../i18n/equipment/labels';
 import fr from '../i18n/exercises/fr.json';
 import de from '../i18n/exercises/de.json';
 import ro from '../i18n/exercises/ro.json';
@@ -62,6 +63,14 @@ export function getMuscleLabel(slug: string, locale: string): string {
 
 export function getMuscleLabels(slugs: string[], locale: string): string[] {
   return slugs.map((slug) => getMuscleLabel(slug, locale));
+}
+
+export function getEquipmentLabel(slug: string, locale: string): string {
+  return EQUIPMENT_LABELS[locale as SupportedLanguage]?.[slug] ?? EQUIPMENT_LABELS.en[slug] ?? slug;
+}
+
+export function getEquipmentLabels(slugs: string[], locale: string): string[] {
+  return slugs.map((slug) => getEquipmentLabel(slug, locale));
 }
 
 export function getCategoryLabel(categoryKey: string, locale: string): string {

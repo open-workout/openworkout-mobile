@@ -23,6 +23,9 @@ const BENCH_PRESS_SEED: Exercise = {
   can_be_done_in_time: true,
   can_be_done_in_distance: false,
   requires_weight: true,
+  equipment: [],
+  csv_id: null,
+  human_readable_id: null,
 };
 
 beforeEach(() => {
@@ -32,6 +35,7 @@ beforeEach(() => {
     createExercise: jest.fn(),
     editExercise: jest.fn(),
     deleteExercise: jest.fn(),
+    reload: jest.fn(),
   });
   i18n.changeLanguage('en');
 });
@@ -72,6 +76,7 @@ describe('Library exercise search in a non-English locale', () => {
       createExercise: jest.fn(),
       editExercise: jest.fn(),
       deleteExercise: jest.fn(),
+      reload: jest.fn(),
     });
   });
 

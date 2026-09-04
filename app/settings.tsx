@@ -12,12 +12,12 @@ import { compressMuscles } from './constants/splits';
 import WorkoutPrefsEditor from './components/WorkoutPrefsEditor';
 import ConfirmModal from './components/ConfirmModal';
 import { deleteAllWorkouts, getFinishedWorkoutCount } from './db/workouts';
-import { deleteAllSeedExercises, deleteAllUserExercises } from './db/exercises';
+import { deleteAllSeedExercises, deleteAllUserExercises, resetCsvExerciseLibrary } from './db/exercises';
 import { getTotalVolume } from './db/sets';
 import { getMuscleLabels } from './lib/exerciseTranslations';
 import { getSplitDisplayName, getDayNameLabel } from './lib/splitTranslations';
 import { SUPPORTED_LANGUAGES, LANGUAGE_LABELS } from './i18n/resources';
-import { C } from './theme/colors';
+import { C, accent } from './theme/colors';
 
 export default function SettingsScreen() {
   const { t, i18n } = useTranslation('settings');
@@ -32,6 +32,8 @@ export default function SettingsScreen() {
   const [showDeleteSeedExercisesModal, setShowDeleteSeedExercisesModal] = useState(false);
   const [showDeleteUserExercisesModal, setShowDeleteUserExercisesModal] = useState(false);
   const [showLanguagePicker, setShowLanguagePicker] = useState(false);
+  const [showResetExerciseLibraryModal, setShowResetExerciseLibraryModal] = useState(false);
+  const [isResettingExerciseLibrary, setIsResettingExerciseLibrary] = useState(false);
   const [workoutCount, setWorkoutCount] = useState(0);
   const [totalVolume, setTotalVolume] = useState(0);
 
@@ -254,6 +256,31 @@ export default function SettingsScreen() {
           <Ionicons name="person-outline" size={20} color="#ef4444" />
           <Text style={{ color: '#ef4444', fontSize: 15, fontWeight: '600' }}>{t('deleteCustomExercises')}</Text>
         </TouchableOpacity>
+
+        {__DEV__ && (
+          <>
+            <Text style={{ color: '#f4f4f5', fontSize: 18, fontWeight: '600', marginTop: 28, marginBottom: 16 }}>{t('devSection')}</Text>
+            <TouchableOpacity
+              onPress={() => setShowResetExerciseLibraryModal(true)}
+              disabled={isResettingExerciseLibrary}
+              style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+                gap: 12,
+                backgroundColor: 'rgba(45,212,191,0.08)',
+                borderWidth: 1,
+                borderColor: 'rgba(45,212,191,0.25)',
+                borderRadius: 14,
+                padding: 16,
+                marginBottom: 8,
+                opacity: isResettingExerciseLibrary ? 0.6 : 1,
+              }}
+            >
+              <Ionicons name="refresh-outline" size={20} color={accent.teal} />
+              <Text style={{ color: accent.teal, fontSize: 15, fontWeight: '600' }}>{t('resetExerciseLibrary')}</Text>
+            </TouchableOpacity>
+          </>
+        )}
       </ScrollView>
 
       <ConfirmModal
@@ -284,6 +311,19 @@ export default function SettingsScreen() {
         destructive
         onCancel={() => setShowDeleteUserExercisesModal(false)}
         onConfirm={() => { setShowDeleteUserExercisesModal(false); deleteAllUserExercises(); }}
+      />
+
+      <ConfirmModal
+        visible={showResetExerciseLibraryModal}
+        title={t('resetExerciseLibraryTitle')}
+        message={t('resetExerciseLibraryMessage')}
+        confirmLabel={t('resetExerciseLibraryConfirm')}
+        onCancel={() => setShowResetExerciseLibraryModal(false)}
+        onConfirm={() => {
+          setShowResetExerciseLibraryModal(false);
+          setIsResettingExerciseLibrary(true);
+          resetCsvExerciseLibrary().finally(() => setIsResettingExerciseLibrary(false));
+        }}
       />
 
       <Modal

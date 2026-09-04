@@ -21,6 +21,7 @@ beforeEach(() => {
     createExercise: jest.fn(),
     editExercise: jest.fn(),
     deleteExercise: jest.fn(),
+    reload: jest.fn(),
   });
   jest.mocked(useKeyboardHeight).mockReturnValue(0);
 });

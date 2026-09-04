@@ -5,16 +5,11 @@
   "exerciseCount_one": "{{count}} exercițiu",
   "exerciseCount_few": "{{count}} exerciții",
   "exerciseCount_other": "{{count}} de exerciții",
-  "type": "Tip",
   "primary": "Principal",
   "secondary": "Secundar",
   "notes": "Note",
   "equipment": "Echipament",
   "exercise": "exercițiu",
-  "exerciseType": {
-    "compound": "Compus",
-    "isolation": "Izolare"
-  },
   "deleteExercise": "Șterge exercițiul",
   "deleteExerciseMessage": "Elimini „{{name}}” din bibliotecă?",
   "addExerciseModal": {
@@ -24,12 +19,6 @@
     "nameSectionHeader": "Nume",
     "namePlaceholder": "ex. Împins din culcat cu bara",
     "nameRequired": "Numele este obligatoriu",
-    "exerciseTypeSectionHeader": "Tip de exercițiu",
-    "exerciseTypes": {
-      "compound": { "label": "Compus", "description": "Multi-articular" },
-      "accessory": { "label": "Auxiliar", "description": "Mișcare de sprijin" },
-      "isolation": { "label": "Izolare", "description": "O singură articulație" }
-    },
     "primaryMusclesSectionHeader": "Mușchi principali",
     "secondaryMusclesSectionHeader": "Mușchi secundari",
     "altNamesSectionHeader": "Nume alternative",

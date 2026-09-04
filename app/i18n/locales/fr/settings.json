@@ -26,14 +26,12 @@
     "exercisesPerWorkout": "Exercices par séance",
     "progressiveOverload": "Surcharge progressive",
     "progressReps": "Répétitions cibles",
-    "compoundInfoMessage": "Les exercices polyarticulaires sollicitent plusieurs groupes musculaires et articulations à la fois (ex. squats, développé couché, soulevés de terre). Ils constituent la base de la plupart des séances.",
-    "accessoryInfoMessage": "Les exercices accessoires soutiennent vos mouvements principaux en ciblant des groupes musculaires secondaires (ex. rowing, fentes, dips). Ils complètent une séance et aident à corriger les points faibles.",
-    "isolationInfoMessage": "Les exercices d'isolation ciblent un seul muscle et une seule articulation (ex. curl biceps, extensions de jambes). Ils servent à développer la masse ou à corriger des faiblesses spécifiques.",
     "progressRepsInfoMessage": "L'objectif de répétitions qui déclenche une augmentation de poids. Une fois ce nombre de répétitions atteint sur une série, l'application suggère d'ajouter du poids la prochaine fois — sinon, elle suggère d'ajouter des répétitions.",
     "setsPerExercise": "Séries par exercice",
     "setsPerExerciseInfoMessage": "Le nombre de séries pré-remplies avec le poids et les répétitions suggérés lorsque vous ouvrez un exercice pendant une séance. Vous pouvez toujours ajouter ou supprimer des séries à tout moment.",
     "streak": "Série",
     "weeklyGoal": "Objectif hebdomadaire",
-    "weeklyGoalInfoMessage": "Le nombre de séances par semaine qui comptent pour votre objectif de série. Affiché sur l'accueil comme votre progression hebdomadaire."
+    "weeklyGoalInfoMessage": "Le nombre de séances par semaine qui comptent pour votre objectif de série. Affiché sur l'accueil comme votre progression hebdomadaire.",
+    "exercisesPerWorkoutInfoMessage": "Le nombre d'exercices à inclure dans chaque séance générée."
   }
 }

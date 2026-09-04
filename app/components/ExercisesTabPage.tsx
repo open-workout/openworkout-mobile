@@ -193,9 +193,7 @@ function ExerciseRow({ exercise, expanded, onToggle, onEdit, onDelete }: {
   const locale = i18n.language;
   const muscle = exercise.primary_muscles[0]
     ? getMuscleLabel(exercise.primary_muscles[0], locale)
-    : exercise.exercise_type
-      ? t(`exerciseType.${exercise.exercise_type}`, { defaultValue: exercise.exercise_type })
-      : '—';
+    : t('exercise');
 
   return (
     <View style={{
@@ -214,7 +212,7 @@ function ExerciseRow({ exercise, expanded, onToggle, onEdit, onDelete }: {
         <View style={{ flex: 1, marginLeft: 16 }}>
           <Text style={{ color: '#f4f4f5', fontSize: 14, fontWeight: '700' }}>{getExerciseDisplayName(exercise, locale)}</Text>
           <Text style={{ color: '#52525b', fontSize: 12, marginTop: 4 }}>
-            {muscle} • {exercise.exercise_type ? t(`exerciseType.${exercise.exercise_type}`, { defaultValue: exercise.exercise_type }) : t('exercise')}
+            {muscle}
           </Text>
         </View>
         <TouchableOpacity
@@ -228,14 +226,6 @@ function ExerciseRow({ exercise, expanded, onToggle, onEdit, onDelete }: {
       {/* Expanded detail panel */}
       {expanded && (
         <View style={{ borderTopWidth: 1, borderTopColor: '#27272a', paddingHorizontal: 16, paddingVertical: 14, gap: 12 }}>
-          {exercise.exercise_type ? (
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-              <Text style={{ color: '#52525b', fontSize: 11, fontWeight: '700', textTransform: 'uppercase', letterSpacing: 0.8, width: 72 }}>{t('type')}</Text>
-              <View style={{ backgroundColor: '#27272a', borderRadius: 8, paddingHorizontal: 10, paddingVertical: 4 }}>
-                <Text style={{ color: '#a1a1aa', fontSize: 12, fontWeight: '600' }}>{t(`exerciseType.${exercise.exercise_type}`, { defaultValue: exercise.exercise_type })}</Text>
-              </View>
-            </View>
-          ) : null}
 
           {exercise.primary_muscles.length > 0 && (
             <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 8 }}>

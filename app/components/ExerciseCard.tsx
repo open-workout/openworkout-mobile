@@ -9,7 +9,6 @@ import { getExerciseDisplayName, getMuscleLabels } from '../lib/exerciseTranslat
 import { C, accent } from '../theme/colors';
 
 type Props = {
-  slotType: string;
   exercise: Exercise;
   sets: LocalSet[];
   suggestion: OverloadSuggestion | null;
@@ -37,7 +36,6 @@ type Props = {
 // during an active workout — always expanded (no accordion state) since
 // only one exercise is visible at a time.
 export function ExerciseCard({
-  slotType,
   exercise,
   sets,
   suggestion,
@@ -70,9 +68,6 @@ export function ExerciseCard({
     <View style={{ backgroundColor: C.card, borderRadius: 16, borderWidth: 1, borderColor: C.borderAlt, overflow: 'hidden' }}>
       <View style={{ flexDirection: 'row', alignItems: 'flex-start', padding: 16, paddingBottom: 8, gap: 12 }}>
         <View style={{ flex: 1 }}>
-          <Text style={{ color: C.textDim, fontSize: 10, fontWeight: '700', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 6 }}>
-            {t(`explore:addExerciseModal.exerciseTypes.${slotType}.label`, { defaultValue: slotType })}
-          </Text>
           <Text style={{ color: C.text, fontSize: 18, fontWeight: '700', marginBottom: 4 }}>
             {getExerciseDisplayName(exercise, locale)}
           </Text>

@@ -4,16 +4,11 @@
   "noExercisesFound": "No exercises found",
   "exerciseCount_one": "{{count}} exercise",
   "exerciseCount_other": "{{count}} exercises",
-  "type": "Type",
   "primary": "Primary",
   "secondary": "Secondary",
   "notes": "Notes",
   "equipment": "Equipment",
   "exercise": "exercise",
-  "exerciseType": {
-    "compound": "Compound",
-    "isolation": "Isolation"
-  },
   "deleteExercise": "Delete Exercise",
   "deleteExerciseMessage": "Remove \"{{name}}\" from your library?",
   "addExerciseModal": {
@@ -23,12 +18,6 @@
     "nameSectionHeader": "Name",
     "namePlaceholder": "e.g. Barbell Bench Press",
     "nameRequired": "Name is required",
-    "exerciseTypeSectionHeader": "Exercise Type",
-    "exerciseTypes": {
-      "compound": { "label": "Compound", "description": "Multi-joint" },
-      "accessory": { "label": "Accessory", "description": "Supporting lift" },
-      "isolation": { "label": "Isolation", "description": "Single joint" }
-    },
     "primaryMusclesSectionHeader": "Primary Muscles",
     "secondaryMusclesSectionHeader": "Secondary Muscles",
     "altNamesSectionHeader": "Alternative Names",

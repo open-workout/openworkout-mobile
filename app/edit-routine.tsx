@@ -171,17 +171,6 @@ export default function EditRoutineScreen() {
                     </Text>
                   )}
                 </View>
-                <View style={{
-                  paddingHorizontal: 8,
-                  paddingVertical: 3,
-                  backgroundColor: C.border,
-                  borderRadius: 6,
-                  marginRight: 12,
-                }}>
-                  <Text style={{ color: C.textMuted, fontSize: 11, fontWeight: '600' }}>
-                    {exercise.exercise_type ? t(`explore:exerciseType.${exercise.exercise_type}`, { defaultValue: exercise.exercise_type }) : t('exercise')}
-                  </Text>
-                </View>
                 <TouchableOpacity
                   onPress={() => removeExercise(exercise.id)}
                   hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}

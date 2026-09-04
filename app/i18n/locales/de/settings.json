@@ -26,14 +26,12 @@
     "exercisesPerWorkout": "Übungen pro Workout",
     "progressiveOverload": "Progressive Overload",
     "progressReps": "Ziel-Wiederholungen",
-    "compoundInfoMessage": "Verbundübungen beanspruchen mehrere Muskelgruppen und Gelenke gleichzeitig (z. B. Kniebeugen, Bankdrücken, Kreuzheben). Sie bilden die Grundlage der meisten Einheiten.",
-    "accessoryInfoMessage": "Zusatzübungen unterstützen deine Hauptübungen, indem sie unterstützende Muskelgruppen ansprechen (z. B. Rudern, Ausfallschritte, Dips). Sie runden eine Einheit ab und helfen, Schwachstellen zu beheben.",
-    "isolationInfoMessage": "Isolationsübungen zielen auf einen einzelnen Muskel und ein Gelenk ab (z. B. Bizepscurls, Beinstrecker). Sie werden genutzt, um Muskelmasse aufzubauen oder gezielte Schwächen anzugehen.",
     "progressRepsInfoMessage": "Das Wiederholungsziel, das eine Gewichtssteigerung auslöst. Sobald du diese Anzahl an Wiederholungen bei einem Satz erreichst, schlägt die App vor, beim nächsten Mal mehr Gewicht zu nehmen — bis dahin schlägt sie vor, Wiederholungen hinzuzufügen.",
     "setsPerExercise": "Sätze pro Übung",
     "setsPerExerciseInfoMessage": "Wie viele Sätze mit vorgeschlagenem Gewicht und Wiederholungen vorausgefüllt werden, sobald du eine Übung während eines Workouts öffnest. Du kannst jederzeit Sätze hinzufügen oder entfernen.",
     "streak": "Serie",
     "weeklyGoal": "Wochenziel",
-    "weeklyGoalInfoMessage": "Wie viele Workouts pro Woche zu deinem Serienziel zählen. Wird auf der Startseite als Wochenfortschritt angezeigt."
+    "weeklyGoalInfoMessage": "Wie viele Workouts pro Woche zu deinem Serienziel zählen. Wird auf der Startseite als Wochenfortschritt angezeigt.",
+    "exercisesPerWorkoutInfoMessage": "Wie viele Übungen in jedes generierte Workout aufgenommen werden."
   }
 }

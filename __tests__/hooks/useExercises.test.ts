@@ -13,7 +13,6 @@ const MOCK_EXERCISES: Exercise[] = [
   {
     id: 'abc',
     name: 'Bench Press',
-    exercise_type: 'compound',
     primary_muscles: ['chest'],
     secondary_muscles: ['triceps'],
     alt_names: [],
@@ -34,7 +33,6 @@ const MOCK_EXERCISES: Exercise[] = [
 
 const NEW_INPUT: NewExerciseInput = {
   name: 'Squat',
-  exercise_type: 'compound',
   primary_muscles: ['legs'],
   secondary_muscles: [],
   alt_names: [],

@@ -55,10 +55,7 @@ export default function PickDayScreen() {
     const orderedExercises = routine.exercise_ids
       .map((id) => exercises.find((e) => e.id === id))
       .filter(Boolean) as Exercise[];
-    const slots: GeneratedSlot[] = orderedExercises.map((ex) => ({
-      type: (ex.exercise_type || 'accessory') as GeneratedSlot['type'],
-      exercise: ex,
-    }));
+    const slots: GeneratedSlot[] = orderedExercises.map((ex) => ({ exercise: ex }));
     setPendingWorkout(slots, []);
     router.replace('/generated-workout');
   };

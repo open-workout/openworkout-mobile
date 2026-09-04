@@ -32,14 +32,12 @@
     "exercisesPerWorkout": "Exercises per workout",
     "progressiveOverload": "Progressive Overload",
     "progressReps": "Progress Reps",
-    "compoundInfoMessage": "Compound exercises work multiple muscle groups and joints at once (e.g. squats, bench press, deadlifts). They're the foundation of most sessions.",
-    "accessoryInfoMessage": "Accessory exercises support your main lifts by targeting supporting muscle groups (e.g. rows, lunges, dips). They round out a session and help fix weak points.",
-    "isolationInfoMessage": "Isolation exercises target a single muscle and joint (e.g. bicep curls, leg extensions). They're used to build size or address specific weaknesses.",
     "progressRepsInfoMessage": "The rep target that triggers a weight increase. Once you hit this many reps on a set, the app suggests adding weight next time — until then, it suggests adding reps.",
     "setsPerExercise": "Sets per exercise",
     "setsPerExerciseInfoMessage": "How many sets are pre-filled with suggested weight and reps whenever you open an exercise during a workout. You can always add or remove sets on the fly.",
     "streak": "Streak",
     "weeklyGoal": "Weekly Goal",
-    "weeklyGoalInfoMessage": "How many workouts per week count toward your streak goal. Shown on Home as your weekly progress."
+    "weeklyGoalInfoMessage": "How many workouts per week count toward your streak goal. Shown on Home as your weekly progress.",
+    "exercisesPerWorkoutInfoMessage": "How many exercises to include in each generated workout."
   }
 }

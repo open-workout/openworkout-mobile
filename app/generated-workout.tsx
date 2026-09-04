@@ -28,7 +28,6 @@ import { C } from './theme/colors';
 
 type WorkoutCard = {
   cardId: string;
-  slotType: string;
   exercise: Exercise;
 };
 
@@ -96,7 +95,7 @@ export default function GeneratedWorkoutScreen() {
 
   // Cards — stable cardId keys replace numeric slot indices
   const [cards, setCards] = useState<WorkoutCard[]>(() =>
-    resumeWorkoutId ? [] : slots.map((s) => ({ cardId: mkId(), slotType: s.type, exercise: s.exercise })),
+    resumeWorkoutId ? [] : slots.map((s) => ({ cardId: mkId(), exercise: s.exercise })),
   );
   const [activeCardId, setActiveCardId] = useState<string | null>(() => cards[0]?.cardId ?? null);
 
@@ -194,10 +193,10 @@ export default function GeneratedWorkoutScreen() {
             position: s.position,
           }));
 
-        const addCard = (exercise: Exercise, slotType: string, exId: string) => {
+        const addCard = (exercise: Exercise, exId: string) => {
           const cardId = mkId();
           const exSets = grouped.get(exId) ?? [];
-          newCards.push({ cardId, slotType, exercise });
+          newCards.push({ cardId, exercise });
           handledExIds.add(exId);
 
           if (exSets.length > 0) {
@@ -212,7 +211,7 @@ export default function GeneratedWorkoutScreen() {
           }
           generationTasks.push(
             getLastSetsForExercise(exerciseRefOf(exercise)).then((sets) => {
-              const suggestion = computeProgressSuggestion(sets, exercise.exercise_type, localPrefs.progress_reps, weightUnit, t);
+              const suggestion = computeProgressSuggestion(sets, localPrefs.progress_reps, weightUnit, t);
               newSuggestions[cardId] = suggestion;
               newCardSets[cardId] = generateInitialSets(exercise, suggestion, localPrefs.sets_per_exercise, weightUnit);
             }),
@@ -222,7 +221,7 @@ export default function GeneratedWorkoutScreen() {
         // First pass: pending slots in their original planned order (preserves generated sequence)
         for (const slot of getPendingWorkout()?.slots ?? []) {
           const exId = slot.exercise.id || slot.exercise.name;
-          addCard(slot.exercise, slot.type, exId);
+          addCard(slot.exercise, exId);
         }
 
         // Second pass: exercises that were added manually during the workout (not in pending slots)
@@ -230,7 +229,7 @@ export default function GeneratedWorkoutScreen() {
           if (handledExIds.has(exId)) continue;
           const exercise = allExercises.find((e) => e.id === exId || e.name === exId);
           if (!exercise) continue;
-          addCard(exercise, exercise.exercise_type || 'accessory', exId);
+          addCard(exercise, exId);
         }
 
         await Promise.all(generationTasks);
@@ -241,7 +240,7 @@ export default function GeneratedWorkoutScreen() {
             .filter((c) => !isTimeBased(c.exercise) && !(c.cardId in newSuggestions))
             .map(async (c) => {
               const sets = await getLastSetsForExercise(exerciseRefOf(c.exercise));
-              newSuggestions[c.cardId] = computeProgressSuggestion(sets, c.exercise.exercise_type, localPrefs.progress_reps, weightUnit, t);
+              newSuggestions[c.cardId] = computeProgressSuggestion(sets, localPrefs.progress_reps, weightUnit, t);
             }),
         );
 
@@ -261,7 +260,7 @@ export default function GeneratedWorkoutScreen() {
       cards.map(async (card) => {
         if (isTimeBased(card.exercise)) return { cardId: card.cardId, suggestion: null as OverloadSuggestion | null };
         const sets = await getLastSetsForExercise(exerciseRefOf(card.exercise));
-        return { cardId: card.cardId, suggestion: computeProgressSuggestion(sets, card.exercise.exercise_type, localPrefs.progress_reps, weightUnit, t) };
+        return { cardId: card.cardId, suggestion: computeProgressSuggestion(sets, localPrefs.progress_reps, weightUnit, t) };
       }),
     ).then((results) => {
       const suggMap: Record<string, OverloadSuggestion | null> = {};
@@ -505,7 +504,6 @@ export default function GeneratedWorkoutScreen() {
   const addCard = (exercise: Exercise) => {
     const newCard: WorkoutCard = {
       cardId: mkId(),
-      slotType: exercise.exercise_type || 'accessory',
       exercise,
     };
     setCards((prev) => [...prev, newCard]);
@@ -519,7 +517,7 @@ export default function GeneratedWorkoutScreen() {
       return;
     }
     getLastSetsForExercise(exerciseRefOf(exercise)).then((sets) => {
-      const suggestion = localPrefs ? computeProgressSuggestion(sets, exercise.exercise_type, localPrefs.progress_reps, weightUnit, t) : null;
+      const suggestion = localPrefs ? computeProgressSuggestion(sets, localPrefs.progress_reps, weightUnit, t) : null;
       setSuggestions((prev) => ({ ...prev, [newCard.cardId]: suggestion }));
       setCardSets((prev) => ({ ...prev, [newCard.cardId]: generateInitialSets(exercise, suggestion, setsPerExercise, weightUnit) }));
     });
@@ -595,7 +593,7 @@ export default function GeneratedWorkoutScreen() {
       return;
     }
     getLastSetsForExercise(exerciseRefOf(exercise)).then((sets) => {
-      const suggestion = localPrefs ? computeProgressSuggestion(sets, exercise.exercise_type, localPrefs.progress_reps, weightUnit, t) : null;
+      const suggestion = localPrefs ? computeProgressSuggestion(sets, localPrefs.progress_reps, weightUnit, t) : null;
       setSuggestions((prev) => ({ ...prev, [cardId]: suggestion }));
       setCardSets((prev) => ({ ...prev, [cardId]: generateInitialSets(exercise, suggestion, setsPerExercise, weightUnit) }));
     });
@@ -672,7 +670,6 @@ export default function GeneratedWorkoutScreen() {
         {activeCard ? (
           <ExerciseCard
             key={activeCard.cardId}
-            slotType={activeCard.slotType}
             exercise={activeCard.exercise}
             sets={cardSets[activeCard.cardId] ?? []}
             suggestion={suggestions[activeCard.cardId] ?? null}

@@ -8,7 +8,7 @@ type PendingWorkout = {
   splitDayName: string | null;
 };
 
-type PersistedSlot = { exerciseId: string; type: string };
+type PersistedSlot = { exerciseId: string };
 type PersistedPending = { slots: PersistedSlot[]; muscles: string[]; splitDayName: string | null };
 
 const STORAGE_KEY = 'pending_workout';
@@ -18,7 +18,7 @@ let pending: PendingWorkout | null = null;
 export function setPendingWorkout(slots: GeneratedSlot[], muscles: string[], splitDayName: string | null = null): void {
   pending = { slots, muscles, splitDayName };
   const toSave: PersistedPending = {
-    slots: slots.map((s) => ({ exerciseId: s.exercise.id || s.exercise.name, type: s.type })),
+    slots: slots.map((s) => ({ exerciseId: s.exercise.id || s.exercise.name })),
     muscles,
     splitDayName,
   };
@@ -36,9 +36,9 @@ export async function restorePendingWorkout(allExercises: Exercise[]): Promise<v
   try {
     const saved: PersistedPending = JSON.parse(raw);
     const slots: GeneratedSlot[] = [];
-    for (const { exerciseId, type } of saved.slots) {
+    for (const { exerciseId } of saved.slots) {
       const exercise = allExercises.find((e) => e.id === exerciseId || e.name === exerciseId);
-      if (exercise) slots.push({ type: type as GeneratedSlot['type'], exercise });
+      if (exercise) slots.push({ exercise });
     }
     pending = { slots, muscles: saved.muscles, splitDayName: saved.splitDayName ?? null };
   } catch {
@@ -55,7 +55,7 @@ export function updatePendingSlotExercise(oldExerciseId: string, newExercise: Ex
     ),
   };
   const toSave: PersistedPending = {
-    slots: pending.slots.map((s) => ({ exerciseId: s.exercise.id || s.exercise.name, type: s.type })),
+    slots: pending.slots.map((s) => ({ exerciseId: s.exercise.id || s.exercise.name })),
     muscles: pending.muscles,
     splitDayName: pending.splitDayName,
   };

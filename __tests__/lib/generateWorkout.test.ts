@@ -11,7 +11,6 @@ import type { WorkoutPreferences } from '../../app/storage';
 
 function ex(
   name: string,
-  type: 'compound' | 'accessory' | 'isolation',
   primary: string[],
   secondary: string[] = [],
   id?: string,
@@ -19,7 +18,6 @@ function ex(
   return {
     id: id ?? name,
     name,
-    exercise_type: type,
     primary_muscles: primary,
     secondary_muscles: secondary,
     alt_names: [],
@@ -41,9 +39,7 @@ function ex(
 const NO_STATS = new Map<string, ExerciseStat>();
 
 const BASE_PREFS: WorkoutPreferences = {
-  compound_exercises: 2,
-  accessory_exercises: 2,
-  isolation_exercises: 1,
+  exercises_per_workout: 5,
   progress_reps: 8,
   weekly_goal: 3,
   sets_per_exercise: 3,
@@ -57,32 +53,32 @@ function prefs(overrides: Partial<WorkoutPreferences> = {}): WorkoutPreferences 
 
 describe('computeSimilarity', () => {
   it('returns 1 when both exercises share the same primary muscle', () => {
-    const a = ex('A', 'compound', ['chest']);
-    const b = ex('B', 'compound', ['chest']);
+    const a = ex('A', ['chest']);
+    const b = ex('B', ['chest']);
     expect(computeSimilarity(a, b)).toBe(1);
   });
 
   it('returns 1 when both exercises share the same secondary muscle', () => {
-    const a = ex('A', 'compound', [], ['triceps']);
-    const b = ex('B', 'compound', [], ['triceps']);
+    const a = ex('A', [], ['triceps']);
+    const b = ex('B', [], ['triceps']);
     expect(computeSimilarity(a, b)).toBe(1);
   });
 
   it('returns 0.5 when a muscle is primary in one and secondary in the other', () => {
-    const a = ex('A', 'compound', ['chest']);
-    const b = ex('B', 'compound', [], ['chest']);
+    const a = ex('A', ['chest']);
+    const b = ex('B', [], ['chest']);
     expect(computeSimilarity(a, b)).toBe(0.5);
   });
 
   it('returns 0 for a muscle that appears in only one exercise', () => {
-    const a = ex('A', 'compound', ['chest']);
-    const b = ex('B', 'compound', ['quads']);
+    const a = ex('A', ['chest']);
+    const b = ex('B', ['quads']);
     expect(computeSimilarity(a, b)).toBe(0);
   });
 
   it('returns 0 when both exercises have no muscles', () => {
-    const a = ex('A', 'compound', []);
-    const b = ex('B', 'compound', []);
+    const a = ex('A', []);
+    const b = ex('B', []);
     expect(computeSimilarity(a, b)).toBe(0);
   });
 
@@ -91,8 +87,8 @@ describe('computeSimilarity', () => {
     // unique muscles: {chest, triceps} — size 2
     // chest: primary in both → +1 | triceps: only in a → +0
     // score = 1 / 2 = 0.5
-    const a = ex('A', 'compound', ['chest', 'triceps']);
-    const b = ex('B', 'compound', ['chest']);
+    const a = ex('A', ['chest', 'triceps']);
+    const b = ex('B', ['chest']);
     expect(computeSimilarity(a, b)).toBeCloseTo(0.5);
   });
 
@@ -100,14 +96,14 @@ describe('computeSimilarity', () => {
     // 'legs' expands to 5 muscles; b only has 'quads'
     // quads: primary in both → +1 | remaining 4 leg muscles: only in a → +0
     // score = 1 / 5 = 0.2
-    const a = ex('A', 'compound', ['legs']);
-    const b = ex('B', 'compound', ['quads']);
+    const a = ex('A', ['legs']);
+    const b = ex('B', ['quads']);
     expect(computeSimilarity(a, b)).toBeCloseTo(1 / 5);
   });
 
   it('is symmetric — computeSimilarity(a,b) === computeSimilarity(b,a)', () => {
-    const a = ex('A', 'compound', ['chest', 'triceps'], ['front delts']);
-    const b = ex('B', 'compound', ['chest'], ['triceps', 'shoulders']);
+    const a = ex('A', ['chest', 'triceps'], ['front delts']);
+    const b = ex('B', ['chest'], ['triceps', 'shoulders']);
     expect(computeSimilarity(a, b)).toBeCloseTo(computeSimilarity(b, a));
   });
 
@@ -117,14 +113,14 @@ describe('computeSimilarity', () => {
     // chest: primary in a, secondary in b → +0.5
     // triceps: secondary in a, primary in b → +0.5
     // score = (0.5 + 0.5) / 2 = 0.5
-    const a = ex('A', 'compound', ['chest'], ['triceps']);
-    const b = ex('B', 'compound', ['triceps'], ['chest']);
+    const a = ex('A', ['chest'], ['triceps']);
+    const b = ex('B', ['triceps'], ['chest']);
     expect(computeSimilarity(a, b)).toBeCloseTo(0.5);
   });
 
   it('gives maximum score 1 when all muscles match with same roles', () => {
-    const a = ex('A', 'compound', ['chest', 'triceps'], ['front delts']);
-    const b = ex('B', 'compound', ['chest', 'triceps'], ['front delts']);
+    const a = ex('A', ['chest', 'triceps'], ['front delts']);
+    const b = ex('B', ['chest', 'triceps'], ['front delts']);
     expect(computeSimilarity(a, b)).toBe(1);
   });
 });
@@ -132,10 +128,10 @@ describe('computeSimilarity', () => {
 // ─── findAlternatives ────────────────────────────────────────────────────────
 
 describe('findAlternatives', () => {
-  const bench = ex('Bench Press', 'compound', ['chest'], ['triceps']);
-  const incline = ex('Incline Press', 'compound', ['chest'], ['triceps', 'front delts']);
-  const squat = ex('Squat', 'compound', ['quads', 'glutes'], ['hamstrings']);
-  const curl = ex('Bicep Curl', 'isolation', ['biceps']);
+  const bench = ex('Bench Press', ['chest'], ['triceps']);
+  const incline = ex('Incline Press', ['chest'], ['triceps', 'front delts']);
+  const squat = ex('Squat', ['quads', 'glutes'], ['hamstrings']);
+  const curl = ex('Bicep Curl', ['biceps']);
 
   it('excludes the source exercise itself', () => {
     const alts = findAlternatives(bench, [bench, incline]);
@@ -147,15 +143,15 @@ describe('findAlternatives', () => {
     expect(alts).toHaveLength(0);
   });
 
-  it('excludes exercises of a different type', () => {
+  it('includes exercises with any muscle overlap, regardless of category', () => {
     const alts = findAlternatives(bench, [bench, incline, curl]);
-    expect(alts.map((e) => e.name)).not.toContain('Bicep Curl');
+    expect(alts.map((e) => e.name)).toContain('Incline Press');
   });
 
   it('returns exercises sorted by similarity descending', () => {
     // perfectMatch shares all muscles; partial shares only chest
-    const perfect = ex('Perfect', 'compound', ['chest'], ['triceps']);
-    const partial = ex('Partial', 'compound', ['chest'], ['lats']);
+    const perfect = ex('Perfect', ['chest'], ['triceps']);
+    const partial = ex('Partial', ['chest'], ['lats']);
     const alts = findAlternatives(bench, [bench, perfect, partial]);
     expect(alts[0].name).toBe('Perfect');
     expect(alts[1].name).toBe('Partial');
@@ -163,12 +159,12 @@ describe('findAlternatives', () => {
 
   it('respects the limit parameter', () => {
     const library = Array.from({ length: 20 }, (_, i) =>
-      ex(`Ex${i}`, 'compound', ['chest'], [], `id${i}`),
+      ex(`Ex${i}`, ['chest'], [], `id${i}`),
     );
     expect(findAlternatives(bench, library, 5)).toHaveLength(5);
   });
 
-  it('returns an empty array when no similar same-type exercises exist', () => {
+  it('returns an empty array when no similar exercises exist', () => {
     expect(findAlternatives(squat, [squat, bench])).toHaveLength(0);
   });
 
@@ -182,13 +178,13 @@ describe('findAlternatives', () => {
 describe('generateWorkout', () => {
   const PUSH = ['chest', 'triceps', 'front delts', 'side delts'];
 
-  const bench  = ex('Bench Press',     'compound',  ['chest'],              ['triceps']);
-  const ohp    = ex('Overhead Press',  'compound',  ['front delts'],        ['triceps', 'side delts']);
-  const dips   = ex('Dips',            'compound',  ['chest', 'triceps']);
-  const lateral = ex('Lateral Raise',  'accessory', ['side delts']);
-  const front   = ex('Front Raise',    'accessory', ['front delts']);
-  const pushdown = ex('Pushdown',      'accessory', ['triceps']);
-  const skulls  = ex('Skull Crushers', 'isolation', ['triceps']);
+  const bench  = ex('Bench Press',     ['chest'],              ['triceps']);
+  const ohp    = ex('Overhead Press',  ['front delts'],        ['triceps', 'side delts']);
+  const dips   = ex('Dips',            ['chest', 'triceps']);
+  const lateral = ex('Lateral Raise',  ['side delts']);
+  const front   = ex('Front Raise',    ['front delts']);
+  const pushdown = ex('Pushdown',      ['triceps']);
+  const skulls  = ex('Skull Crushers', ['triceps']);
 
   const library = [bench, ohp, dips, lateral, front, pushdown, skulls];
 
@@ -196,21 +192,14 @@ describe('generateWorkout', () => {
     expect(generateWorkout([], library, NO_STATS, BASE_PREFS)).toEqual([]);
   });
 
-  it('returns empty when all exercise counts are 0', () => {
-    const p = prefs({ compound_exercises: 0, accessory_exercises: 0, isolation_exercises: 0 });
+  it('returns empty when exercises_per_workout is 0', () => {
+    const p = prefs({ exercises_per_workout: 0 });
     expect(generateWorkout(PUSH, library, NO_STATS, p)).toEqual([]);
   });
 
   it('generates the correct total number of slots', () => {
     const slots = generateWorkout(PUSH, library, NO_STATS, BASE_PREFS);
-    expect(slots).toHaveLength(5); // 2 compound + 2 accessory + 1 isolation
-  });
-
-  it('generates the right count of each type', () => {
-    const slots = generateWorkout(PUSH, library, NO_STATS, BASE_PREFS);
-    expect(slots.filter((s) => s.type === 'compound')).toHaveLength(2);
-    expect(slots.filter((s) => s.type === 'accessory')).toHaveLength(2);
-    expect(slots.filter((s) => s.type === 'isolation')).toHaveLength(1);
+    expect(slots).toHaveLength(5);
   });
 
   it('never selects the same exercise twice', () => {
@@ -219,35 +208,16 @@ describe('generateWorkout', () => {
     expect(new Set(names).size).toBe(names.length);
   });
 
-  it('each slot exercise_type matches the slot type', () => {
-    const slots = generateWorkout(PUSH, library, NO_STATS, BASE_PREFS);
-    for (const slot of slots) {
-      expect(slot.exercise.exercise_type).toBe(slot.type);
-    }
-  });
-
   it('does not select exercises that target unrelated muscles', () => {
-    const deadlift = ex('Deadlift', 'compound', ['lower back', 'hamstrings']);
+    const deadlift = ex('Deadlift', ['lower back', 'hamstrings']);
     const slots = generateWorkout(PUSH, [...library, deadlift], NO_STATS, BASE_PREFS);
     expect(slots.map((s) => s.exercise.name)).not.toContain('Deadlift');
   });
 
-  it('produces fewer slots when the library lacks enough exercises', () => {
-    // Only 1 compound in library
-    const small = [bench, lateral, skulls];
+  it('produces fewer slots when the library lacks enough relevant exercises', () => {
+    const small = [bench, lateral];
     const slots = generateWorkout(PUSH, small, NO_STATS, BASE_PREFS);
-    expect(slots.filter((s) => s.type === 'compound')).toHaveLength(1);
-  });
-
-  it('phases are ordered compound → accessory → isolation', () => {
-    const slots = generateWorkout(PUSH, library, NO_STATS, BASE_PREFS);
-    const types = slots.map((s) => s.type);
-    const lastCompound = types.lastIndexOf('compound');
-    const firstAccessory = types.indexOf('accessory');
-    const lastAccessory = types.lastIndexOf('accessory');
-    const firstIsolation = types.indexOf('isolation');
-    expect(lastCompound).toBeLessThan(firstAccessory);
-    expect(lastAccessory).toBeLessThan(firstIsolation);
+    expect(slots.length).toBeLessThan(BASE_PREFS.exercises_per_workout);
   });
 
   it('prefers exercises done recently when muscle overlap is equal', () => {
@@ -256,13 +226,13 @@ describe('generateWorkout', () => {
     const stats = new Map<string, ExerciseStat>([
       ['Bench Press', { exercise_id: 'Bench Press', last_performed_at: Date.now(), times_last_21_days: 3 }],
     ]);
-    // Use a 1-compound, 0-accessory, 0-isolation pref so only 1 slot is filled.
+    // Use a single-slot pref so only 1 exercise is picked.
     // Both bench and ohp target push muscles, but bench has the bonus.
     const slots = generateWorkout(
       PUSH,
       [bench, ohp],
       stats,
-      prefs({ compound_exercises: 1, accessory_exercises: 0, isolation_exercises: 0 }),
+      prefs({ exercises_per_workout: 1 }),
     );
     expect(slots[0].exercise.name).toBe('Bench Press');
   });
@@ -275,7 +245,7 @@ describe('generateWorkout', () => {
       PUSH,
       [bench, ohp, dips],
       NO_STATS,
-      prefs({ compound_exercises: 2, accessory_exercises: 0, isolation_exercises: 0 }),
+      prefs({ exercises_per_workout: 2 }),
     );
     expect(slots).toHaveLength(2);
     const names = slots.map((s) => s.exercise.name);
@@ -283,17 +253,17 @@ describe('generateWorkout', () => {
   });
 
   it('works with super-muscle targets (e.g. legs day)', () => {
-    const squat   = ex('Squat',       'compound',  ['legs']);
-    const lunge   = ex('Lunge',       'compound',  ['quads', 'glutes']);
-    const legCurl = ex('Leg Curl',    'accessory', ['hamstrings']);
-    const calf    = ex('Calf Raise',  'isolation', ['calves']);
+    const squat   = ex('Squat',       ['legs']);
+    const lunge   = ex('Lunge',       ['quads', 'glutes']);
+    const legCurl = ex('Leg Curl',    ['hamstrings']);
+    const calf    = ex('Calf Raise',  ['calves']);
 
     const LOWER = ['quads', 'hamstrings', 'glutes', 'adductors', 'calves'];
     const slots = generateWorkout(
       LOWER,
       [squat, lunge, legCurl, calf],
       NO_STATS,
-      prefs({ compound_exercises: 2, accessory_exercises: 1, isolation_exercises: 1 }),
+      prefs({ exercises_per_workout: 4 }),
     );
     expect(slots).toHaveLength(4);
     const names = slots.map((s) => s.exercise.name);

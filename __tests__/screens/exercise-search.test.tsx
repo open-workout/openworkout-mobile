@@ -10,7 +10,6 @@ import type { Exercise } from '../../app/db/exercises';
 const BENCH_PRESS_SEED: Exercise = {
   id: 'ex-bench-seed',
   name: 'Bench Press (Barbell)',
-  exercise_type: 'compound',
   primary_muscles: ['chest'],
   secondary_muscles: ['front delts', 'triceps'],
   alt_names: ['Bench Press', 'Flat Bench'],

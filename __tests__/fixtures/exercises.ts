@@ -7,7 +7,6 @@ export const FIXTURE_EXERCISES: Exercise[] = [
   {
     id: 'ex-bench',
     name: 'Bench Press',
-    exercise_type: 'compound',
     primary_muscles: ['chest'],
     secondary_muscles: ['triceps'],
     alt_names: [],
@@ -27,7 +26,6 @@ export const FIXTURE_EXERCISES: Exercise[] = [
   {
     id: 'ex-squat',
     name: 'Squat',
-    exercise_type: 'compound',
     primary_muscles: ['legs'],
     secondary_muscles: [],
     alt_names: [],
@@ -47,7 +45,6 @@ export const FIXTURE_EXERCISES: Exercise[] = [
   {
     id: 'ex-cable-fly',
     name: 'Cable Fly',
-    exercise_type: 'isolation',
     primary_muscles: ['chest'],
     secondary_muscles: [],
     alt_names: ['Cable Crossover'],
@@ -67,7 +64,6 @@ export const FIXTURE_EXERCISES: Exercise[] = [
   {
     id: 'ex-deadlift',
     name: 'Deadlift',
-    exercise_type: 'compound',
     primary_muscles: ['back'],
     secondary_muscles: [],
     alt_names: [],
@@ -87,7 +83,6 @@ export const FIXTURE_EXERCISES: Exercise[] = [
   {
     id: 'ex-cable-row',
     name: 'Seated Cable Row',
-    exercise_type: 'compound',
     primary_muscles: ['back'],
     secondary_muscles: ['biceps'],
     alt_names: [],
@@ -107,7 +102,6 @@ export const FIXTURE_EXERCISES: Exercise[] = [
   {
     id: 'ex-pushup',
     name: 'Push-up',
-    exercise_type: 'compound',
     primary_muscles: ['chest'],
     secondary_muscles: [],
     alt_names: [],
@@ -127,7 +121,6 @@ export const FIXTURE_EXERCISES: Exercise[] = [
   {
     id: 'ex-cable-curl',
     name: 'Cable Curl',
-    exercise_type: 'isolation',
     primary_muscles: ['biceps'],
     secondary_muscles: [],
     alt_names: [],

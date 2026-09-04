@@ -11,12 +11,11 @@ import type { WorkoutPreferences } from '../app/storage';
 
 function ex(
   name: string,
-  type: 'compound' | 'accessory' | 'isolation',
   primary: string[],
   secondary: string[] = [],
 ): Exercise {
   return {
-    id: name, name, exercise_type: type, primary_muscles: primary, secondary_muscles: secondary,
+    id: name, name, primary_muscles: primary, secondary_muscles: secondary,
     alt_names: [], description: '', weight_direction: 1, logging_type: 'reps', created_at: 0,
     animation_name: null, can_be_done_in_reps: true, can_be_done_in_time: true,
     can_be_done_in_distance: false, requires_weight: true,
@@ -27,9 +26,7 @@ function ex(
 const NO_STATS = new Map<string, ExerciseStat>();
 
 const DEFAULT_PREFS: WorkoutPreferences = {
-  compound_exercises: 2,
-  accessory_exercises: 2,
-  isolation_exercises: 1,
+  exercises_per_workout: 5,
   progress_reps: 8,
   weekly_goal: 3,
   sets_per_exercise: 3,
@@ -97,7 +94,7 @@ describe('canGenerate conditions (pick-day logic)', () => {
     return muscles.length > 0 && exercises.length > 0 && p !== null;
   }
 
-  const someExercises = [ex('Bench', 'compound', ['chest'])];
+  const someExercises = [ex('Bench', ['chest'])];
   const pushMuscles = musclesForDay('PPL', 'Push');
 
   it('is true when a split day is selected, exercises exist, and prefs are loaded', () => {
@@ -130,22 +127,22 @@ describe('canGenerate conditions (pick-day logic)', () => {
 describe('end-to-end: split day selection → workout generation', () => {
   // Push library
   const pushLibrary: Exercise[] = [
-    ex('Bench Press',    'compound',  ['chest'],           ['triceps']),
-    ex('Incline Press',  'compound',  ['chest'],           ['front delts']),
-    ex('Lateral Raise',  'accessory', ['side delts']),
-    ex('Front Raise',    'accessory', ['front delts']),
-    ex('Pushdown',       'accessory', ['triceps']),
-    ex('Skull Crushers', 'isolation', ['triceps']),
+    ex('Bench Press',    ['chest'],           ['triceps']),
+    ex('Incline Press',  ['chest'],           ['front delts']),
+    ex('Lateral Raise',  ['side delts']),
+    ex('Front Raise',    ['front delts']),
+    ex('Pushdown',       ['triceps']),
+    ex('Skull Crushers', ['triceps']),
   ];
 
   // Lower library
   const lowerLibrary: Exercise[] = [
-    ex('Squat',       'compound',  ['quads', 'glutes'],  ['hamstrings']),
-    ex('Deadlift',    'compound',  ['hamstrings', 'glutes'], ['lower back', 'quads']),
-    ex('Leg Press',   'compound',  ['quads', 'glutes']),
-    ex('Leg Curl',    'accessory', ['hamstrings']),
-    ex('Leg Extension', 'accessory', ['quads']),
-    ex('Calf Raise',  'isolation', ['calves']),
+    ex('Squat',       ['quads', 'glutes'],  ['hamstrings']),
+    ex('Deadlift',    ['hamstrings', 'glutes'], ['lower back', 'quads']),
+    ex('Leg Press',   ['quads', 'glutes']),
+    ex('Leg Curl',    ['hamstrings']),
+    ex('Leg Extension', ['quads']),
+    ex('Calf Raise',  ['calves']),
   ];
 
   it('Push day generates only push-muscle exercises', () => {
@@ -168,16 +165,15 @@ describe('end-to-end: split day selection → workout generation', () => {
     const slots = generateWorkout(muscles, lowerLibrary, NO_STATS, DEFAULT_PREFS);
 
     expect(slots.length).toBeGreaterThan(0);
-    expect(slots.filter((s) => s.type === 'compound').length).toBeGreaterThan(0);
   });
 
   it('does not mix exercises from different days (Push vs Pull)', () => {
     const pushMuscles = musclesForDay('PPL', 'Push');
     const pullLibrary: Exercise[] = [
-      ex('Pull-Up',       'compound',  ['lats'],    ['biceps']),
-      ex('Barbell Row',   'compound',  ['rhomboids', 'traps'], ['biceps', 'lower back']),
-      ex('Bicep Curl',    'isolation', ['biceps']),
-      ex('Face Pull',     'accessory', ['rear delts', 'traps']),
+      ex('Pull-Up',       ['lats'],    ['biceps']),
+      ex('Barbell Row',   ['rhomboids', 'traps'], ['biceps', 'lower back']),
+      ex('Bicep Curl',    ['biceps']),
+      ex('Face Pull',     ['rear delts', 'traps']),
     ];
 
     // Push muscles passed to generateWorkout — pull exercises target lats/rhomboids,
@@ -191,16 +187,18 @@ describe('end-to-end: split day selection → workout generation', () => {
   });
 
   it('generates a workout even when fewer exercises exist than requested slots', () => {
-    // Only 1 compound for Lower day — should still generate 1 compound slot
+    // Only 2 relevant exercises for Lower day — should still generate both, not fail
     const thinLibrary = [
-      ex('Squat',    'compound',  ['quads', 'glutes']),
-      ex('Leg Curl', 'accessory', ['hamstrings']),
+      ex('Squat',    ['quads', 'glutes']),
+      ex('Leg Curl', ['hamstrings']),
     ];
     const muscles = musclesForDay('Upper / Lower', 'Lower');
     const slots = generateWorkout(muscles, thinLibrary, NO_STATS, DEFAULT_PREFS);
 
-    expect(slots.filter((s) => s.type === 'compound')).toHaveLength(1);
-    expect(slots.filter((s) => s.type === 'accessory')).toHaveLength(1);
+    expect(slots).toHaveLength(2);
+    const names = slots.map((s) => s.exercise.name);
+    expect(names).toContain('Squat');
+    expect(names).toContain('Leg Curl');
   });
 
   it('Full Body day can generate exercises across multiple muscle groups', () => {
@@ -208,16 +206,16 @@ describe('end-to-end: split day selection → workout generation', () => {
     const fullLibrary: Exercise[] = [
       ...pushLibrary,
       ...lowerLibrary,
-      ex('Pull-Up',     'compound',  ['lats'],    ['biceps']),
-      ex('Barbell Row', 'compound',  ['rhomboids', 'traps']),
-      ex('Bicep Curl',  'isolation', ['biceps']),
-      ex('Face Pull',   'accessory', ['rear delts']),
+      ex('Pull-Up',     ['lats'],    ['biceps']),
+      ex('Barbell Row', ['rhomboids', 'traps']),
+      ex('Bicep Curl',  ['biceps']),
+      ex('Face Pull',   ['rear delts']),
     ];
     const slots = generateWorkout(
       muscles,
       fullLibrary,
       NO_STATS,
-      { ...DEFAULT_PREFS, compound_exercises: 3, accessory_exercises: 3, isolation_exercises: 2 },
+      { ...DEFAULT_PREFS, exercises_per_workout: 8 },
     );
 
     expect(slots.length).toBeGreaterThan(0);

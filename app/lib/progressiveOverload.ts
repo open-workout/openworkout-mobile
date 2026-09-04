@@ -7,15 +7,10 @@ export type OverloadSuggestion = {
   label: string;
 };
 
-const INCREMENT: Record<string, number> = {
-  compound: 5,
-  accessory: 2.5,
-  isolation: 2.5,
-};
+const INCREMENT = 2.5;
 
 export function computeProgressSuggestion(
   sets: WorkoutSet[],
-  exerciseType: string,
   progressReps: number,
   weightUnit: 'kg' | 'lbs',
   t: (key: string, options?: Record<string, unknown>) => string,
@@ -24,9 +19,8 @@ export function computeProgressSuggestion(
   const best = sets.reduce((a, b) =>
     a.weight > b.weight || (a.weight === b.weight && a.reps >= b.reps) ? a : b,
   );
-  const inc = INCREMENT[exerciseType] ?? 2.5;
   const isAmrap = best.reps >= progressReps;
-  const weight = isAmrap ? best.weight + inc : best.weight;
+  const weight = isAmrap ? best.weight + INCREMENT : best.weight;
   const reps = isAmrap ? best.reps : best.reps + 2;
   const label = isAmrap
     ? t('amrapLabel', { weight, unit: weightUnit })

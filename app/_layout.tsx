@@ -80,6 +80,11 @@ async function initializeDb(database: SQLiteDatabase) {
     await database.execAsync('ALTER TABLE exercises ADD COLUMN human_readable_id TEXT;');
   }
 
+  // Migration: drop exercise_type — the compound/accessory/isolation concept was removed.
+  if (exerciseCols.length > 0 && exerciseCols.find((c) => c.name === 'exercise_type')) {
+    await database.execAsync('ALTER TABLE exercises DROP COLUMN exercise_type;');
+  }
+
   // Migration: add split_day_name column to workouts if missing (tracks split rotation)
   const workoutCols = await database.getAllAsync<{ name: string }>('PRAGMA table_info(workouts)');
   if (workoutCols.length > 0 && !workoutCols.find((c) => c.name === 'split_day_name')) {
@@ -90,7 +95,6 @@ async function initializeDb(database: SQLiteDatabase) {
     CREATE TABLE IF NOT EXISTS exercises (
       id                TEXT PRIMARY KEY,
       name              TEXT NOT NULL,
-      exercise_type     TEXT,
       primary_muscles   TEXT,
       secondary_muscles TEXT,
       alt_names         TEXT,
@@ -167,12 +171,11 @@ async function initializeDb(database: SQLiteDatabase) {
         const id = `seed_${Math.random().toString(36).slice(2, 10)}`;
         await database.runAsync(
           `INSERT INTO exercises
-             (id, name, exercise_type, primary_muscles, secondary_muscles,
+             (id, name, primary_muscles, secondary_muscles,
               alt_names, description, weight_direction, logging_type, created_at)
-           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
           id,
           ex.name,
-          ex.exercise_type,
           JSON.stringify(ex.primary_muscles),
           JSON.stringify(ex.secondary_muscles),
           JSON.stringify(ex.alt_names),

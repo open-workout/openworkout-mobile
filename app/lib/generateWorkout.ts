@@ -9,7 +9,6 @@ export type ExerciseStat = {
 };
 
 export type GeneratedSlot = {
-  type: 'compound' | 'accessory' | 'isolation';
   exercise: Exercise;
 };
 
@@ -38,13 +37,12 @@ function scoreExercise(
 
 function rankCandidates(
   exercises: Exercise[],
-  type: string,
   muscleLoad: Record<string, number>,
   stats: Map<string, ExerciseStat>,
   chosen: Set<string>,
 ): Exercise[] {
   return exercises
-    .filter((e) => e.exercise_type === type && !chosen.has(e.id ?? e.name))
+    .filter((e) => !chosen.has(e.id ?? e.name))
     .map((e) => ({ exercise: e, score: scoreExercise(e, muscleLoad, stats) }))
     .filter((r) => r.score > 0)
     .sort((a, b) => b.score - a.score || Math.random() - 0.5)
@@ -57,7 +55,7 @@ export function generateWorkout(
   stats: Map<string, ExerciseStat>,
   prefs: WorkoutPreferences,
 ): GeneratedSlot[] {
-  const E = prefs.compound_exercises + prefs.accessory_exercises + prefs.isolation_exercises;
+  const E = prefs.exercises_per_workout;
   if (E === 0 || muscles.length === 0) return [];
 
   const muscleLoad: Record<string, number> = {};
@@ -66,29 +64,21 @@ export function generateWorkout(
   const slots: GeneratedSlot[] = [];
   const chosen = new Set<string>();
 
-  const phases: Array<{ type: 'compound' | 'accessory' | 'isolation'; count: number }> = [
-    { type: 'compound', count: prefs.compound_exercises },
-    { type: 'accessory', count: prefs.accessory_exercises },
-    { type: 'isolation', count: prefs.isolation_exercises },
-  ];
+  for (let i = 0; i < E; i++) {
+    const candidates = rankCandidates(exercises, muscleLoad, stats, chosen);
+    if (candidates.length === 0) continue;
 
-  for (const { type, count } of phases) {
-    for (let i = 0; i < count; i++) {
-      const candidates = rankCandidates(exercises, type, muscleLoad, stats, chosen);
-      if (candidates.length === 0) continue;
+    const best = candidates[0];
+    slots.push({ exercise: best });
 
-      const best = candidates[0];
-      slots.push({ type, exercise: best });
+    const bestKey = best.id ?? best.name;
+    chosen.add(bestKey);
 
-      const bestKey = best.id ?? best.name;
-      chosen.add(bestKey);
-
-      const bestMuscles = [...new Set([...best.primary_muscles, ...best.secondary_muscles])];
-      for (const m of expandMuscles(bestMuscles)) {
-        const key = Object.keys(muscleLoad).find((k) => k.toLowerCase() === m.toLowerCase());
-        if (key !== undefined) {
-          muscleLoad[key] = Math.max(0, muscleLoad[key] - 1 / E);
-        }
+    const bestMuscles = [...new Set([...best.primary_muscles, ...best.secondary_muscles])];
+    for (const m of expandMuscles(bestMuscles)) {
+      const key = Object.keys(muscleLoad).find((k) => k.toLowerCase() === m.toLowerCase());
+      if (key !== undefined) {
+        muscleLoad[key] = Math.max(0, muscleLoad[key] - 1 / E);
       }
     }
   }
@@ -132,7 +122,7 @@ export function findAlternatives(
 ): Exercise[] {
   const key = exercise.id ?? exercise.name;
   return allExercises
-    .filter((e) => (e.id ?? e.name) !== key && e.exercise_type === exercise.exercise_type)
+    .filter((e) => (e.id ?? e.name) !== key)
     .map((e) => ({ exercise: e, similarity: computeSimilarity(exercise, e) }))
     .filter((r) => r.similarity > 0)
     .sort((a, b) => b.similarity - a.similarity)

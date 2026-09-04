@@ -21,7 +21,6 @@ export type LoggingType = 'reps' | 'time';
 export type Exercise = {
   id: string;
   name: string;
-  exercise_type: string;
   primary_muscles: string[];
   secondary_muscles: string[];
   alt_names: string[];
@@ -41,7 +40,6 @@ export type Exercise = {
 
 export type NewExerciseInput = {
   name: string;
-  exercise_type: string;
   primary_muscles: string[];
   secondary_muscles: string[];
   alt_names: string[];
@@ -53,7 +51,6 @@ export type NewExerciseInput = {
 type RawRow = {
   id: string;
   name: string;
-  exercise_type: string;
   primary_muscles: string;
   secondary_muscles: string;
   alt_names: string;
@@ -109,12 +106,11 @@ export async function insertExercise(input: NewExerciseInput): Promise<string> {
   const id = generateId();
   await db.runAsync(
     `INSERT INTO exercises
-       (id, name, exercise_type, primary_muscles, secondary_muscles,
+       (id, name, primary_muscles, secondary_muscles,
         alt_names, description, weight_direction, logging_type, created_at)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     id,
     input.name,
-    input.exercise_type,
     JSON.stringify(input.primary_muscles),
     JSON.stringify(input.secondary_muscles),
     JSON.stringify(input.alt_names),
@@ -130,15 +126,15 @@ export async function updateExercise(exercise: Exercise, input: NewExerciseInput
   const db = await getDb();
   if (exercise.id) {
     await db.runAsync(
-      `UPDATE exercises SET name=?, exercise_type=?, primary_muscles=?, secondary_muscles=?, alt_names=?, description=?, weight_direction=?, logging_type=? WHERE id=?`,
-      input.name, input.exercise_type, JSON.stringify(input.primary_muscles),
+      `UPDATE exercises SET name=?, primary_muscles=?, secondary_muscles=?, alt_names=?, description=?, weight_direction=?, logging_type=? WHERE id=?`,
+      input.name, JSON.stringify(input.primary_muscles),
       JSON.stringify(input.secondary_muscles), JSON.stringify(input.alt_names),
       input.description, input.weight_direction, input.logging_type ?? 'reps', exercise.id,
     );
   } else {
     await db.runAsync(
-      `UPDATE exercises SET name=?, exercise_type=?, primary_muscles=?, secondary_muscles=?, alt_names=?, description=?, weight_direction=?, logging_type=? WHERE name=?`,
-      input.name, input.exercise_type, JSON.stringify(input.primary_muscles),
+      `UPDATE exercises SET name=?, primary_muscles=?, secondary_muscles=?, alt_names=?, description=?, weight_direction=?, logging_type=? WHERE name=?`,
+      input.name, JSON.stringify(input.primary_muscles),
       JSON.stringify(input.secondary_muscles), JSON.stringify(input.alt_names),
       input.description, input.weight_direction, input.logging_type ?? 'reps', exercise.name,
     );
@@ -175,14 +171,13 @@ export async function insertCsvExercises(db: SQLiteDatabase): Promise<void> {
       const loggingType = ex.canBeDoneInReps ? 'reps' : 'time';
       await db.runAsync(
         `INSERT INTO exercises
-           (id, name, exercise_type, primary_muscles, secondary_muscles,
+           (id, name, primary_muscles, secondary_muscles,
             alt_names, description, weight_direction, logging_type, created_at,
             can_be_done_in_reps, can_be_done_in_time,
             can_be_done_in_distance, requires_weight, equipment, csv_id, human_readable_id)
-         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         id,
         ex.name,
-        'accessory',
         JSON.stringify(ex.primaryMuscles),
         JSON.stringify(ex.secondaryMuscles),
         '[]',

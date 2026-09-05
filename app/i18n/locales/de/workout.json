@@ -27,6 +27,7 @@
   "amrapLabel": "{{weight}} {{unit}}: AMRAP",
   "tryLabel": "Versuch: {{weight}} {{unit}} × {{reps}} Wdh.",
   "resumeWorkout": "Workout fortsetzen",
+  "loadingWorkout": "Workout wird geladen…",
   "generatedWorkout": "Generiertes Workout",
   "switchExercise": "Übung wechseln",
   "noSimilarExercisesFound": "Keine ähnlichen Übungen in deiner Bibliothek gefunden",

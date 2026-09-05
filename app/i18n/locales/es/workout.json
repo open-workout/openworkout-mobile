@@ -27,6 +27,7 @@
   "amrapLabel": "{{weight}} {{unit}}: AMRAP",
   "tryLabel": "Prueba {{weight}} {{unit}} × {{reps}} repeticiones",
   "resumeWorkout": "Reanudar entrenamiento",
+  "loadingWorkout": "Cargando entrenamiento…",
   "generatedWorkout": "Entrenamiento generado",
   "switchExercise": "Cambiar ejercicio",
   "noSimilarExercisesFound": "No se encontraron ejercicios similares en tu biblioteca",

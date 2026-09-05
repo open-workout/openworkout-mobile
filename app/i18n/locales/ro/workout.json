@@ -28,6 +28,7 @@
   "amrapLabel": "{{weight}} {{unit}}: AMRAP",
   "tryLabel": "Încearcă {{weight}} {{unit}} × {{reps}} repetări",
   "resumeWorkout": "Reia antrenamentul",
+  "loadingWorkout": "Se încarcă antrenamentul…",
   "generatedWorkout": "Antrenament generat",
   "switchExercise": "Schimbă exercițiul",
   "noSimilarExercisesFound": "Niciun exercițiu similar găsit în biblioteca ta",

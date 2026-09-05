@@ -1,4 +1,4 @@
-import { View, Text, ScrollView, FlatList, TouchableOpacity, StatusBar, Modal, TextInput, KeyboardAvoidingView, Platform, Dimensions } from 'react-native';
+import { View, Text, ScrollView, FlatList, TouchableOpacity, StatusBar, Modal, TextInput, KeyboardAvoidingView, Platform, Dimensions, ActivityIndicator } from 'react-native';
 import Animated, { useSharedValue, useAnimatedStyle, withTiming, runOnJS } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -87,7 +87,7 @@ export default function GeneratedWorkoutScreen() {
   // Android's Modal already resizes for the keyboard natively (SOFT_INPUT_ADJUST_RESIZE);
   // only iOS needs the list to pad itself to clear the keyboard.
   const pickerListBottomPadding = Platform.OS === 'ios' ? keyboardHeight + 24 : 24;
-  const { exercises, createExercise } = useExercises();
+  const { exercises, createExercise, isLoading: exercisesLoading } = useExercises();
   const { finishWorkout, editSet, removeSet } = useWorkouts();
 
   const pending = getPendingWorkout();
@@ -103,6 +103,7 @@ export default function GeneratedWorkoutScreen() {
   const [cardSets, setCardSets] = useState<Record<string, LocalSet[]>>({});
   const [suggestions, setSuggestions] = useState<Record<string, OverloadSuggestion | null>>({});
   const [localPrefs, setLocalPrefs] = useState<WorkoutPreferences | null>(null);
+  const [isRestoring, setIsRestoring] = useState(() => !!resumeWorkoutId);
 
   // Cards are generated locally (no DB writes) until the user first interacts
   // with them — this ref tracks which cards have been materialized to the DB.
@@ -163,9 +164,10 @@ export default function GeneratedWorkoutScreen() {
   // DB (including unchecked 'pending' rows), and generate fresh sets locally
   // for any planned exercise that was never opened in a previous session.
   useEffect(() => {
-    if (!resumeWorkoutId || !localPrefs) return;
-    Promise.all([getSetsForWorkout(resumeWorkoutId), getAllExercises()]).then(
-      async ([dbSets, allExercises]) => {
+    if (!resumeWorkoutId || !localPrefs || exercisesLoading) return;
+    getSetsForWorkout(resumeWorkoutId).then(
+      async (dbSets) => {
+        const allExercises = exercises;
         await restorePendingWorkout(allExercises);
         const grouped = new Map<string, typeof dbSets>();
         for (const s of dbSets) {
@@ -249,9 +251,10 @@ export default function GeneratedWorkoutScreen() {
         setCardSets(newCardSets);
         setSuggestions(newSuggestions);
         setActiveCardId(newCards[0]?.cardId ?? null);
+        setIsRestoring(false);
       },
     );
-  }, [resumeWorkoutId, localPrefs]);
+  }, [resumeWorkoutId, localPrefs, exercisesLoading]);
 
   // Fresh workout: generate local (not-yet-persisted) sets for the initial slots.
   useEffect(() => {
@@ -654,7 +657,7 @@ export default function GeneratedWorkoutScreen() {
         cards={cards.map((c) => ({ cardId: c.cardId, hasSets: (cardSets[c.cardId] ?? []).some((s) => s.loggedAt !== null) }))}
         activeCardId={activeCardId}
         onSelect={selectCard}
-        onAdd={() => setShowPicker(true)}
+        onAdd={() => { if (!isRestoring) setShowPicker(true); }}
       />
 
       <KeyboardAvoidingView
@@ -692,6 +695,11 @@ export default function GeneratedWorkoutScreen() {
             isLastExercise={isLastExercise}
             onAdvance={requestAdvance}
           />
+        ) : isRestoring ? (
+          <View style={{ paddingVertical: 64, alignItems: 'center', gap: 12 }}>
+            <ActivityIndicator color={C.textMuted} />
+            <Text style={{ color: C.textDim, fontSize: 14 }}>{t('loadingWorkout')}</Text>
+          </View>
         ) : (
           <TouchableOpacity
             onPress={() => setShowPicker(true)}

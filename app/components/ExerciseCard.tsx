@@ -73,9 +73,9 @@ export function ExerciseCard({
   const animationSource = exercise.csv_id ? EXERCISE_ANIMATIONS[exercise.csv_id] : undefined;
 
   return (
-    <View style={{ backgroundColor: C.card, borderRadius: 16, borderWidth: 1, borderColor: C.borderAlt, overflow: 'hidden' }}>
+    <View style={{ gap: 16 }}>
       {animationSource && (
-        <View style={{ borderBottomWidth: 1, borderBottomColor: C.border }}>
+        <View style={{ backgroundColor: C.card, borderRadius: 16, borderWidth: 1, borderColor: C.borderAlt, overflow: 'hidden' }}>
           <TouchableOpacity
             onPress={() => setAnimationCollapsed((c) => !c)}
             activeOpacity={0.7}
@@ -96,50 +96,52 @@ export function ExerciseCard({
         </View>
       )}
 
-      <View style={{ flexDirection: 'row', alignItems: 'flex-start', padding: 16, paddingBottom: 8, gap: 12 }}>
-        <ExerciseThumbnail
-          csvId={exercise.csv_id}
-          size={48}
-          onPress={hasExerciseAnimation(exercise.csv_id) ? () => setShowAnimation(true) : undefined}
-        />
-        <View style={{ flex: 1 }}>
-          <Text style={{ color: C.text, fontSize: 18, fontWeight: '700', marginBottom: 4 }}>
-            {getExerciseDisplayName(exercise, locale)}
-          </Text>
-          {!!muscles && (
-            <Text style={{ color: C.textMuted, fontSize: 13 }}>
-              {muscles}
+      <View>
+        <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 12 }}>
+          <ExerciseThumbnail
+            csvId={exercise.csv_id}
+            size={48}
+            onPress={hasExerciseAnimation(exercise.csv_id) ? () => setShowAnimation(true) : undefined}
+          />
+          <View style={{ flex: 1 }}>
+            <Text style={{ color: C.text, fontSize: 20, fontWeight: '700', marginBottom: 4 }}>
+              {getExerciseDisplayName(exercise, locale)}
             </Text>
-          )}
+            {!!muscles && (
+              <Text style={{ color: C.textMuted, fontSize: 13 }}>
+                {muscles}
+              </Text>
+            )}
+          </View>
+
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 2 }}>
+            {canSwitch && (
+              <TouchableOpacity
+                onPress={onSwitch}
+                style={{ flexDirection: 'row', alignItems: 'center', gap: 5, backgroundColor: '#141414', borderRadius: 10, borderWidth: 1, borderColor: C.border, paddingHorizontal: 10, paddingVertical: 7 }}
+              >
+                <Ionicons name="swap-horizontal-outline" size={15} color={C.textMuted} />
+                <Text style={{ color: C.textMuted, fontSize: 12, fontWeight: '600' }}>{t('switch')}</Text>
+              </TouchableOpacity>
+            )}
+            <TouchableOpacity onPress={onDelete}>
+              <Ionicons name="trash-outline" size={17} color={C.textDim} />
+            </TouchableOpacity>
+          </View>
         </View>
 
-        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 2 }}>
-          {canSwitch && (
-            <TouchableOpacity
-              onPress={onSwitch}
-              style={{ flexDirection: 'row', alignItems: 'center', gap: 5, backgroundColor: '#141414', borderRadius: 10, borderWidth: 1, borderColor: C.border, paddingHorizontal: 10, paddingVertical: 7 }}
-            >
-              <Ionicons name="swap-horizontal-outline" size={15} color={C.textMuted} />
-              <Text style={{ color: C.textMuted, fontSize: 12, fontWeight: '600' }}>{t('switch')}</Text>
-            </TouchableOpacity>
-          )}
-          <TouchableOpacity onPress={onDelete}>
-            <Ionicons name="trash-outline" size={17} color={C.textDim} />
+        <View style={{ flexDirection: 'row', justifyContent: 'flex-end', paddingTop: 8 }}>
+          <TouchableOpacity
+            onPress={() => Linking.openURL(`https://www.google.com/search?q=${encodeURIComponent(exercise.name + ' exercise')}`)}
+            style={{ flexDirection: 'row', alignItems: 'center', gap: 5, paddingVertical: 4 }}
+          >
+            <Ionicons name="search-outline" size={13} color={C.textDim} />
+            <Text style={{ color: C.textDim, fontSize: 12, fontWeight: '600' }}>{t('search')}</Text>
           </TouchableOpacity>
         </View>
       </View>
 
-      <View style={{ flexDirection: 'row', justifyContent: 'flex-end', paddingHorizontal: 12, paddingBottom: 10 }}>
-        <TouchableOpacity
-          onPress={() => Linking.openURL(`https://www.google.com/search?q=${encodeURIComponent(exercise.name + ' exercise')}`)}
-          style={{ flexDirection: 'row', alignItems: 'center', gap: 5, paddingHorizontal: 8, paddingVertical: 4 }}
-        >
-          <Ionicons name="search-outline" size={13} color={C.textDim} />
-          <Text style={{ color: C.textDim, fontSize: 12, fontWeight: '600' }}>{t('search')}</Text>
-        </TouchableOpacity>
-      </View>
-
-      <View style={{ borderTopWidth: 1, borderTopColor: C.border }}>
+      <View style={{ backgroundColor: C.card, borderRadius: 16, borderWidth: 1, borderColor: C.borderAlt, overflow: 'hidden' }}>
         <View style={{ flexDirection: 'row', paddingHorizontal: 16, paddingVertical: 10, gap: 8 }}>
           <View style={{ width: 26 }} />
           {[weightUnit.toUpperCase(), loggingType === 'time' ? t('durationHeader') : t('repsHeader')].map((h) => (

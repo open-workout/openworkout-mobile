@@ -29,12 +29,17 @@ type Props = {
   onToggleSelectForRemoval: (setId: string) => void;
   onAddWarmupSet: () => void;
   onAddSet: () => void;
+  onAddDropSet: (afterSetId: string) => void;
   onEnterRemoveMode: () => void;
   onCancelRemoveMode: () => void;
   onConfirmRemove: () => void;
   onGenerateSets: () => void;
   isLastExercise: boolean;
   onAdvance: () => void;
+  canLinkWithNext: boolean;
+  isLinkedWithNext: boolean;
+  onToggleLinkWithNext: () => void;
+  showAdvanceButton: boolean;
 };
 
 // The single-exercise pane shown below the horizontal exercise tab strip
@@ -56,12 +61,17 @@ export function ExerciseCard({
   onToggleSelectForRemoval,
   onAddWarmupSet,
   onAddSet,
+  onAddDropSet,
   onEnterRemoveMode,
   onCancelRemoveMode,
   onConfirmRemove,
   onGenerateSets,
   isLastExercise,
   onAdvance,
+  canLinkWithNext,
+  isLinkedWithNext,
+  onToggleLinkWithNext,
+  showAdvanceButton,
 }: Props) {
   const { t, i18n } = useTranslation('workout');
   const locale = i18n.language;
@@ -130,7 +140,20 @@ export function ExerciseCard({
           </View>
         </View>
 
-        <View style={{ flexDirection: 'row', justifyContent: 'flex-end', paddingTop: 8 }}>
+        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingTop: 8 }}>
+          {canLinkWithNext ? (
+            <TouchableOpacity
+              onPress={onToggleLinkWithNext}
+              style={{ flexDirection: 'row', alignItems: 'center', gap: 5, backgroundColor: isLinkedWithNext ? 'rgba(16,185,129,0.12)' : '#141414', borderRadius: 10, borderWidth: 1, borderColor: isLinkedWithNext ? accent.green : C.border, paddingHorizontal: 10, paddingVertical: 6 }}
+            >
+              <Ionicons name={isLinkedWithNext ? 'close-circle-outline' : 'link-outline'} size={14} color={isLinkedWithNext ? accent.green : C.textMuted} />
+              <Text style={{ color: isLinkedWithNext ? accent.green : C.textMuted, fontSize: 12, fontWeight: '600' }}>
+                {isLinkedWithNext ? t('removeSuperset') : t('makeSuperset')}
+              </Text>
+            </TouchableOpacity>
+          ) : (
+            <View />
+          )}
           <TouchableOpacity
             onPress={() => Linking.openURL(`https://www.google.com/search?q=${encodeURIComponent(exercise.name + ' exercise')}`)}
             style={{ flexDirection: 'row', alignItems: 'center', gap: 5, paddingVertical: 4 }}
@@ -173,6 +196,7 @@ export function ExerciseCard({
               onSecondaryChange={(v) => onSetSecondaryChange(set.id, v)}
               onBlur={() => onSetBlur(set.id)}
               onToggleChecked={() => onToggleChecked(set.id)}
+              onAddDropSet={() => onAddDropSet(set.id)}
               selectionMode={removeMode}
               selected={selectedForRemoval.has(set.id)}
               onToggleSelect={() => onToggleSelectForRemoval(set.id)}
@@ -225,7 +249,7 @@ export function ExerciseCard({
           )}
         </View>
 
-        {!removeMode && (
+        {!removeMode && showAdvanceButton && (
           <TouchableOpacity
             onPress={onAdvance}
             activeOpacity={0.85}

@@ -9,7 +9,7 @@ import { useWorkouts } from './hooks/useWorkouts';
 import { useExercises } from './hooks/useExercises';
 import { useWeightUnit } from './hooks/useWeightUnit';
 import { useKeyboardHeight } from './hooks/useKeyboardHeight';
-import { insertWorkout, deleteWorkout } from './db/workouts';
+import { insertWorkout, deleteWorkout, getWorkoutById, updateWorkoutSupersetLinks } from './db/workouts';
 import { insertSet, deleteSetsByExercise, getLastSetsForExercise, getSetsForWorkout, generateId, type NewSetInput } from './db/sets';
 import { getAllExercises } from './db/exercises';
 import { getPendingWorkout, clearPendingWorkout, restorePendingWorkout, updatePendingSlotExercise } from './lib/pendingWorkout';
@@ -43,6 +43,24 @@ function exerciseRefOf(exercise: Exercise): string {
   return exercise.id || exercise.name;
 }
 
+// Partitions cards into contiguous groups using a flat "linked with next" edge
+// set — a chain of linked cardIds (A linked, B linked, C standalone) becomes
+// one group [A, B, C], letting 2+ exercises be superset together with no
+// separate group-object bookkeeping.
+function computeGroups(cards: WorkoutCard[], linkedWithNext: Set<string>): WorkoutCard[][] {
+  const groups: WorkoutCard[][] = [];
+  let current: WorkoutCard[] = [];
+  for (const card of cards) {
+    current.push(card);
+    if (!linkedWithNext.has(card.cardId)) {
+      groups.push(current);
+      current = [];
+    }
+  }
+  if (current.length) groups.push(current);
+  return groups;
+}
+
 function generateInitialSets(
   exercise: Exercise,
   suggestion: OverloadSuggestion | null,
@@ -59,6 +77,7 @@ function generateInitialSets(
     loggedAt: null,
     isWarmup: false,
     position: i,
+    dropSetNumber: 0,
   }));
 }
 
@@ -105,6 +124,10 @@ export default function GeneratedWorkoutScreen() {
   const [localPrefs, setLocalPrefs] = useState<WorkoutPreferences | null>(null);
   const [isRestoring, setIsRestoring] = useState(() => !!resumeWorkoutId);
 
+  // Supersets — cardIds linked with whichever card comes right after them.
+  const [linkedWithNext, setLinkedWithNext] = useState<Set<string>>(new Set());
+  const pendingAdvanceFromCardId = useRef<string | null>(null);
+
   // Cards are generated locally (no DB writes) until the user first interacts
   // with them — this ref tracks which cards have been materialized to the DB.
   const materializedCardIds = useRef<Set<string>>(new Set());
@@ -124,8 +147,9 @@ export default function GeneratedWorkoutScreen() {
   const [pickerSearch, setPickerSearch] = useState('');
   const [showCreateForAdd, setShowCreateForAdd] = useState(false);
 
-  // Remove-sets multi-select mode (scoped to the active card)
-  const [removeMode, setRemoveMode] = useState(false);
+  // Remove-sets multi-select mode — scoped to a single card, since 2+ cards
+  // can be visible at once when they're superset together.
+  const [removeModeCardId, setRemoveModeCardId] = useState<string | null>(null);
   const [selectedForRemoval, setSelectedForRemoval] = useState<Set<string>>(new Set());
   const [pendingRemoval, setPendingRemoval] = useState<{ cardId: string; ids: string[] } | null>(null);
 
@@ -151,7 +175,7 @@ export default function GeneratedWorkoutScreen() {
 
   const selectCard = (cardId: string | null) => {
     setActiveCardId(cardId);
-    setRemoveMode(false);
+    setRemoveModeCardId(null);
     setSelectedForRemoval(new Set());
   };
 
@@ -193,6 +217,7 @@ export default function GeneratedWorkoutScreen() {
             loggedAt: s.logged_at === 'pending' ? null : new Date(s.logged_at),
             isWarmup: s.is_warmup === 1,
             position: s.position,
+            dropSetNumber: s.drop_set_number,
           }));
 
         const addCard = (exercise: Exercise, exId: string) => {
@@ -251,6 +276,22 @@ export default function GeneratedWorkoutScreen() {
         setCardSets(newCardSets);
         setSuggestions(newSuggestions);
         setActiveCardId(newCards[0]?.cardId ?? null);
+
+        const workoutRow = await getWorkoutById(resumeWorkoutId);
+        if (workoutRow) {
+          try {
+            const links: string[] = JSON.parse(workoutRow.superset_links);
+            const restoredLinked = new Set<string>();
+            for (const ref of links) {
+              const match = newCards.find((c) => exerciseRefOf(c.exercise) === ref);
+              if (match) restoredLinked.add(match.cardId);
+            }
+            setLinkedWithNext(restoredLinked);
+          } catch {
+            // corrupt/legacy value — treat as no links
+          }
+        }
+
         setIsRestoring(false);
       },
     );
@@ -293,6 +334,26 @@ export default function GeneratedWorkoutScreen() {
     return workoutRef.current;
   };
 
+  // ─── Supersets ───────────────────────────────────────────────────────────────
+
+  // Persists which cards are linked, translating cardIds to exercise refs
+  // (cardIds are regenerated every session, so they can't be stored directly).
+  const persistSupersetLinks = async (linked: Set<string>) => {
+    const refs = cards.filter((c) => linked.has(c.cardId)).map((c) => exerciseRefOf(c.exercise));
+    const workoutId = await ensureWorkout();
+    await updateWorkoutSupersetLinks(workoutId, refs);
+  };
+
+  const toggleLinkWithNext = (cardId: string) => {
+    setLinkedWithNext((prev) => {
+      const next = new Set(prev);
+      if (next.has(cardId)) next.delete(cardId);
+      else next.add(cardId);
+      persistSupersetLinks(next);
+      return next;
+    });
+  };
+
   // ─── Set operations ─────────────────────────────────────────────────────────
 
   // Persists a whole card's local sets to the DB for the first time.
@@ -307,6 +368,7 @@ export default function GeneratedWorkoutScreen() {
         exercise_id: exerciseRef,
         is_warmup: s.isWarmup ? 1 : 0,
         position: s.position,
+        drop_set_number: s.dropSetNumber,
         ...toDbFields(s, isTime),
       };
       await insertSet(input);
@@ -334,6 +396,7 @@ export default function GeneratedWorkoutScreen() {
         exercise_id: exerciseRef,
         is_warmup: newSet.isWarmup ? 1 : 0,
         position: newSet.position,
+        drop_set_number: newSet.dropSetNumber,
         ...toDbFields(newSet, isTime),
       });
     }
@@ -404,6 +467,7 @@ export default function GeneratedWorkoutScreen() {
       loggedAt: null,
       isWarmup: true,
       position: minPos - 1,
+      dropSetNumber: 0,
     };
     const nextSets = [newSet, ...current];
     setCardSets((prev) => ({ ...prev, [cardId]: nextSets }));
@@ -425,8 +489,40 @@ export default function GeneratedWorkoutScreen() {
       loggedAt: null,
       isWarmup: false,
       position: maxPos + 1,
+      dropSetNumber: 0,
     };
     const nextSets = [...current, newSet];
+    setCardSets((prev) => ({ ...prev, [cardId]: nextSets }));
+    materializeOrInsert(cardId, exerciseRefOf(card.exercise), isTimeBased(card.exercise), nextSets, newSet);
+  };
+
+  // Inserts a reduced-weight continuation set immediately after the one it's
+  // dropped from — spliced into the array at the right index (not appended)
+  // since on-screen order follows array order, and given a fractional
+  // `position` between its neighbors so a resume reconstructs the same order.
+  const addDropSet = (cardId: string, afterSetId: string) => {
+    const card = cards.find((c) => c.cardId === cardId);
+    if (!card) return;
+    const current = cardSets[cardId] ?? [];
+    const idx = current.findIndex((s) => s.id === afterSetId);
+    if (idx === -1) return;
+    const parent = current[idx];
+    const next = current[idx + 1];
+    const newPosition = next ? (parent.position + next.position) / 2 : parent.position + 1;
+    const parentWeight = parseFloat(parent.weight) || 0;
+    const newWeight = parentWeight > 0 ? String(Math.round(parentWeight * 0.8 * 2) / 2) : '';
+    const newSet: LocalSet = {
+      id: generateId(),
+      weight: newWeight,
+      reps: '',
+      durationSeconds: '',
+      unit: parent.unit,
+      loggedAt: null,
+      isWarmup: false,
+      position: newPosition,
+      dropSetNumber: parent.dropSetNumber + 1,
+    };
+    const nextSets = [...current.slice(0, idx + 1), newSet, ...current.slice(idx + 1)];
     setCardSets((prev) => ({ ...prev, [cardId]: nextSets }));
     materializeOrInsert(cardId, exerciseRefOf(card.exercise), isTimeBased(card.exercise), nextSets, newSet);
   };
@@ -439,13 +535,13 @@ export default function GeneratedWorkoutScreen() {
     setCardSets((prev) => ({ ...prev, [cardId]: nextSets }));
   };
 
-  const enterRemoveMode = () => {
-    setRemoveMode(true);
+  const enterRemoveMode = (cardId: string) => {
+    setRemoveModeCardId(cardId);
     setSelectedForRemoval(new Set());
   };
 
   const cancelRemoveMode = () => {
-    setRemoveMode(false);
+    setRemoveModeCardId(null);
     setSelectedForRemoval(new Set());
   };
 
@@ -476,15 +572,19 @@ export default function GeneratedWorkoutScreen() {
       return { ...prev, [cardId]: remaining };
     });
     setPendingRemoval(null);
-    setRemoveMode(false);
+    setRemoveModeCardId(null);
     setSelectedForRemoval(new Set());
   };
 
   // ─── Advance to next exercise / finish ──────────────────────────────────────
 
-  const advance = () => {
-    const activeIndex = cards.findIndex((c) => c.cardId === activeCardId);
-    const nextCard = cards[activeIndex + 1];
+  // Advances past a whole superset group at once — the next card in the flat
+  // `cards` array after a group's last member is guaranteed to be the next
+  // group's first member, since groups partition `cards` contiguously.
+  const advance = (fromGroup: WorkoutCard[]) => {
+    const lastMember = fromGroup[fromGroup.length - 1];
+    const lastIndex = cards.findIndex((c) => c.cardId === lastMember?.cardId);
+    const nextCard = cards[lastIndex + 1];
     if (nextCard) {
       selectCard(nextCard.cardId);
     } else {
@@ -492,12 +592,16 @@ export default function GeneratedWorkoutScreen() {
     }
   };
 
-  const requestAdvance = () => {
-    const sets = cardSets[activeCardId ?? ''] ?? [];
-    const allChecked = sets.length > 0 && sets.every((s) => s.loggedAt !== null);
+  const requestAdvance = (fromCardId: string) => {
+    const group = computeGroups(cards, linkedWithNext).find((g) => g.some((c) => c.cardId === fromCardId)) ?? [];
+    const allChecked = group.every((member) => {
+      const sets = cardSets[member.cardId] ?? [];
+      return sets.length > 0 && sets.every((s) => s.loggedAt !== null);
+    });
     if (allChecked) {
-      advance();
+      advance(group);
     } else {
+      pendingAdvanceFromCardId.current = fromCardId;
       setShowUnfinishedWarning(true);
     }
   };
@@ -537,11 +641,22 @@ export default function GeneratedWorkoutScreen() {
       }
     }
     materializedCardIds.current.delete(deletingCardId);
+    const deletedIndex = cards.findIndex((c) => c.cardId === deletingCardId);
+    const predecessor = cards[deletedIndex - 1];
     const remaining = cards.filter((c) => c.cardId !== deletingCardId);
     setCards(remaining);
     setCardSets((prev) => { const n = { ...prev }; delete n[deletingCardId!]; return n; });
     setSuggestions((prev) => { const n = { ...prev }; delete n[deletingCardId!]; return n; });
     setActiveCardId((prev) => (prev === deletingCardId ? (remaining[0]?.cardId ?? null) : prev));
+    // Break both edges touching the deleted card — its neighbors' adjacency
+    // changed, so any existing link no longer means what it used to.
+    setLinkedWithNext((prev) => {
+      const next = new Set(prev);
+      next.delete(deletingCardId!);
+      if (predecessor) next.delete(predecessor.cardId);
+      persistSupersetLinks(next);
+      return next;
+    });
     setDeletingCardId(null);
   };
 
@@ -589,6 +704,14 @@ export default function GeneratedWorkoutScreen() {
     setSuggestions((prev) => { const n = { ...prev }; delete n[cardId]; return n; });
     setSwitchingCardId(null);
     setSwitchSearch('');
+    // The persisted superset link list is keyed by exercise ref, not cardId —
+    // refresh it now so it points at the newly-switched exercise.
+    if (linkedWithNext.size > 0) {
+      const refreshedCards = cards.map((c) => (c.cardId === cardId ? { ...c, exercise } : c));
+      const refs = refreshedCards.filter((c) => linkedWithNext.has(c.cardId)).map((c) => exerciseRefOf(c.exercise));
+      const workoutId = await ensureWorkout();
+      await updateWorkoutSupersetLinks(workoutId, refs);
+    }
 
     const setsPerExercise = localPrefs?.sets_per_exercise ?? DEFAULT_WORKOUT_PREFS.sets_per_exercise;
     if (isTimeBased(exercise)) {
@@ -618,8 +741,9 @@ export default function GeneratedWorkoutScreen() {
     ? getMuscleLabels(compressMuscles(pending.muscles), locale).join(' · ')
     : '';
 
-  const activeCard = cards.find((c) => c.cardId === activeCardId) ?? null;
-  const isLastExercise = cards.findIndex((c) => c.cardId === activeCardId) === cards.length - 1;
+  const groups = computeGroups(cards, linkedWithNext);
+  const activeGroup = groups.find((g) => g.some((c) => c.cardId === activeCardId)) ?? [];
+  const activeGroupCardIds = new Set(activeGroup.map((c) => c.cardId));
 
   return (
     <Animated.View style={[{ flex: 1 }, panelStyle]}>
@@ -654,8 +778,12 @@ export default function GeneratedWorkoutScreen() {
 
       {/* Exercise tab strip */}
       <ExerciseTabStrip
-        cards={cards.map((c) => ({ cardId: c.cardId, hasSets: (cardSets[c.cardId] ?? []).some((s) => s.loggedAt !== null) }))}
-        activeCardId={activeCardId}
+        cards={cards.map((c) => ({
+          cardId: c.cardId,
+          hasSets: (cardSets[c.cardId] ?? []).some((s) => s.loggedAt !== null),
+          linkedToNext: linkedWithNext.has(c.cardId),
+        }))}
+        activeGroupCardIds={activeGroupCardIds}
         onSelect={selectCard}
         onAdd={() => { if (!isRestoring) setShowPicker(true); }}
       />
@@ -670,31 +798,44 @@ export default function GeneratedWorkoutScreen() {
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
       >
-        {activeCard ? (
-          <ExerciseCard
-            key={activeCard.cardId}
-            exercise={activeCard.exercise}
-            sets={cardSets[activeCard.cardId] ?? []}
-            suggestion={suggestions[activeCard.cardId] ?? null}
-            weightUnit={weightUnit}
-            removeMode={removeMode}
-            selectedForRemoval={selectedForRemoval}
-            onSwitch={() => setSwitchingCardId(activeCard.cardId)}
-            onDelete={() => setDeletingCardId(activeCard.cardId)}
-            onSetWeightChange={(setId, v) => onSetWeightChange(activeCard.cardId, setId, v)}
-            onSetSecondaryChange={(setId, v) => onSetSecondaryChange(activeCard.cardId, setId, v)}
-            onSetBlur={(setId) => onSetBlur(activeCard.cardId, setId)}
-            onToggleChecked={(setId) => toggleSetChecked(activeCard.cardId, setId)}
-            onToggleSelectForRemoval={toggleSelectForRemoval}
-            onAddWarmupSet={() => addWarmupSet(activeCard.cardId)}
-            onAddSet={() => addSet(activeCard.cardId)}
-            onEnterRemoveMode={enterRemoveMode}
-            onCancelRemoveMode={cancelRemoveMode}
-            onConfirmRemove={() => requestConfirmRemove(activeCard.cardId)}
-            onGenerateSets={() => regenerateSets(activeCard.cardId)}
-            isLastExercise={isLastExercise}
-            onAdvance={requestAdvance}
-          />
+        {activeGroup.length > 0 ? (
+          <View style={{ gap: 16 }}>
+            {activeGroup.map((member) => {
+              const memberIndex = cards.findIndex((c) => c.cardId === member.cardId);
+              const memberIsLinked = linkedWithNext.has(member.cardId);
+              return (
+                <ExerciseCard
+                  key={member.cardId}
+                  exercise={member.exercise}
+                  sets={cardSets[member.cardId] ?? []}
+                  suggestion={suggestions[member.cardId] ?? null}
+                  weightUnit={weightUnit}
+                  removeMode={removeModeCardId === member.cardId}
+                  selectedForRemoval={selectedForRemoval}
+                  onSwitch={() => setSwitchingCardId(member.cardId)}
+                  onDelete={() => setDeletingCardId(member.cardId)}
+                  onSetWeightChange={(setId, v) => onSetWeightChange(member.cardId, setId, v)}
+                  onSetSecondaryChange={(setId, v) => onSetSecondaryChange(member.cardId, setId, v)}
+                  onSetBlur={(setId) => onSetBlur(member.cardId, setId)}
+                  onToggleChecked={(setId) => toggleSetChecked(member.cardId, setId)}
+                  onToggleSelectForRemoval={toggleSelectForRemoval}
+                  onAddWarmupSet={() => addWarmupSet(member.cardId)}
+                  onAddSet={() => addSet(member.cardId)}
+                  onAddDropSet={(afterSetId) => addDropSet(member.cardId, afterSetId)}
+                  onEnterRemoveMode={() => enterRemoveMode(member.cardId)}
+                  onCancelRemoveMode={cancelRemoveMode}
+                  onConfirmRemove={() => requestConfirmRemove(member.cardId)}
+                  onGenerateSets={() => regenerateSets(member.cardId)}
+                  isLastExercise={!memberIsLinked && memberIndex === cards.length - 1}
+                  onAdvance={() => requestAdvance(member.cardId)}
+                  canLinkWithNext={memberIndex < cards.length - 1}
+                  isLinkedWithNext={memberIsLinked}
+                  onToggleLinkWithNext={() => toggleLinkWithNext(member.cardId)}
+                  showAdvanceButton={!memberIsLinked}
+                />
+              );
+            })}
+          </View>
         ) : isRestoring ? (
           <View style={{ paddingVertical: 64, alignItems: 'center', gap: 12 }}>
             <ActivityIndicator color={C.textMuted} />
@@ -925,7 +1066,13 @@ export default function GeneratedWorkoutScreen() {
         message={t('unfinishedSetsMessage')}
         confirmLabel={t('continueAnyway')}
         onCancel={() => setShowUnfinishedWarning(false)}
-        onConfirm={() => { setShowUnfinishedWarning(false); advance(); }}
+        onConfirm={() => {
+          setShowUnfinishedWarning(false);
+          const fromCardId = pendingAdvanceFromCardId.current;
+          if (!fromCardId) return;
+          const group = computeGroups(cards, linkedWithNext).find((g) => g.some((c) => c.cardId === fromCardId)) ?? [];
+          advance(group);
+        }}
       />
 
       {/* Remove sets confirmation */}

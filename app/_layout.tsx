@@ -46,6 +46,10 @@ async function initializeDb(database: SQLiteDatabase) {
   if (setCols.length > 0 && !setCols.find((c) => c.name === 'position')) {
     await database.execAsync('ALTER TABLE sets ADD COLUMN position INTEGER NOT NULL DEFAULT 0;');
   }
+  // Migration: add drop_set_number column to sets if missing (0 = normal set, N = the Nth drop in its chain)
+  if (setCols.length > 0 && !setCols.find((c) => c.name === 'drop_set_number')) {
+    await database.execAsync('ALTER TABLE sets ADD COLUMN drop_set_number INTEGER NOT NULL DEFAULT 0;');
+  }
 
   // Migration: add logging_type column to exercises if missing (reps vs. time based)
   if (exerciseCols.length > 0 && !exerciseCols.find((c) => c.name === 'logging_type')) {
@@ -90,6 +94,11 @@ async function initializeDb(database: SQLiteDatabase) {
   if (workoutCols.length > 0 && !workoutCols.find((c) => c.name === 'split_day_name')) {
     await database.execAsync('ALTER TABLE workouts ADD COLUMN split_day_name TEXT;');
   }
+  // Migration: add superset_links column to workouts if missing (JSON array of exercise refs
+  // that are each linked with whichever exercise comes right after them)
+  if (workoutCols.length > 0 && !workoutCols.find((c) => c.name === 'superset_links')) {
+    await database.execAsync(`ALTER TABLE workouts ADD COLUMN superset_links TEXT NOT NULL DEFAULT '[]';`);
+  }
 
   await database.execAsync(`
     CREATE TABLE IF NOT EXISTS exercises (
@@ -119,7 +128,8 @@ async function initializeDb(database: SQLiteDatabase) {
       started_at     TEXT NOT NULL,
       finished_at    TEXT,
       split_day_name TEXT,
-      created_at     INTEGER NOT NULL
+      created_at     INTEGER NOT NULL,
+      superset_links TEXT NOT NULL DEFAULT '[]'
     );
   `);
   await database.execAsync(`
@@ -136,7 +146,8 @@ async function initializeDb(database: SQLiteDatabase) {
       is_pr            INTEGER NOT NULL DEFAULT 0,
       duration_seconds INTEGER,
       is_warmup        INTEGER NOT NULL DEFAULT 0,
-      position         INTEGER NOT NULL DEFAULT 0
+      position         INTEGER NOT NULL DEFAULT 0,
+      drop_set_number  INTEGER NOT NULL DEFAULT 0
     );
   `);
   await database.execAsync(`

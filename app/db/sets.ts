@@ -14,6 +14,7 @@ export type WorkoutSet = {
   duration_seconds: number | null;
   is_warmup: number;
   position: number;
+  drop_set_number: number;
 };
 
 export type NewSetInput = {
@@ -28,6 +29,7 @@ export type NewSetInput = {
   duration_seconds?: number | null;
   is_warmup?: number;
   position: number;
+  drop_set_number?: number;
 };
 
 export type UpdateSetInput = {
@@ -53,6 +55,7 @@ type RawSetRow = {
   duration_seconds: number | null;
   is_warmup: number;
   position: number;
+  drop_set_number: number;
 };
 
 export function generateId(): string {
@@ -65,8 +68,8 @@ export async function insertSet(input: NewSetInput): Promise<string> {
   await db.runAsync(
     `INSERT INTO sets
        (id, workout_id, exercise_id,
-        reps, difficulty, weight, unit, logged_at, created_at, duration_seconds, is_warmup, position)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        reps, difficulty, weight, unit, logged_at, created_at, duration_seconds, is_warmup, position, drop_set_number)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     id,
     input.workout_id,
     input.exercise_id,
@@ -79,6 +82,7 @@ export async function insertSet(input: NewSetInput): Promise<string> {
     input.duration_seconds ?? null,
     input.is_warmup ?? 0,
     input.position,
+    input.drop_set_number ?? 0,
   );
   return id;
 }

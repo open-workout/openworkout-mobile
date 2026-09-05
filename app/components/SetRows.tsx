@@ -1,5 +1,6 @@
-import { View, TextInput, TouchableOpacity } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useTranslation } from 'react-i18next';
 import { accent } from '../theme/colors';
 
 export type LoggingType = 'reps' | 'time';
@@ -13,6 +14,7 @@ export type LocalSet = {
   loggedAt: Date | null;
   isWarmup: boolean;
   position: number;
+  dropSetNumber: number;
 };
 
 export function isSetFilled(set: LocalSet, loggingType: LoggingType): boolean {
@@ -27,6 +29,7 @@ export function SetRow({
   onSecondaryChange,
   onBlur,
   onToggleChecked,
+  onAddDropSet,
   selectionMode,
   selected,
   onToggleSelect,
@@ -37,68 +40,84 @@ export function SetRow({
   onSecondaryChange: (v: string) => void;
   onBlur: () => void;
   onToggleChecked: () => void;
+  onAddDropSet: () => void;
   selectionMode: boolean;
   selected: boolean;
   onToggleSelect: () => void;
 }) {
+  const { t } = useTranslation('workout');
   const checked = set.loggedAt !== null;
   const canCheck = isSetFilled(set, loggingType);
   const secondaryValue = loggingType === 'time' ? set.durationSeconds : set.reps;
   const bg = selected ? 'rgba(239,68,68,0.08)' : checked ? 'rgba(16,185,129,0.06)' : 'transparent';
 
   return (
-    <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, paddingVertical: 12, gap: 8, backgroundColor: bg, borderTopWidth: 1, borderTopColor: 'rgba(39,39,42,0.5)', position: 'relative' }}>
+    <View style={{ backgroundColor: bg, borderTopWidth: 1, borderTopColor: 'rgba(39,39,42,0.5)', position: 'relative' }}>
       {checked && !selectionMode && (
         <View style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: 2, backgroundColor: '#10b981' }} />
       )}
-      <View style={{ width: 26, alignItems: 'center' }}>
-        {set.isWarmup && (
-          <Ionicons name="flame-outline" size={14} color={accent.amber} />
-        )}
-      </View>
-      <View style={{ flex: 1 }}>
-        <TextInput
-          value={set.weight}
-          onChangeText={onWeightChange}
-          onBlur={onBlur}
-          placeholder="—"
-          placeholderTextColor="#3f3f46"
-          keyboardType="numeric"
-          editable={!selectionMode}
-          style={{ backgroundColor: '#0a0a0a', borderWidth: 1, borderColor: '#3f3f46', borderRadius: 8, paddingVertical: 8, textAlign: 'center', color: '#fff', fontWeight: '500', fontSize: 14 }}
-        />
-      </View>
-      <View style={{ flex: 1 }}>
-        <TextInput
-          value={secondaryValue}
-          onChangeText={onSecondaryChange}
-          onBlur={onBlur}
-          placeholder={loggingType === 'time' ? 'sec' : '—'}
-          placeholderTextColor="#3f3f46"
-          keyboardType="numeric"
-          editable={!selectionMode}
-          style={{ backgroundColor: '#0a0a0a', borderWidth: 1, borderColor: '#3f3f46', borderRadius: 8, paddingVertical: 8, textAlign: 'center', color: '#fff', fontWeight: '500', fontSize: 14 }}
-        />
-      </View>
-      <TouchableOpacity
-        onPress={selectionMode ? onToggleSelect : onToggleChecked}
-        style={{ width: 28, alignItems: 'center' }}
-        hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-      >
-        {selectionMode ? (
-          <Ionicons
-            name={selected ? 'checkmark-circle' : 'ellipse-outline'}
-            size={22}
-            color={selected ? accent.red : '#52525b'}
+      <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, paddingTop: 12, paddingBottom: selectionMode ? 12 : 4, gap: 8 }}>
+        <View style={{ width: 30, alignItems: 'center' }}>
+          {set.isWarmup ? (
+            <Ionicons name="flame-outline" size={14} color={accent.amber} />
+          ) : set.dropSetNumber > 0 ? (
+            <Text style={{ color: accent.amber, fontSize: 10, fontWeight: '800' }}>{`D${set.dropSetNumber}`}</Text>
+          ) : null}
+        </View>
+        <View style={{ flex: 1 }}>
+          <TextInput
+            value={set.weight}
+            onChangeText={onWeightChange}
+            onBlur={onBlur}
+            placeholder="—"
+            placeholderTextColor="#3f3f46"
+            keyboardType="numeric"
+            editable={!selectionMode}
+            style={{ backgroundColor: '#0a0a0a', borderWidth: 1, borderColor: '#3f3f46', borderRadius: 8, paddingVertical: 8, textAlign: 'center', color: '#fff', fontWeight: '500', fontSize: 14 }}
           />
-        ) : (
-          <Ionicons
-            name={checked ? 'checkmark-circle' : 'ellipse-outline'}
-            size={22}
-            color={checked ? accent.green : canCheck ? '#71717a' : '#3f3f46'}
+        </View>
+        <View style={{ flex: 1 }}>
+          <TextInput
+            value={secondaryValue}
+            onChangeText={onSecondaryChange}
+            onBlur={onBlur}
+            placeholder={loggingType === 'time' ? 'sec' : '—'}
+            placeholderTextColor="#3f3f46"
+            keyboardType="numeric"
+            editable={!selectionMode}
+            style={{ backgroundColor: '#0a0a0a', borderWidth: 1, borderColor: '#3f3f46', borderRadius: 8, paddingVertical: 8, textAlign: 'center', color: '#fff', fontWeight: '500', fontSize: 14 }}
           />
-        )}
-      </TouchableOpacity>
+        </View>
+        <TouchableOpacity
+          onPress={selectionMode ? onToggleSelect : onToggleChecked}
+          style={{ width: 28, alignItems: 'center' }}
+          hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+        >
+          {selectionMode ? (
+            <Ionicons
+              name={selected ? 'checkmark-circle' : 'ellipse-outline'}
+              size={22}
+              color={selected ? accent.red : '#52525b'}
+            />
+          ) : (
+            <Ionicons
+              name={checked ? 'checkmark-circle' : 'ellipse-outline'}
+              size={22}
+              color={checked ? accent.green : canCheck ? '#71717a' : '#3f3f46'}
+            />
+          )}
+        </TouchableOpacity>
+      </View>
+      {!selectionMode && (
+        <TouchableOpacity
+          onPress={onAddDropSet}
+          style={{ flexDirection: 'row', alignItems: 'center', gap: 4, paddingHorizontal: 16, paddingLeft: 38, paddingBottom: 10 }}
+          hitSlop={{ top: 4, bottom: 4, left: 4, right: 8 }}
+        >
+          <Ionicons name="trending-down-outline" size={12} color={accent.amber} />
+          <Text style={{ color: accent.amber, fontSize: 11, fontWeight: '700' }}>{t('dropSet')}</Text>
+        </TouchableOpacity>
+      )}
     </View>
   );
 }

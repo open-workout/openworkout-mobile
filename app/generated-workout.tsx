@@ -1,4 +1,4 @@
-import { View, Text, ScrollView, TouchableOpacity, StatusBar, Modal, TextInput, KeyboardAvoidingView, Platform, Dimensions } from 'react-native';
+import { View, Text, ScrollView, FlatList, TouchableOpacity, StatusBar, Modal, TextInput, KeyboardAvoidingView, Platform, Dimensions } from 'react-native';
 import Animated, { useSharedValue, useAnimatedStyle, withTiming, runOnJS } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -737,44 +737,46 @@ export default function GeneratedWorkoutScreen() {
             )}
           </View>
 
-          <ScrollView
+          <FlatList
             style={{ flex: 1 }}
             keyboardShouldPersistTaps="handled"
             contentContainerStyle={{ paddingBottom: pickerListBottomPadding }}
-          >
-            <TouchableOpacity
-              onPress={() => setShowCreate(true)}
-              style={{ flexDirection: 'row', alignItems: 'center', gap: 10, paddingHorizontal: 20, paddingVertical: 16, borderBottomWidth: 1, borderBottomColor: C.border }}
-            >
-              <View style={{ width: 28, height: 28, borderRadius: 8, backgroundColor: C.card, borderWidth: 1, borderColor: C.borderAlt, alignItems: 'center', justifyContent: 'center' }}>
-                <Ionicons name="add" size={18} color={C.text} />
-              </View>
-              <Text style={{ color: C.text, fontSize: 15, fontWeight: '600' }}>{t('routines:createExercise')}</Text>
-            </TouchableOpacity>
-
-            {switchCandidates.length === 0 ? (
+            data={switchCandidates}
+            keyExtractor={(candidate) => candidate.id ?? candidate.name}
+            initialNumToRender={20}
+            windowSize={7}
+            ListHeaderComponent={
+              <TouchableOpacity
+                onPress={() => setShowCreate(true)}
+                style={{ flexDirection: 'row', alignItems: 'center', gap: 10, paddingHorizontal: 20, paddingVertical: 16, borderBottomWidth: 1, borderBottomColor: C.border }}
+              >
+                <View style={{ width: 28, height: 28, borderRadius: 8, backgroundColor: C.card, borderWidth: 1, borderColor: C.borderAlt, alignItems: 'center', justifyContent: 'center' }}>
+                  <Ionicons name="add" size={18} color={C.text} />
+                </View>
+                <Text style={{ color: C.text, fontSize: 15, fontWeight: '600' }}>{t('routines:createExercise')}</Text>
+              </TouchableOpacity>
+            }
+            ListEmptyComponent={
               <View style={{ alignItems: 'center', paddingTop: 48, paddingHorizontal: 32 }}>
                 <Text style={{ color: C.textDim, fontSize: 15, textAlign: 'center' }}>
                   {q ? t('routines:noExercisesMatchSearch') : t('noSimilarExercisesFound')}
                 </Text>
               </View>
-            ) : (
-              switchCandidates.map((candidate) => (
-                <TouchableOpacity
-                  key={candidate.id ?? candidate.name}
-                  onPress={() => selectAlternative(switchingCardId!, candidate)}
-                  style={{ paddingHorizontal: 20, paddingVertical: 16, borderBottomWidth: 1, borderBottomColor: C.border }}
-                >
-                  <Text style={{ color: C.text, fontSize: 16, fontWeight: '600' }}>{getExerciseDisplayName(candidate, locale)}</Text>
-                  {candidate.primary_muscles.length > 0 && (
-                    <Text style={{ color: C.textDim, fontSize: 13, marginTop: 2 }}>
-                      {getMuscleLabels(candidate.primary_muscles, locale).join(', ')}
-                    </Text>
-                  )}
-                </TouchableOpacity>
-              ))
+            }
+            renderItem={({ item: candidate }) => (
+              <TouchableOpacity
+                onPress={() => selectAlternative(switchingCardId!, candidate)}
+                style={{ paddingHorizontal: 20, paddingVertical: 16, borderBottomWidth: 1, borderBottomColor: C.border }}
+              >
+                <Text style={{ color: C.text, fontSize: 16, fontWeight: '600' }}>{getExerciseDisplayName(candidate, locale)}</Text>
+                {candidate.primary_muscles.length > 0 && (
+                  <Text style={{ color: C.textDim, fontSize: 13, marginTop: 2 }}>
+                    {getMuscleLabels(candidate.primary_muscles, locale).join(', ')}
+                  </Text>
+                )}
+              </TouchableOpacity>
             )}
-          </ScrollView>
+          />
         </SafeAreaView>
       </Modal>
 
@@ -814,24 +816,27 @@ export default function GeneratedWorkoutScreen() {
             )}
           </View>
 
-          <ScrollView
+          <FlatList
             style={{ flex: 1 }}
             keyboardShouldPersistTaps="handled"
             contentContainerStyle={{ paddingBottom: pickerListBottomPadding }}
-          >
-            <TouchableOpacity
-              onPress={() => setShowCreateForAdd(true)}
-              style={{ flexDirection: 'row', alignItems: 'center', gap: 10, paddingHorizontal: 20, paddingVertical: 16, borderBottomWidth: 1, borderBottomColor: C.border }}
-            >
-              <View style={{ width: 28, height: 28, borderRadius: 8, backgroundColor: C.card, borderWidth: 1, borderColor: C.borderAlt, alignItems: 'center', justifyContent: 'center' }}>
-                <Ionicons name="add" size={18} color={C.text} />
-              </View>
-              <Text style={{ color: C.text, fontSize: 15, fontWeight: '600' }}>{t('routines:createExercise')}</Text>
-            </TouchableOpacity>
-
-            {pickerCandidates.map((candidate) => (
+            data={pickerCandidates}
+            keyExtractor={(candidate) => candidate.id ?? candidate.name}
+            initialNumToRender={20}
+            windowSize={7}
+            ListHeaderComponent={
               <TouchableOpacity
-                key={candidate.id ?? candidate.name}
+                onPress={() => setShowCreateForAdd(true)}
+                style={{ flexDirection: 'row', alignItems: 'center', gap: 10, paddingHorizontal: 20, paddingVertical: 16, borderBottomWidth: 1, borderBottomColor: C.border }}
+              >
+                <View style={{ width: 28, height: 28, borderRadius: 8, backgroundColor: C.card, borderWidth: 1, borderColor: C.borderAlt, alignItems: 'center', justifyContent: 'center' }}>
+                  <Ionicons name="add" size={18} color={C.text} />
+                </View>
+                <Text style={{ color: C.text, fontSize: 15, fontWeight: '600' }}>{t('routines:createExercise')}</Text>
+              </TouchableOpacity>
+            }
+            renderItem={({ item: candidate }) => (
+              <TouchableOpacity
                 onPress={() => addCard(candidate)}
                 style={{ paddingHorizontal: 20, paddingVertical: 16, borderBottomWidth: 1, borderBottomColor: C.border }}
               >
@@ -842,8 +847,8 @@ export default function GeneratedWorkoutScreen() {
                   </Text>
                 )}
               </TouchableOpacity>
-            ))}
-          </ScrollView>
+            )}
+          />
         </SafeAreaView>
       </Modal>
 

@@ -16,7 +16,7 @@ import { getPendingWorkout, clearPendingWorkout, restorePendingWorkout, updatePe
 import { findAlternatives } from './lib/generateWorkout';
 import { compressMuscles } from './constants/splits';
 import type { Exercise, NewExerciseInput } from './db/exercises';
-import { isSetFilled, type LocalSet } from './components/SetRows';
+import { isSetFilled, defaultMeasurementType, type LocalSet, type MeasurementType } from './components/SetRows';
 import AddExerciseModal from './components/AddExerciseModal';
 import ConfirmModal from './components/ConfirmModal';
 import { ExerciseCard } from './components/ExerciseCard';
@@ -35,8 +35,10 @@ function mkId() {
   return Math.random().toString(36).slice(2);
 }
 
-function isTimeBased(exercise: Exercise): boolean {
-  return (exercise.logging_type ?? 'reps') === 'time';
+// Progressive-overload suggestions are a weight/reps heuristic — only
+// meaningful for exercises whose default (highest-priority) mode is reps.
+function suggestsProgress(exercise: Exercise): boolean {
+  return defaultMeasurementType(exercise) === 'reps';
 }
 
 function exerciseRefOf(exercise: Exercise): string {
@@ -66,14 +68,17 @@ function generateInitialSets(
   suggestion: OverloadSuggestion | null,
   count: number,
   weightUnit: 'kg' | 'lbs',
+  measurementType: MeasurementType,
 ): LocalSet[] {
-  const isTime = isTimeBased(exercise);
+  const isReps = measurementType === 'reps';
   return Array.from({ length: Math.max(1, count) }, (_, i) => ({
     id: generateId(),
-    weight: !isTime && suggestion ? String(suggestion.weight) : '',
-    reps: !isTime && suggestion && !suggestion.isAmrap ? String(suggestion.reps) : '',
+    weight: exercise.requires_weight && isReps && suggestion ? String(suggestion.weight) : '',
+    reps: isReps && suggestion && !suggestion.isAmrap ? String(suggestion.reps) : '',
     durationSeconds: '',
+    distance: '',
     unit: weightUnit,
+    measurementType,
     loggedAt: null,
     isWarmup: false,
     position: i,
@@ -85,14 +90,16 @@ function generateInitialSets(
 // value, so it can't double as "blank"). A set can only ever reach a real
 // (non-'pending') logged_at once its required fields are non-blank, so every
 // history/suggestion/PR query already excluding 'pending' rows never observes -1.
-function toDbFields(set: LocalSet, isTime: boolean) {
+function toDbFields(set: LocalSet) {
   return {
-    reps: isTime ? -1 : (set.reps.trim() ? parseFloat(set.reps) : -1),
+    reps: set.measurementType === 'reps' && set.reps.trim() ? parseFloat(set.reps) : -1,
     difficulty: 0,
     weight: set.weight.trim() ? parseFloat(set.weight) : -1,
     unit: set.unit,
     logged_at: set.loggedAt ? set.loggedAt.toISOString() : 'pending',
-    duration_seconds: isTime ? (set.durationSeconds.trim() ? (parseInt(set.durationSeconds, 10) || 0) : null) : null,
+    duration_seconds: set.measurementType === 'time' && set.durationSeconds.trim() ? (parseInt(set.durationSeconds, 10) || 0) : null,
+    distance: set.measurementType === 'distance' && set.distance.trim() ? parseFloat(set.distance) : null,
+    measurement_type: set.measurementType,
   };
 }
 
@@ -120,6 +127,11 @@ export default function GeneratedWorkoutScreen() {
 
   // Per-card state keyed by cardId (stable across add/delete)
   const [cardSets, setCardSets] = useState<Record<string, LocalSet[]>>({});
+  // Which reps/time/distance mode a *new* blank set on this card should use —
+  // changing it never touches sets that already have a value entered.
+  const [currentMeasurementType, setCurrentMeasurementType] = useState<Record<string, MeasurementType>>(() =>
+    Object.fromEntries(cards.map((c) => [c.cardId, defaultMeasurementType(c.exercise)])),
+  );
   const [suggestions, setSuggestions] = useState<Record<string, OverloadSuggestion | null>>({});
   const [localPrefs, setLocalPrefs] = useState<WorkoutPreferences | null>(null);
   const [isRestoring, setIsRestoring] = useState(() => !!resumeWorkoutId);
@@ -203,6 +215,7 @@ export default function GeneratedWorkoutScreen() {
         const newCards: WorkoutCard[] = [];
         const newCardSets: Record<string, LocalSet[]> = {};
         const newSuggestions: Record<string, OverloadSuggestion | null> = {};
+        const newCurrentMeasurementType: Record<string, MeasurementType> = {};
         const handledExIds = new Set<string>();
         const materializedIds: string[] = [];
         const generationTasks: Promise<void>[] = [];
@@ -213,7 +226,9 @@ export default function GeneratedWorkoutScreen() {
             weight: s.weight === -1 ? '' : String(s.weight),
             reps: s.reps === -1 ? '' : String(s.reps),
             durationSeconds: s.duration_seconds != null ? String(s.duration_seconds) : '',
+            distance: s.distance != null ? String(s.distance) : '',
             unit: s.unit as 'kg' | 'lbs',
+            measurementType: (s.measurement_type as MeasurementType) || 'reps',
             loggedAt: s.logged_at === 'pending' ? null : new Date(s.logged_at),
             isWarmup: s.is_warmup === 1,
             position: s.position,
@@ -225,6 +240,8 @@ export default function GeneratedWorkoutScreen() {
           const exSets = grouped.get(exId) ?? [];
           newCards.push({ cardId, exercise });
           handledExIds.add(exId);
+          const measurementType = defaultMeasurementType(exercise);
+          newCurrentMeasurementType[cardId] = measurementType;
 
           if (exSets.length > 0) {
             newCardSets[cardId] = toLocalSets(exSets);
@@ -232,15 +249,15 @@ export default function GeneratedWorkoutScreen() {
             return;
           }
 
-          if (isTimeBased(exercise)) {
-            newCardSets[cardId] = generateInitialSets(exercise, null, localPrefs.sets_per_exercise, weightUnit);
+          if (!suggestsProgress(exercise)) {
+            newCardSets[cardId] = generateInitialSets(exercise, null, localPrefs.sets_per_exercise, weightUnit, measurementType);
             return;
           }
           generationTasks.push(
             getLastSetsForExercise(exerciseRefOf(exercise)).then((sets) => {
               const suggestion = computeProgressSuggestion(sets, localPrefs.progress_reps, weightUnit, t);
               newSuggestions[cardId] = suggestion;
-              newCardSets[cardId] = generateInitialSets(exercise, suggestion, localPrefs.sets_per_exercise, weightUnit);
+              newCardSets[cardId] = generateInitialSets(exercise, suggestion, localPrefs.sets_per_exercise, weightUnit, measurementType);
             }),
           );
         };
@@ -264,7 +281,7 @@ export default function GeneratedWorkoutScreen() {
         // Suggestions for cards that already have sets too, for the overload hint banner.
         await Promise.all(
           newCards
-            .filter((c) => !isTimeBased(c.exercise) && !(c.cardId in newSuggestions))
+            .filter((c) => suggestsProgress(c.exercise) && !(c.cardId in newSuggestions))
             .map(async (c) => {
               const sets = await getLastSetsForExercise(exerciseRefOf(c.exercise));
               newSuggestions[c.cardId] = computeProgressSuggestion(sets, localPrefs.progress_reps, weightUnit, t);
@@ -275,6 +292,7 @@ export default function GeneratedWorkoutScreen() {
         setCards(newCards);
         setCardSets(newCardSets);
         setSuggestions(newSuggestions);
+        setCurrentMeasurementType(newCurrentMeasurementType);
         setActiveCardId(newCards[0]?.cardId ?? null);
 
         const workoutRow = await getWorkoutById(resumeWorkoutId);
@@ -302,7 +320,7 @@ export default function GeneratedWorkoutScreen() {
     if (!localPrefs || resumeWorkoutId) return;
     Promise.all(
       cards.map(async (card) => {
-        if (isTimeBased(card.exercise)) return { cardId: card.cardId, suggestion: null as OverloadSuggestion | null };
+        if (!suggestsProgress(card.exercise)) return { cardId: card.cardId, suggestion: null as OverloadSuggestion | null };
         const sets = await getLastSetsForExercise(exerciseRefOf(card.exercise));
         return { cardId: card.cardId, suggestion: computeProgressSuggestion(sets, localPrefs.progress_reps, weightUnit, t) };
       }),
@@ -314,7 +332,8 @@ export default function GeneratedWorkoutScreen() {
         const next = { ...prev };
         for (const card of cards) {
           if (next[card.cardId]) continue;
-          next[card.cardId] = generateInitialSets(card.exercise, suggMap[card.cardId] ?? null, localPrefs.sets_per_exercise, weightUnit);
+          const measurementType = currentMeasurementType[card.cardId] ?? defaultMeasurementType(card.exercise);
+          next[card.cardId] = generateInitialSets(card.exercise, suggMap[card.cardId] ?? null, localPrefs.sets_per_exercise, weightUnit, measurementType);
         }
         return next;
       });
@@ -357,7 +376,7 @@ export default function GeneratedWorkoutScreen() {
   // ─── Set operations ─────────────────────────────────────────────────────────
 
   // Persists a whole card's local sets to the DB for the first time.
-  const materializeCard = async (cardId: string, exerciseRef: string, isTime: boolean, sets: LocalSet[]) => {
+  const materializeCard = async (cardId: string, exerciseRef: string, sets: LocalSet[]) => {
     if (materializedCardIds.current.has(cardId)) return;
     materializedCardIds.current.add(cardId);
     const workoutId = await ensureWorkout();
@@ -369,25 +388,25 @@ export default function GeneratedWorkoutScreen() {
         is_warmup: s.isWarmup ? 1 : 0,
         position: s.position,
         drop_set_number: s.dropSetNumber,
-        ...toDbFields(s, isTime),
+        ...toDbFields(s),
       };
       await insertSet(input);
     }
   };
 
   // Either materializes the whole card (first interaction) or updates one already-persisted set.
-  const materializeOrUpdate = async (cardId: string, exerciseRef: string, isTime: boolean, allSets: LocalSet[], changedSet: LocalSet) => {
+  const materializeOrUpdate = async (cardId: string, exerciseRef: string, allSets: LocalSet[], changedSet: LocalSet) => {
     if (!materializedCardIds.current.has(cardId)) {
-      await materializeCard(cardId, exerciseRef, isTime, allSets);
+      await materializeCard(cardId, exerciseRef, allSets);
     } else {
-      await editSet(changedSet.id, toDbFields(changedSet, isTime));
+      await editSet(changedSet.id, toDbFields(changedSet));
     }
   };
 
   // Either materializes the whole card (including the new set) or inserts just the new set.
-  const materializeOrInsert = async (cardId: string, exerciseRef: string, isTime: boolean, allSets: LocalSet[], newSet: LocalSet) => {
+  const materializeOrInsert = async (cardId: string, exerciseRef: string, allSets: LocalSet[], newSet: LocalSet) => {
     if (!materializedCardIds.current.has(cardId)) {
-      await materializeCard(cardId, exerciseRef, isTime, allSets);
+      await materializeCard(cardId, exerciseRef, allSets);
     } else {
       const workoutId = await ensureWorkout();
       await insertSet({
@@ -397,7 +416,7 @@ export default function GeneratedWorkoutScreen() {
         is_warmup: newSet.isWarmup ? 1 : 0,
         position: newSet.position,
         drop_set_number: newSet.dropSetNumber,
-        ...toDbFields(newSet, isTime),
+        ...toDbFields(newSet),
       });
     }
   };
@@ -405,7 +424,6 @@ export default function GeneratedWorkoutScreen() {
   const toggleSetChecked = (cardId: string, setId: string) => {
     const card = cards.find((c) => c.cardId === cardId);
     if (!card) return;
-    const isTime = isTimeBased(card.exercise);
     const current = cardSets[cardId] ?? [];
     const target = current.find((s) => s.id === setId);
     if (!target) return;
@@ -414,15 +432,15 @@ export default function GeneratedWorkoutScreen() {
     if (target.loggedAt !== null) {
       nextSet = { ...target, loggedAt: null };
     } else {
-      if (!isSetFilled(target, isTime ? 'time' : 'reps')) return;
+      if (!isSetFilled(target, card.exercise.requires_weight)) return;
       nextSet = { ...target, loggedAt: new Date() };
     }
     const nextSets = current.map((s) => (s.id === setId ? nextSet : s));
     setCardSets((prev) => ({ ...prev, [cardId]: nextSets }));
-    materializeOrUpdate(cardId, exerciseRefOf(card.exercise), isTime, nextSets, nextSet);
+    materializeOrUpdate(cardId, exerciseRefOf(card.exercise), nextSets, nextSet);
   };
 
-  const updateSetField = (cardId: string, setId: string, field: 'weight' | 'reps' | 'durationSeconds', value: string) => {
+  const updateSetField = (cardId: string, setId: string, field: 'weight' | 'reps' | 'durationSeconds' | 'distance', value: string) => {
     const current = cardSets[cardId] ?? [];
     const nextSets = current.map((s) => {
       if (s.id !== setId) return s;
@@ -438,19 +456,18 @@ export default function GeneratedWorkoutScreen() {
   };
 
   const onSetSecondaryChange = (cardId: string, setId: string, value: string) => {
-    const card = cards.find((c) => c.cardId === cardId);
-    const isTime = card ? isTimeBased(card.exercise) : false;
-    updateSetField(cardId, setId, isTime ? 'durationSeconds' : 'reps', value);
+    const set = (cardSets[cardId] ?? []).find((s) => s.id === setId);
+    const field = set?.measurementType === 'time' ? 'durationSeconds' : set?.measurementType === 'distance' ? 'distance' : 'reps';
+    updateSetField(cardId, setId, field, value);
   };
 
   const onSetBlur = (cardId: string, setId: string) => {
     const card = cards.find((c) => c.cardId === cardId);
     if (!card) return;
-    const isTime = isTimeBased(card.exercise);
     const sets = cardSets[cardId] ?? [];
     const set = sets.find((s) => s.id === setId);
     if (!set) return;
-    materializeOrUpdate(cardId, exerciseRefOf(card.exercise), isTime, sets, set);
+    materializeOrUpdate(cardId, exerciseRefOf(card.exercise), sets, set);
   };
 
   const addWarmupSet = (cardId: string) => {
@@ -463,7 +480,9 @@ export default function GeneratedWorkoutScreen() {
       weight: '',
       reps: '',
       durationSeconds: '',
+      distance: '',
       unit: weightUnit,
+      measurementType: currentMeasurementType[cardId] ?? defaultMeasurementType(card.exercise),
       loggedAt: null,
       isWarmup: true,
       position: minPos - 1,
@@ -471,7 +490,7 @@ export default function GeneratedWorkoutScreen() {
     };
     const nextSets = [newSet, ...current];
     setCardSets((prev) => ({ ...prev, [cardId]: nextSets }));
-    materializeOrInsert(cardId, exerciseRefOf(card.exercise), isTimeBased(card.exercise), nextSets, newSet);
+    materializeOrInsert(cardId, exerciseRefOf(card.exercise), nextSets, newSet);
   };
 
   const addSet = (cardId: string) => {
@@ -480,12 +499,15 @@ export default function GeneratedWorkoutScreen() {
     const current = cardSets[cardId] ?? [];
     const last = current[current.length - 1];
     const maxPos = current.length ? Math.max(...current.map((s) => s.position)) : -1;
+    const measurementType = currentMeasurementType[cardId] ?? defaultMeasurementType(card.exercise);
     const newSet: LocalSet = {
       id: generateId(),
       weight: last?.weight ?? '',
-      reps: last?.reps ?? '',
-      durationSeconds: last?.durationSeconds ?? '',
+      reps: last?.measurementType === measurementType ? last.reps : '',
+      durationSeconds: last?.measurementType === measurementType ? last.durationSeconds : '',
+      distance: last?.measurementType === measurementType ? last.distance : '',
       unit: weightUnit,
+      measurementType,
       loggedAt: null,
       isWarmup: false,
       position: maxPos + 1,
@@ -493,7 +515,7 @@ export default function GeneratedWorkoutScreen() {
     };
     const nextSets = [...current, newSet];
     setCardSets((prev) => ({ ...prev, [cardId]: nextSets }));
-    materializeOrInsert(cardId, exerciseRefOf(card.exercise), isTimeBased(card.exercise), nextSets, newSet);
+    materializeOrInsert(cardId, exerciseRefOf(card.exercise), nextSets, newSet);
   };
 
   // Inserts a reduced-weight continuation set immediately after the one it's
@@ -502,7 +524,7 @@ export default function GeneratedWorkoutScreen() {
   // `position` between its neighbors so a resume reconstructs the same order.
   const addDropSet = (cardId: string, afterSetId: string) => {
     const card = cards.find((c) => c.cardId === cardId);
-    if (!card) return;
+    if (!card || !card.exercise.requires_weight) return;
     const current = cardSets[cardId] ?? [];
     const idx = current.findIndex((s) => s.id === afterSetId);
     if (idx === -1) return;
@@ -516,7 +538,9 @@ export default function GeneratedWorkoutScreen() {
       weight: newWeight,
       reps: '',
       durationSeconds: '',
+      distance: '',
       unit: parent.unit,
+      measurementType: parent.measurementType,
       loggedAt: null,
       isWarmup: false,
       position: newPosition,
@@ -524,14 +548,34 @@ export default function GeneratedWorkoutScreen() {
     };
     const nextSets = [...current.slice(0, idx + 1), newSet, ...current.slice(idx + 1)];
     setCardSets((prev) => ({ ...prev, [cardId]: nextSets }));
-    materializeOrInsert(cardId, exerciseRefOf(card.exercise), isTimeBased(card.exercise), nextSets, newSet);
+    materializeOrInsert(cardId, exerciseRefOf(card.exercise), nextSets, newSet);
   };
 
   const regenerateSets = (cardId: string) => {
     const card = cards.find((c) => c.cardId === cardId);
     if (!card || !localPrefs) return;
     const suggestion = suggestions[cardId] ?? null;
-    const nextSets = generateInitialSets(card.exercise, suggestion, localPrefs.sets_per_exercise, weightUnit);
+    const measurementType = currentMeasurementType[cardId] ?? defaultMeasurementType(card.exercise);
+    const nextSets = generateInitialSets(card.exercise, suggestion, localPrefs.sets_per_exercise, weightUnit, measurementType);
+    setCardSets((prev) => ({ ...prev, [cardId]: nextSets }));
+  };
+
+  // Switches which mode a *new* blank set defaults to for this card. Sets that
+  // already have a value entered for their own current mode are left alone —
+  // only sets that are still blank (for their own mode) adopt the new one.
+  const changeMeasurementType = (cardId: string, type: MeasurementType) => {
+    setCurrentMeasurementType((prev) => ({ ...prev, [cardId]: type }));
+    const current = cardSets[cardId] ?? [];
+    const isMaterialized = materializedCardIds.current.has(cardId);
+    const nextSets = current.map((s) => {
+      const blank = s.measurementType === 'time' ? !s.durationSeconds.trim()
+        : s.measurementType === 'distance' ? !s.distance.trim()
+        : !s.reps.trim();
+      if (!blank) return s;
+      const updated: LocalSet = { ...s, measurementType: type };
+      if (isMaterialized) editSet(updated.id, toDbFields(updated));
+      return updated;
+    });
     setCardSets((prev) => ({ ...prev, [cardId]: nextSets }));
   };
 
@@ -613,20 +657,22 @@ export default function GeneratedWorkoutScreen() {
       cardId: mkId(),
       exercise,
     };
+    const measurementType = defaultMeasurementType(exercise);
     setCards((prev) => [...prev, newCard]);
+    setCurrentMeasurementType((prev) => ({ ...prev, [newCard.cardId]: measurementType }));
     selectCard(newCard.cardId);
     setShowPicker(false);
     setPickerSearch('');
 
     const setsPerExercise = localPrefs?.sets_per_exercise ?? DEFAULT_WORKOUT_PREFS.sets_per_exercise;
-    if (isTimeBased(exercise)) {
-      setCardSets((prev) => ({ ...prev, [newCard.cardId]: generateInitialSets(exercise, null, setsPerExercise, weightUnit) }));
+    if (!suggestsProgress(exercise)) {
+      setCardSets((prev) => ({ ...prev, [newCard.cardId]: generateInitialSets(exercise, null, setsPerExercise, weightUnit, measurementType) }));
       return;
     }
     getLastSetsForExercise(exerciseRefOf(exercise)).then((sets) => {
       const suggestion = localPrefs ? computeProgressSuggestion(sets, localPrefs.progress_reps, weightUnit, t) : null;
       setSuggestions((prev) => ({ ...prev, [newCard.cardId]: suggestion }));
-      setCardSets((prev) => ({ ...prev, [newCard.cardId]: generateInitialSets(exercise, suggestion, setsPerExercise, weightUnit) }));
+      setCardSets((prev) => ({ ...prev, [newCard.cardId]: generateInitialSets(exercise, suggestion, setsPerExercise, weightUnit, measurementType) }));
     });
   };
 
@@ -702,6 +748,8 @@ export default function GeneratedWorkoutScreen() {
     materializedCardIds.current.delete(cardId);
     setCards((prev) => prev.map((c) => (c.cardId === cardId ? { ...c, exercise } : c)));
     setSuggestions((prev) => { const n = { ...prev }; delete n[cardId]; return n; });
+    const measurementType = defaultMeasurementType(exercise);
+    setCurrentMeasurementType((prev) => ({ ...prev, [cardId]: measurementType }));
     setSwitchingCardId(null);
     setSwitchSearch('');
     // The persisted superset link list is keyed by exercise ref, not cardId —
@@ -714,14 +762,14 @@ export default function GeneratedWorkoutScreen() {
     }
 
     const setsPerExercise = localPrefs?.sets_per_exercise ?? DEFAULT_WORKOUT_PREFS.sets_per_exercise;
-    if (isTimeBased(exercise)) {
-      setCardSets((prev) => ({ ...prev, [cardId]: generateInitialSets(exercise, null, setsPerExercise, weightUnit) }));
+    if (!suggestsProgress(exercise)) {
+      setCardSets((prev) => ({ ...prev, [cardId]: generateInitialSets(exercise, null, setsPerExercise, weightUnit, measurementType) }));
       return;
     }
     getLastSetsForExercise(exerciseRefOf(exercise)).then((sets) => {
       const suggestion = localPrefs ? computeProgressSuggestion(sets, localPrefs.progress_reps, weightUnit, t) : null;
       setSuggestions((prev) => ({ ...prev, [cardId]: suggestion }));
-      setCardSets((prev) => ({ ...prev, [cardId]: generateInitialSets(exercise, suggestion, setsPerExercise, weightUnit) }));
+      setCardSets((prev) => ({ ...prev, [cardId]: generateInitialSets(exercise, suggestion, setsPerExercise, weightUnit, measurementType) }));
     });
   };
 
@@ -832,6 +880,8 @@ export default function GeneratedWorkoutScreen() {
                   isLinkedWithNext={memberIsLinked}
                   onToggleLinkWithNext={() => toggleLinkWithNext(member.cardId)}
                   showAdvanceButton={!memberIsLinked}
+                  currentMeasurementType={currentMeasurementType[member.cardId] ?? defaultMeasurementType(member.exercise)}
+                  onChangeMeasurementType={(type) => changeMeasurementType(member.cardId, type)}
                 />
               );
             })}

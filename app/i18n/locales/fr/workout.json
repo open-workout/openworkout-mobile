@@ -16,6 +16,7 @@
   "noExercisesYet": "Aucun exercice pour l'instant",
   "repsHeader": "REPS",
   "durationHeader": "SEC",
+  "distanceHeader": "KM",
   "search": "Rechercher",
   "demonstration": "Démonstration",
   "makeSuperset": "Superset avec l'exercice suivant",

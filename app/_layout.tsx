@@ -46,6 +46,15 @@ async function initializeDb(database: SQLiteDatabase) {
   if (setCols.length > 0 && !setCols.find((c) => c.name === 'position')) {
     await database.execAsync('ALTER TABLE sets ADD COLUMN position INTEGER NOT NULL DEFAULT 0;');
   }
+  // Migration: add distance and measurement_type columns to sets if missing
+  // (measurement_type is per-set — the same exercise can be logged with
+  // different sets in reps, time, or distance)
+  if (setCols.length > 0 && !setCols.find((c) => c.name === 'distance')) {
+    await database.execAsync('ALTER TABLE sets ADD COLUMN distance REAL;');
+  }
+  if (setCols.length > 0 && !setCols.find((c) => c.name === 'measurement_type')) {
+    await database.execAsync(`ALTER TABLE sets ADD COLUMN measurement_type TEXT NOT NULL DEFAULT 'reps';`);
+  }
   // Migration: add drop_set_number column to sets if missing (0 = normal set, N = the Nth drop in its chain)
   if (setCols.length > 0 && !setCols.find((c) => c.name === 'drop_set_number')) {
     await database.execAsync('ALTER TABLE sets ADD COLUMN drop_set_number INTEGER NOT NULL DEFAULT 0;');
@@ -147,7 +156,9 @@ async function initializeDb(database: SQLiteDatabase) {
       duration_seconds INTEGER,
       is_warmup        INTEGER NOT NULL DEFAULT 0,
       position         INTEGER NOT NULL DEFAULT 0,
-      drop_set_number  INTEGER NOT NULL DEFAULT 0
+      drop_set_number  INTEGER NOT NULL DEFAULT 0,
+      distance         REAL,
+      measurement_type TEXT NOT NULL DEFAULT 'reps'
     );
   `);
   await database.execAsync(`

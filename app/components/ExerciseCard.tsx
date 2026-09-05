@@ -4,7 +4,7 @@ import { Image } from 'expo-image';
 import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
 import type { Exercise } from '../db/exercises';
-import { SetRow, type LocalSet } from './SetRows';
+import { SetRow, availableMeasurementTypes, type LocalSet, type MeasurementType } from './SetRows';
 import { OverloadHint } from './OverloadHint';
 import { ExerciseThumbnail } from './ExerciseThumbnail';
 import { ExerciseAnimationModal, hasExerciseAnimation } from './ExerciseAnimationModal';
@@ -40,6 +40,8 @@ type Props = {
   isLinkedWithNext: boolean;
   onToggleLinkWithNext: () => void;
   showAdvanceButton: boolean;
+  currentMeasurementType: MeasurementType;
+  onChangeMeasurementType: (type: MeasurementType) => void;
 };
 
 // The single-exercise pane shown below the horizontal exercise tab strip
@@ -72,11 +74,16 @@ export function ExerciseCard({
   isLinkedWithNext,
   onToggleLinkWithNext,
   showAdvanceButton,
+  currentMeasurementType,
+  onChangeMeasurementType,
 }: Props) {
   const { t, i18n } = useTranslation('workout');
   const locale = i18n.language;
   const muscles = getMuscleLabels(exercise.primary_muscles, locale).join(', ');
-  const loggingType = exercise.logging_type === 'time' ? 'time' : 'reps';
+  const requiresWeight = exercise.requires_weight;
+  const availableTypes = availableMeasurementTypes(exercise);
+  const measurementLabel = (type: MeasurementType) =>
+    type === 'time' ? t('durationHeader') : type === 'distance' ? t('distanceHeader') : t('repsHeader');
   const canSwitch = sets.every((s) => s.loggedAt === null);
   const [showAnimation, setShowAnimation] = useState(false);
   const [animationCollapsed, setAnimationCollapsed] = useState(false);
@@ -165,11 +172,34 @@ export function ExerciseCard({
       </View>
 
       <View style={{ backgroundColor: C.card, borderRadius: 16, borderWidth: 1, borderColor: C.borderAlt, overflow: 'hidden' }}>
-        <View style={{ flexDirection: 'row', paddingHorizontal: 16, paddingVertical: 10, gap: 8 }}>
-          <View style={{ width: 26 }} />
-          {[weightUnit.toUpperCase(), loggingType === 'time' ? t('durationHeader') : t('repsHeader')].map((h) => (
-            <Text key={h} style={{ flex: 1, textAlign: 'center', color: C.textDim, fontSize: 11, fontWeight: '700', letterSpacing: 0.8 }}>{h}</Text>
-          ))}
+        <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, paddingVertical: 10, gap: 8 }}>
+          <View style={{ width: 30 }} />
+          {requiresWeight && (
+            <Text style={{ flex: 1, textAlign: 'center', color: C.textDim, fontSize: 11, fontWeight: '700', letterSpacing: 0.8 }}>
+              {weightUnit.toUpperCase()}
+            </Text>
+          )}
+          <View style={{ flex: 1, alignItems: 'center' }}>
+            {availableTypes.length > 1 ? (
+              <View style={{ flexDirection: 'row', backgroundColor: '#141414', borderRadius: 8, padding: 2, gap: 2 }}>
+                {availableTypes.map((type) => (
+                  <TouchableOpacity
+                    key={type}
+                    onPress={() => onChangeMeasurementType(type)}
+                    style={{ paddingHorizontal: 8, paddingVertical: 3, borderRadius: 6, backgroundColor: type === currentMeasurementType ? accent.green : 'transparent' }}
+                  >
+                    <Text style={{ fontSize: 10, fontWeight: '800', letterSpacing: 0.5, color: type === currentMeasurementType ? '#052e1c' : C.textDim }}>
+                      {measurementLabel(type)}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            ) : (
+              <Text style={{ color: C.textDim, fontSize: 11, fontWeight: '700', letterSpacing: 0.8 }}>
+                {measurementLabel(availableTypes[0])}
+              </Text>
+            )}
+          </View>
           <View style={{ width: 28 }} />
         </View>
 
@@ -191,13 +221,13 @@ export function ExerciseCard({
             <SetRow
               key={set.id}
               set={set}
-              loggingType={loggingType}
+              requiresWeight={requiresWeight}
               onWeightChange={(v) => onSetWeightChange(set.id, v)}
               onSecondaryChange={(v) => onSetSecondaryChange(set.id, v)}
               onBlur={() => onSetBlur(set.id)}
               onToggleChecked={() => onToggleChecked(set.id)}
               onAddDropSet={() => onAddDropSet(set.id)}
-              showDropButton={index === sets.length - 1 || sets[index + 1].dropSetNumber === 0}
+              showDropButton={requiresWeight && (index === sets.length - 1 || sets[index + 1].dropSetNumber === 0)}
               selectionMode={removeMode}
               selected={selectedForRemoval.has(set.id)}
               onToggleSelect={() => onToggleSelectForRemoval(set.id)}

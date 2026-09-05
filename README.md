@@ -60,6 +60,20 @@ app/
   constants/     App-wide constants
 ```
 
+## Exercise media
+
+`assets/exercises/media/thumbnails/` and `assets/exercises/media/animations/` hold the exercise thumbnail images and animations. These are licensed and **not committed to git** (see `.gitignore`) - the project is open source, but this media isn't.
+
+To build the app locally you need those files on disk yourself (get them from wherever you keep the licensed set), named `<csvId>-<anything>.<ext>` per exercise (IDs come from the `csvId` field in `app/constants/exercisesCsv.json`). After adding or removing files, regenerate the bundler map:
+
+```bash
+npm run generate:exercise-media
+```
+
+This writes `app/constants/exerciseMedia.generated.ts` (committed - it's just `require()` calls, no binaries), which is what actually lets Metro bundle the files into the app despite them being gitignored. If a file referenced there is missing on disk, bundling will fail with a clear "module not found" error.
+
+`.easignore` mirrors `.gitignore` but deliberately does **not** exclude `assets/exercises/media/`, so `eas build` still uploads it for cloud builds even though it's gitignored.
+
 ## Scripts
 
 | Command              | Description                       |

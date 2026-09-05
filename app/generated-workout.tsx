@@ -1,4 +1,4 @@
-import { View, Text, ScrollView, TouchableOpacity, StatusBar, Modal, TextInput, KeyboardAvoidingView, Platform, Dimensions } from 'react-native';
+import { View, Text, ScrollView, FlatList, TouchableOpacity, StatusBar, Modal, TextInput, KeyboardAvoidingView, Platform, Dimensions, ActivityIndicator } from 'react-native';
 import Animated, { useSharedValue, useAnimatedStyle, withTiming, runOnJS } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -9,14 +9,14 @@ import { useWorkouts } from './hooks/useWorkouts';
 import { useExercises } from './hooks/useExercises';
 import { useWeightUnit } from './hooks/useWeightUnit';
 import { useKeyboardHeight } from './hooks/useKeyboardHeight';
-import { insertWorkout, deleteWorkout } from './db/workouts';
+import { insertWorkout, deleteWorkout, getWorkoutById, updateWorkoutSupersetLinks } from './db/workouts';
 import { insertSet, deleteSetsByExercise, getLastSetsForExercise, getSetsForWorkout, generateId, type NewSetInput } from './db/sets';
 import { getAllExercises } from './db/exercises';
 import { getPendingWorkout, clearPendingWorkout, restorePendingWorkout, updatePendingSlotExercise } from './lib/pendingWorkout';
 import { findAlternatives } from './lib/generateWorkout';
 import { compressMuscles } from './constants/splits';
 import type { Exercise, NewExerciseInput } from './db/exercises';
-import { isSetFilled, type LocalSet } from './components/SetRows';
+import { isSetFilled, defaultMeasurementType, type LocalSet, type MeasurementType } from './components/SetRows';
 import AddExerciseModal from './components/AddExerciseModal';
 import ConfirmModal from './components/ConfirmModal';
 import { ExerciseCard } from './components/ExerciseCard';
@@ -28,7 +28,6 @@ import { C } from './theme/colors';
 
 type WorkoutCard = {
   cardId: string;
-  slotType: string;
   exercise: Exercise;
 };
 
@@ -36,12 +35,32 @@ function mkId() {
   return Math.random().toString(36).slice(2);
 }
 
-function isTimeBased(exercise: Exercise): boolean {
-  return (exercise.logging_type ?? 'reps') === 'time';
+// Progressive-overload suggestions are a weight/reps heuristic — only
+// meaningful for exercises whose default (highest-priority) mode is reps.
+function suggestsProgress(exercise: Exercise): boolean {
+  return defaultMeasurementType(exercise) === 'reps';
 }
 
 function exerciseRefOf(exercise: Exercise): string {
   return exercise.id || exercise.name;
+}
+
+// Partitions cards into contiguous groups using a flat "linked with next" edge
+// set — a chain of linked cardIds (A linked, B linked, C standalone) becomes
+// one group [A, B, C], letting 2+ exercises be superset together with no
+// separate group-object bookkeeping.
+function computeGroups(cards: WorkoutCard[], linkedWithNext: Set<string>): WorkoutCard[][] {
+  const groups: WorkoutCard[][] = [];
+  let current: WorkoutCard[] = [];
+  for (const card of cards) {
+    current.push(card);
+    if (!linkedWithNext.has(card.cardId)) {
+      groups.push(current);
+      current = [];
+    }
+  }
+  if (current.length) groups.push(current);
+  return groups;
 }
 
 function generateInitialSets(
@@ -49,17 +68,21 @@ function generateInitialSets(
   suggestion: OverloadSuggestion | null,
   count: number,
   weightUnit: 'kg' | 'lbs',
+  measurementType: MeasurementType,
 ): LocalSet[] {
-  const isTime = isTimeBased(exercise);
+  const isReps = measurementType === 'reps';
   return Array.from({ length: Math.max(1, count) }, (_, i) => ({
     id: generateId(),
-    weight: !isTime && suggestion ? String(suggestion.weight) : '',
-    reps: !isTime && suggestion && !suggestion.isAmrap ? String(suggestion.reps) : '',
+    weight: exercise.requires_weight && isReps && suggestion ? String(suggestion.weight) : '',
+    reps: isReps && suggestion && !suggestion.isAmrap ? String(suggestion.reps) : '',
     durationSeconds: '',
+    distance: '',
     unit: weightUnit,
+    measurementType,
     loggedAt: null,
     isWarmup: false,
     position: i,
+    dropSetNumber: 0,
   }));
 }
 
@@ -67,14 +90,16 @@ function generateInitialSets(
 // value, so it can't double as "blank"). A set can only ever reach a real
 // (non-'pending') logged_at once its required fields are non-blank, so every
 // history/suggestion/PR query already excluding 'pending' rows never observes -1.
-function toDbFields(set: LocalSet, isTime: boolean) {
+function toDbFields(set: LocalSet) {
   return {
-    reps: isTime ? -1 : (set.reps.trim() ? parseFloat(set.reps) : -1),
+    reps: set.measurementType === 'reps' && set.reps.trim() ? parseFloat(set.reps) : -1,
     difficulty: 0,
     weight: set.weight.trim() ? parseFloat(set.weight) : -1,
     unit: set.unit,
     logged_at: set.loggedAt ? set.loggedAt.toISOString() : 'pending',
-    duration_seconds: isTime ? (set.durationSeconds.trim() ? (parseInt(set.durationSeconds, 10) || 0) : null) : null,
+    duration_seconds: set.measurementType === 'time' && set.durationSeconds.trim() ? (parseInt(set.durationSeconds, 10) || 0) : null,
+    distance: set.measurementType === 'distance' && set.distance.trim() ? parseFloat(set.distance) : null,
+    measurement_type: set.measurementType,
   };
 }
 
@@ -88,7 +113,7 @@ export default function GeneratedWorkoutScreen() {
   // Android's Modal already resizes for the keyboard natively (SOFT_INPUT_ADJUST_RESIZE);
   // only iOS needs the list to pad itself to clear the keyboard.
   const pickerListBottomPadding = Platform.OS === 'ios' ? keyboardHeight + 24 : 24;
-  const { exercises, createExercise } = useExercises();
+  const { exercises, createExercise, isLoading: exercisesLoading } = useExercises();
   const { finishWorkout, editSet, removeSet } = useWorkouts();
 
   const pending = getPendingWorkout();
@@ -96,14 +121,24 @@ export default function GeneratedWorkoutScreen() {
 
   // Cards — stable cardId keys replace numeric slot indices
   const [cards, setCards] = useState<WorkoutCard[]>(() =>
-    resumeWorkoutId ? [] : slots.map((s) => ({ cardId: mkId(), slotType: s.type, exercise: s.exercise })),
+    resumeWorkoutId ? [] : slots.map((s) => ({ cardId: mkId(), exercise: s.exercise })),
   );
   const [activeCardId, setActiveCardId] = useState<string | null>(() => cards[0]?.cardId ?? null);
 
   // Per-card state keyed by cardId (stable across add/delete)
   const [cardSets, setCardSets] = useState<Record<string, LocalSet[]>>({});
+  // Which reps/time/distance mode a *new* blank set on this card should use —
+  // changing it never touches sets that already have a value entered.
+  const [currentMeasurementType, setCurrentMeasurementType] = useState<Record<string, MeasurementType>>(() =>
+    Object.fromEntries(cards.map((c) => [c.cardId, defaultMeasurementType(c.exercise)])),
+  );
   const [suggestions, setSuggestions] = useState<Record<string, OverloadSuggestion | null>>({});
   const [localPrefs, setLocalPrefs] = useState<WorkoutPreferences | null>(null);
+  const [isRestoring, setIsRestoring] = useState(() => !!resumeWorkoutId);
+
+  // Supersets — cardIds linked with whichever card comes right after them.
+  const [linkedWithNext, setLinkedWithNext] = useState<Set<string>>(new Set());
+  const pendingAdvanceFromCardId = useRef<string | null>(null);
 
   // Cards are generated locally (no DB writes) until the user first interacts
   // with them — this ref tracks which cards have been materialized to the DB.
@@ -124,8 +159,9 @@ export default function GeneratedWorkoutScreen() {
   const [pickerSearch, setPickerSearch] = useState('');
   const [showCreateForAdd, setShowCreateForAdd] = useState(false);
 
-  // Remove-sets multi-select mode (scoped to the active card)
-  const [removeMode, setRemoveMode] = useState(false);
+  // Remove-sets multi-select mode — scoped to a single card, since 2+ cards
+  // can be visible at once when they're superset together.
+  const [removeModeCardId, setRemoveModeCardId] = useState<string | null>(null);
   const [selectedForRemoval, setSelectedForRemoval] = useState<Set<string>>(new Set());
   const [pendingRemoval, setPendingRemoval] = useState<{ cardId: string; ids: string[] } | null>(null);
 
@@ -151,7 +187,7 @@ export default function GeneratedWorkoutScreen() {
 
   const selectCard = (cardId: string | null) => {
     setActiveCardId(cardId);
-    setRemoveMode(false);
+    setRemoveModeCardId(null);
     setSelectedForRemoval(new Set());
   };
 
@@ -164,9 +200,10 @@ export default function GeneratedWorkoutScreen() {
   // DB (including unchecked 'pending' rows), and generate fresh sets locally
   // for any planned exercise that was never opened in a previous session.
   useEffect(() => {
-    if (!resumeWorkoutId || !localPrefs) return;
-    Promise.all([getSetsForWorkout(resumeWorkoutId), getAllExercises()]).then(
-      async ([dbSets, allExercises]) => {
+    if (!resumeWorkoutId || !localPrefs || exercisesLoading) return;
+    getSetsForWorkout(resumeWorkoutId).then(
+      async (dbSets) => {
+        const allExercises = exercises;
         await restorePendingWorkout(allExercises);
         const grouped = new Map<string, typeof dbSets>();
         for (const s of dbSets) {
@@ -178,6 +215,7 @@ export default function GeneratedWorkoutScreen() {
         const newCards: WorkoutCard[] = [];
         const newCardSets: Record<string, LocalSet[]> = {};
         const newSuggestions: Record<string, OverloadSuggestion | null> = {};
+        const newCurrentMeasurementType: Record<string, MeasurementType> = {};
         const handledExIds = new Set<string>();
         const materializedIds: string[] = [];
         const generationTasks: Promise<void>[] = [];
@@ -188,17 +226,22 @@ export default function GeneratedWorkoutScreen() {
             weight: s.weight === -1 ? '' : String(s.weight),
             reps: s.reps === -1 ? '' : String(s.reps),
             durationSeconds: s.duration_seconds != null ? String(s.duration_seconds) : '',
+            distance: s.distance != null ? String(s.distance) : '',
             unit: s.unit as 'kg' | 'lbs',
+            measurementType: (s.measurement_type as MeasurementType) || 'reps',
             loggedAt: s.logged_at === 'pending' ? null : new Date(s.logged_at),
             isWarmup: s.is_warmup === 1,
             position: s.position,
+            dropSetNumber: s.drop_set_number,
           }));
 
-        const addCard = (exercise: Exercise, slotType: string, exId: string) => {
+        const addCard = (exercise: Exercise, exId: string) => {
           const cardId = mkId();
           const exSets = grouped.get(exId) ?? [];
-          newCards.push({ cardId, slotType, exercise });
+          newCards.push({ cardId, exercise });
           handledExIds.add(exId);
+          const measurementType = defaultMeasurementType(exercise);
+          newCurrentMeasurementType[cardId] = measurementType;
 
           if (exSets.length > 0) {
             newCardSets[cardId] = toLocalSets(exSets);
@@ -206,15 +249,15 @@ export default function GeneratedWorkoutScreen() {
             return;
           }
 
-          if (isTimeBased(exercise)) {
-            newCardSets[cardId] = generateInitialSets(exercise, null, localPrefs.sets_per_exercise, weightUnit);
+          if (!suggestsProgress(exercise)) {
+            newCardSets[cardId] = generateInitialSets(exercise, null, localPrefs.sets_per_exercise, weightUnit, measurementType);
             return;
           }
           generationTasks.push(
             getLastSetsForExercise(exerciseRefOf(exercise)).then((sets) => {
-              const suggestion = computeProgressSuggestion(sets, exercise.exercise_type, localPrefs.progress_reps, weightUnit, t);
+              const suggestion = computeProgressSuggestion(sets, localPrefs.progress_reps, weightUnit, t);
               newSuggestions[cardId] = suggestion;
-              newCardSets[cardId] = generateInitialSets(exercise, suggestion, localPrefs.sets_per_exercise, weightUnit);
+              newCardSets[cardId] = generateInitialSets(exercise, suggestion, localPrefs.sets_per_exercise, weightUnit, measurementType);
             }),
           );
         };
@@ -222,7 +265,7 @@ export default function GeneratedWorkoutScreen() {
         // First pass: pending slots in their original planned order (preserves generated sequence)
         for (const slot of getPendingWorkout()?.slots ?? []) {
           const exId = slot.exercise.id || slot.exercise.name;
-          addCard(slot.exercise, slot.type, exId);
+          addCard(slot.exercise, exId);
         }
 
         // Second pass: exercises that were added manually during the workout (not in pending slots)
@@ -230,7 +273,7 @@ export default function GeneratedWorkoutScreen() {
           if (handledExIds.has(exId)) continue;
           const exercise = allExercises.find((e) => e.id === exId || e.name === exId);
           if (!exercise) continue;
-          addCard(exercise, exercise.exercise_type || 'accessory', exId);
+          addCard(exercise, exId);
         }
 
         await Promise.all(generationTasks);
@@ -238,10 +281,10 @@ export default function GeneratedWorkoutScreen() {
         // Suggestions for cards that already have sets too, for the overload hint banner.
         await Promise.all(
           newCards
-            .filter((c) => !isTimeBased(c.exercise) && !(c.cardId in newSuggestions))
+            .filter((c) => suggestsProgress(c.exercise) && !(c.cardId in newSuggestions))
             .map(async (c) => {
               const sets = await getLastSetsForExercise(exerciseRefOf(c.exercise));
-              newSuggestions[c.cardId] = computeProgressSuggestion(sets, c.exercise.exercise_type, localPrefs.progress_reps, weightUnit, t);
+              newSuggestions[c.cardId] = computeProgressSuggestion(sets, localPrefs.progress_reps, weightUnit, t);
             }),
         );
 
@@ -249,19 +292,37 @@ export default function GeneratedWorkoutScreen() {
         setCards(newCards);
         setCardSets(newCardSets);
         setSuggestions(newSuggestions);
+        setCurrentMeasurementType(newCurrentMeasurementType);
         setActiveCardId(newCards[0]?.cardId ?? null);
+
+        const workoutRow = await getWorkoutById(resumeWorkoutId);
+        if (workoutRow) {
+          try {
+            const links: string[] = JSON.parse(workoutRow.superset_links);
+            const restoredLinked = new Set<string>();
+            for (const ref of links) {
+              const match = newCards.find((c) => exerciseRefOf(c.exercise) === ref);
+              if (match) restoredLinked.add(match.cardId);
+            }
+            setLinkedWithNext(restoredLinked);
+          } catch {
+            // corrupt/legacy value — treat as no links
+          }
+        }
+
+        setIsRestoring(false);
       },
     );
-  }, [resumeWorkoutId, localPrefs]);
+  }, [resumeWorkoutId, localPrefs, exercisesLoading]);
 
   // Fresh workout: generate local (not-yet-persisted) sets for the initial slots.
   useEffect(() => {
     if (!localPrefs || resumeWorkoutId) return;
     Promise.all(
       cards.map(async (card) => {
-        if (isTimeBased(card.exercise)) return { cardId: card.cardId, suggestion: null as OverloadSuggestion | null };
+        if (!suggestsProgress(card.exercise)) return { cardId: card.cardId, suggestion: null as OverloadSuggestion | null };
         const sets = await getLastSetsForExercise(exerciseRefOf(card.exercise));
-        return { cardId: card.cardId, suggestion: computeProgressSuggestion(sets, card.exercise.exercise_type, localPrefs.progress_reps, weightUnit, t) };
+        return { cardId: card.cardId, suggestion: computeProgressSuggestion(sets, localPrefs.progress_reps, weightUnit, t) };
       }),
     ).then((results) => {
       const suggMap: Record<string, OverloadSuggestion | null> = {};
@@ -271,7 +332,8 @@ export default function GeneratedWorkoutScreen() {
         const next = { ...prev };
         for (const card of cards) {
           if (next[card.cardId]) continue;
-          next[card.cardId] = generateInitialSets(card.exercise, suggMap[card.cardId] ?? null, localPrefs.sets_per_exercise, weightUnit);
+          const measurementType = currentMeasurementType[card.cardId] ?? defaultMeasurementType(card.exercise);
+          next[card.cardId] = generateInitialSets(card.exercise, suggMap[card.cardId] ?? null, localPrefs.sets_per_exercise, weightUnit, measurementType);
         }
         return next;
       });
@@ -291,10 +353,30 @@ export default function GeneratedWorkoutScreen() {
     return workoutRef.current;
   };
 
+  // ─── Supersets ───────────────────────────────────────────────────────────────
+
+  // Persists which cards are linked, translating cardIds to exercise refs
+  // (cardIds are regenerated every session, so they can't be stored directly).
+  const persistSupersetLinks = async (linked: Set<string>) => {
+    const refs = cards.filter((c) => linked.has(c.cardId)).map((c) => exerciseRefOf(c.exercise));
+    const workoutId = await ensureWorkout();
+    await updateWorkoutSupersetLinks(workoutId, refs);
+  };
+
+  const toggleLinkWithNext = (cardId: string) => {
+    setLinkedWithNext((prev) => {
+      const next = new Set(prev);
+      if (next.has(cardId)) next.delete(cardId);
+      else next.add(cardId);
+      persistSupersetLinks(next);
+      return next;
+    });
+  };
+
   // ─── Set operations ─────────────────────────────────────────────────────────
 
   // Persists a whole card's local sets to the DB for the first time.
-  const materializeCard = async (cardId: string, exerciseRef: string, isTime: boolean, sets: LocalSet[]) => {
+  const materializeCard = async (cardId: string, exerciseRef: string, sets: LocalSet[]) => {
     if (materializedCardIds.current.has(cardId)) return;
     materializedCardIds.current.add(cardId);
     const workoutId = await ensureWorkout();
@@ -305,25 +387,26 @@ export default function GeneratedWorkoutScreen() {
         exercise_id: exerciseRef,
         is_warmup: s.isWarmup ? 1 : 0,
         position: s.position,
-        ...toDbFields(s, isTime),
+        drop_set_number: s.dropSetNumber,
+        ...toDbFields(s),
       };
       await insertSet(input);
     }
   };
 
   // Either materializes the whole card (first interaction) or updates one already-persisted set.
-  const materializeOrUpdate = async (cardId: string, exerciseRef: string, isTime: boolean, allSets: LocalSet[], changedSet: LocalSet) => {
+  const materializeOrUpdate = async (cardId: string, exerciseRef: string, allSets: LocalSet[], changedSet: LocalSet) => {
     if (!materializedCardIds.current.has(cardId)) {
-      await materializeCard(cardId, exerciseRef, isTime, allSets);
+      await materializeCard(cardId, exerciseRef, allSets);
     } else {
-      await editSet(changedSet.id, toDbFields(changedSet, isTime));
+      await editSet(changedSet.id, toDbFields(changedSet));
     }
   };
 
   // Either materializes the whole card (including the new set) or inserts just the new set.
-  const materializeOrInsert = async (cardId: string, exerciseRef: string, isTime: boolean, allSets: LocalSet[], newSet: LocalSet) => {
+  const materializeOrInsert = async (cardId: string, exerciseRef: string, allSets: LocalSet[], newSet: LocalSet) => {
     if (!materializedCardIds.current.has(cardId)) {
-      await materializeCard(cardId, exerciseRef, isTime, allSets);
+      await materializeCard(cardId, exerciseRef, allSets);
     } else {
       const workoutId = await ensureWorkout();
       await insertSet({
@@ -332,7 +415,8 @@ export default function GeneratedWorkoutScreen() {
         exercise_id: exerciseRef,
         is_warmup: newSet.isWarmup ? 1 : 0,
         position: newSet.position,
-        ...toDbFields(newSet, isTime),
+        drop_set_number: newSet.dropSetNumber,
+        ...toDbFields(newSet),
       });
     }
   };
@@ -340,7 +424,6 @@ export default function GeneratedWorkoutScreen() {
   const toggleSetChecked = (cardId: string, setId: string) => {
     const card = cards.find((c) => c.cardId === cardId);
     if (!card) return;
-    const isTime = isTimeBased(card.exercise);
     const current = cardSets[cardId] ?? [];
     const target = current.find((s) => s.id === setId);
     if (!target) return;
@@ -349,15 +432,15 @@ export default function GeneratedWorkoutScreen() {
     if (target.loggedAt !== null) {
       nextSet = { ...target, loggedAt: null };
     } else {
-      if (!isSetFilled(target, isTime ? 'time' : 'reps')) return;
+      if (!isSetFilled(target, card.exercise.requires_weight)) return;
       nextSet = { ...target, loggedAt: new Date() };
     }
     const nextSets = current.map((s) => (s.id === setId ? nextSet : s));
     setCardSets((prev) => ({ ...prev, [cardId]: nextSets }));
-    materializeOrUpdate(cardId, exerciseRefOf(card.exercise), isTime, nextSets, nextSet);
+    materializeOrUpdate(cardId, exerciseRefOf(card.exercise), nextSets, nextSet);
   };
 
-  const updateSetField = (cardId: string, setId: string, field: 'weight' | 'reps' | 'durationSeconds', value: string) => {
+  const updateSetField = (cardId: string, setId: string, field: 'weight' | 'reps' | 'durationSeconds' | 'distance', value: string) => {
     const current = cardSets[cardId] ?? [];
     const nextSets = current.map((s) => {
       if (s.id !== setId) return s;
@@ -373,19 +456,18 @@ export default function GeneratedWorkoutScreen() {
   };
 
   const onSetSecondaryChange = (cardId: string, setId: string, value: string) => {
-    const card = cards.find((c) => c.cardId === cardId);
-    const isTime = card ? isTimeBased(card.exercise) : false;
-    updateSetField(cardId, setId, isTime ? 'durationSeconds' : 'reps', value);
+    const set = (cardSets[cardId] ?? []).find((s) => s.id === setId);
+    const field = set?.measurementType === 'time' ? 'durationSeconds' : set?.measurementType === 'distance' ? 'distance' : 'reps';
+    updateSetField(cardId, setId, field, value);
   };
 
   const onSetBlur = (cardId: string, setId: string) => {
     const card = cards.find((c) => c.cardId === cardId);
     if (!card) return;
-    const isTime = isTimeBased(card.exercise);
     const sets = cardSets[cardId] ?? [];
     const set = sets.find((s) => s.id === setId);
     if (!set) return;
-    materializeOrUpdate(cardId, exerciseRefOf(card.exercise), isTime, sets, set);
+    materializeOrUpdate(cardId, exerciseRefOf(card.exercise), sets, set);
   };
 
   const addWarmupSet = (cardId: string) => {
@@ -398,14 +480,17 @@ export default function GeneratedWorkoutScreen() {
       weight: '',
       reps: '',
       durationSeconds: '',
+      distance: '',
       unit: weightUnit,
+      measurementType: currentMeasurementType[cardId] ?? defaultMeasurementType(card.exercise),
       loggedAt: null,
       isWarmup: true,
       position: minPos - 1,
+      dropSetNumber: 0,
     };
     const nextSets = [newSet, ...current];
     setCardSets((prev) => ({ ...prev, [cardId]: nextSets }));
-    materializeOrInsert(cardId, exerciseRefOf(card.exercise), isTimeBased(card.exercise), nextSets, newSet);
+    materializeOrInsert(cardId, exerciseRefOf(card.exercise), nextSets, newSet);
   };
 
   const addSet = (cardId: string) => {
@@ -414,36 +499,93 @@ export default function GeneratedWorkoutScreen() {
     const current = cardSets[cardId] ?? [];
     const last = current[current.length - 1];
     const maxPos = current.length ? Math.max(...current.map((s) => s.position)) : -1;
+    const measurementType = currentMeasurementType[cardId] ?? defaultMeasurementType(card.exercise);
     const newSet: LocalSet = {
       id: generateId(),
       weight: last?.weight ?? '',
-      reps: last?.reps ?? '',
-      durationSeconds: last?.durationSeconds ?? '',
+      reps: last?.measurementType === measurementType ? last.reps : '',
+      durationSeconds: last?.measurementType === measurementType ? last.durationSeconds : '',
+      distance: last?.measurementType === measurementType ? last.distance : '',
       unit: weightUnit,
+      measurementType,
       loggedAt: null,
       isWarmup: false,
       position: maxPos + 1,
+      dropSetNumber: 0,
     };
     const nextSets = [...current, newSet];
     setCardSets((prev) => ({ ...prev, [cardId]: nextSets }));
-    materializeOrInsert(cardId, exerciseRefOf(card.exercise), isTimeBased(card.exercise), nextSets, newSet);
+    materializeOrInsert(cardId, exerciseRefOf(card.exercise), nextSets, newSet);
+  };
+
+  // Inserts a reduced-weight continuation set immediately after the one it's
+  // dropped from — spliced into the array at the right index (not appended)
+  // since on-screen order follows array order, and given a fractional
+  // `position` between its neighbors so a resume reconstructs the same order.
+  const addDropSet = (cardId: string, afterSetId: string) => {
+    const card = cards.find((c) => c.cardId === cardId);
+    if (!card || !card.exercise.requires_weight) return;
+    const current = cardSets[cardId] ?? [];
+    const idx = current.findIndex((s) => s.id === afterSetId);
+    if (idx === -1) return;
+    const parent = current[idx];
+    const next = current[idx + 1];
+    const newPosition = next ? (parent.position + next.position) / 2 : parent.position + 1;
+    const parentWeight = parseFloat(parent.weight) || 0;
+    const newWeight = parentWeight > 0 ? String(Math.round(parentWeight * 0.8 * 2) / 2) : '';
+    const newSet: LocalSet = {
+      id: generateId(),
+      weight: newWeight,
+      reps: '',
+      durationSeconds: '',
+      distance: '',
+      unit: parent.unit,
+      measurementType: parent.measurementType,
+      loggedAt: null,
+      isWarmup: false,
+      position: newPosition,
+      dropSetNumber: parent.dropSetNumber + 1,
+    };
+    const nextSets = [...current.slice(0, idx + 1), newSet, ...current.slice(idx + 1)];
+    setCardSets((prev) => ({ ...prev, [cardId]: nextSets }));
+    materializeOrInsert(cardId, exerciseRefOf(card.exercise), nextSets, newSet);
   };
 
   const regenerateSets = (cardId: string) => {
     const card = cards.find((c) => c.cardId === cardId);
     if (!card || !localPrefs) return;
     const suggestion = suggestions[cardId] ?? null;
-    const nextSets = generateInitialSets(card.exercise, suggestion, localPrefs.sets_per_exercise, weightUnit);
+    const measurementType = currentMeasurementType[cardId] ?? defaultMeasurementType(card.exercise);
+    const nextSets = generateInitialSets(card.exercise, suggestion, localPrefs.sets_per_exercise, weightUnit, measurementType);
     setCardSets((prev) => ({ ...prev, [cardId]: nextSets }));
   };
 
-  const enterRemoveMode = () => {
-    setRemoveMode(true);
+  // Switches which mode a *new* blank set defaults to for this card. Sets that
+  // already have a value entered for their own current mode are left alone —
+  // only sets that are still blank (for their own mode) adopt the new one.
+  const changeMeasurementType = (cardId: string, type: MeasurementType) => {
+    setCurrentMeasurementType((prev) => ({ ...prev, [cardId]: type }));
+    const current = cardSets[cardId] ?? [];
+    const isMaterialized = materializedCardIds.current.has(cardId);
+    const nextSets = current.map((s) => {
+      const blank = s.measurementType === 'time' ? !s.durationSeconds.trim()
+        : s.measurementType === 'distance' ? !s.distance.trim()
+        : !s.reps.trim();
+      if (!blank) return s;
+      const updated: LocalSet = { ...s, measurementType: type };
+      if (isMaterialized) editSet(updated.id, toDbFields(updated));
+      return updated;
+    });
+    setCardSets((prev) => ({ ...prev, [cardId]: nextSets }));
+  };
+
+  const enterRemoveMode = (cardId: string) => {
+    setRemoveModeCardId(cardId);
     setSelectedForRemoval(new Set());
   };
 
   const cancelRemoveMode = () => {
-    setRemoveMode(false);
+    setRemoveModeCardId(null);
     setSelectedForRemoval(new Set());
   };
 
@@ -474,15 +616,19 @@ export default function GeneratedWorkoutScreen() {
       return { ...prev, [cardId]: remaining };
     });
     setPendingRemoval(null);
-    setRemoveMode(false);
+    setRemoveModeCardId(null);
     setSelectedForRemoval(new Set());
   };
 
   // ─── Advance to next exercise / finish ──────────────────────────────────────
 
-  const advance = () => {
-    const activeIndex = cards.findIndex((c) => c.cardId === activeCardId);
-    const nextCard = cards[activeIndex + 1];
+  // Advances past a whole superset group at once — the next card in the flat
+  // `cards` array after a group's last member is guaranteed to be the next
+  // group's first member, since groups partition `cards` contiguously.
+  const advance = (fromGroup: WorkoutCard[]) => {
+    const lastMember = fromGroup[fromGroup.length - 1];
+    const lastIndex = cards.findIndex((c) => c.cardId === lastMember?.cardId);
+    const nextCard = cards[lastIndex + 1];
     if (nextCard) {
       selectCard(nextCard.cardId);
     } else {
@@ -490,12 +636,16 @@ export default function GeneratedWorkoutScreen() {
     }
   };
 
-  const requestAdvance = () => {
-    const sets = cardSets[activeCardId ?? ''] ?? [];
-    const allChecked = sets.length > 0 && sets.every((s) => s.loggedAt !== null);
+  const requestAdvance = (fromCardId: string) => {
+    const group = computeGroups(cards, linkedWithNext).find((g) => g.some((c) => c.cardId === fromCardId)) ?? [];
+    const allChecked = group.every((member) => {
+      const sets = cardSets[member.cardId] ?? [];
+      return sets.length > 0 && sets.every((s) => s.loggedAt !== null);
+    });
     if (allChecked) {
-      advance();
+      advance(group);
     } else {
+      pendingAdvanceFromCardId.current = fromCardId;
       setShowUnfinishedWarning(true);
     }
   };
@@ -505,23 +655,24 @@ export default function GeneratedWorkoutScreen() {
   const addCard = (exercise: Exercise) => {
     const newCard: WorkoutCard = {
       cardId: mkId(),
-      slotType: exercise.exercise_type || 'accessory',
       exercise,
     };
+    const measurementType = defaultMeasurementType(exercise);
     setCards((prev) => [...prev, newCard]);
+    setCurrentMeasurementType((prev) => ({ ...prev, [newCard.cardId]: measurementType }));
     selectCard(newCard.cardId);
     setShowPicker(false);
     setPickerSearch('');
 
     const setsPerExercise = localPrefs?.sets_per_exercise ?? DEFAULT_WORKOUT_PREFS.sets_per_exercise;
-    if (isTimeBased(exercise)) {
-      setCardSets((prev) => ({ ...prev, [newCard.cardId]: generateInitialSets(exercise, null, setsPerExercise, weightUnit) }));
+    if (!suggestsProgress(exercise)) {
+      setCardSets((prev) => ({ ...prev, [newCard.cardId]: generateInitialSets(exercise, null, setsPerExercise, weightUnit, measurementType) }));
       return;
     }
     getLastSetsForExercise(exerciseRefOf(exercise)).then((sets) => {
-      const suggestion = localPrefs ? computeProgressSuggestion(sets, exercise.exercise_type, localPrefs.progress_reps, weightUnit, t) : null;
+      const suggestion = localPrefs ? computeProgressSuggestion(sets, localPrefs.progress_reps, weightUnit, t) : null;
       setSuggestions((prev) => ({ ...prev, [newCard.cardId]: suggestion }));
-      setCardSets((prev) => ({ ...prev, [newCard.cardId]: generateInitialSets(exercise, suggestion, setsPerExercise, weightUnit) }));
+      setCardSets((prev) => ({ ...prev, [newCard.cardId]: generateInitialSets(exercise, suggestion, setsPerExercise, weightUnit, measurementType) }));
     });
   };
 
@@ -536,11 +687,22 @@ export default function GeneratedWorkoutScreen() {
       }
     }
     materializedCardIds.current.delete(deletingCardId);
+    const deletedIndex = cards.findIndex((c) => c.cardId === deletingCardId);
+    const predecessor = cards[deletedIndex - 1];
     const remaining = cards.filter((c) => c.cardId !== deletingCardId);
     setCards(remaining);
     setCardSets((prev) => { const n = { ...prev }; delete n[deletingCardId!]; return n; });
     setSuggestions((prev) => { const n = { ...prev }; delete n[deletingCardId!]; return n; });
     setActiveCardId((prev) => (prev === deletingCardId ? (remaining[0]?.cardId ?? null) : prev));
+    // Break both edges touching the deleted card — its neighbors' adjacency
+    // changed, so any existing link no longer means what it used to.
+    setLinkedWithNext((prev) => {
+      const next = new Set(prev);
+      next.delete(deletingCardId!);
+      if (predecessor) next.delete(predecessor.cardId);
+      persistSupersetLinks(next);
+      return next;
+    });
     setDeletingCardId(null);
   };
 
@@ -586,18 +748,28 @@ export default function GeneratedWorkoutScreen() {
     materializedCardIds.current.delete(cardId);
     setCards((prev) => prev.map((c) => (c.cardId === cardId ? { ...c, exercise } : c)));
     setSuggestions((prev) => { const n = { ...prev }; delete n[cardId]; return n; });
+    const measurementType = defaultMeasurementType(exercise);
+    setCurrentMeasurementType((prev) => ({ ...prev, [cardId]: measurementType }));
     setSwitchingCardId(null);
     setSwitchSearch('');
+    // The persisted superset link list is keyed by exercise ref, not cardId —
+    // refresh it now so it points at the newly-switched exercise.
+    if (linkedWithNext.size > 0) {
+      const refreshedCards = cards.map((c) => (c.cardId === cardId ? { ...c, exercise } : c));
+      const refs = refreshedCards.filter((c) => linkedWithNext.has(c.cardId)).map((c) => exerciseRefOf(c.exercise));
+      const workoutId = await ensureWorkout();
+      await updateWorkoutSupersetLinks(workoutId, refs);
+    }
 
     const setsPerExercise = localPrefs?.sets_per_exercise ?? DEFAULT_WORKOUT_PREFS.sets_per_exercise;
-    if (isTimeBased(exercise)) {
-      setCardSets((prev) => ({ ...prev, [cardId]: generateInitialSets(exercise, null, setsPerExercise, weightUnit) }));
+    if (!suggestsProgress(exercise)) {
+      setCardSets((prev) => ({ ...prev, [cardId]: generateInitialSets(exercise, null, setsPerExercise, weightUnit, measurementType) }));
       return;
     }
     getLastSetsForExercise(exerciseRefOf(exercise)).then((sets) => {
-      const suggestion = localPrefs ? computeProgressSuggestion(sets, exercise.exercise_type, localPrefs.progress_reps, weightUnit, t) : null;
+      const suggestion = localPrefs ? computeProgressSuggestion(sets, localPrefs.progress_reps, weightUnit, t) : null;
       setSuggestions((prev) => ({ ...prev, [cardId]: suggestion }));
-      setCardSets((prev) => ({ ...prev, [cardId]: generateInitialSets(exercise, suggestion, setsPerExercise, weightUnit) }));
+      setCardSets((prev) => ({ ...prev, [cardId]: generateInitialSets(exercise, suggestion, setsPerExercise, weightUnit, measurementType) }));
     });
   };
 
@@ -617,8 +789,9 @@ export default function GeneratedWorkoutScreen() {
     ? getMuscleLabels(compressMuscles(pending.muscles), locale).join(' · ')
     : '';
 
-  const activeCard = cards.find((c) => c.cardId === activeCardId) ?? null;
-  const isLastExercise = cards.findIndex((c) => c.cardId === activeCardId) === cards.length - 1;
+  const groups = computeGroups(cards, linkedWithNext);
+  const activeGroup = groups.find((g) => g.some((c) => c.cardId === activeCardId)) ?? [];
+  const activeGroupCardIds = new Set(activeGroup.map((c) => c.cardId));
 
   return (
     <Animated.View style={[{ flex: 1 }, panelStyle]}>
@@ -653,10 +826,14 @@ export default function GeneratedWorkoutScreen() {
 
       {/* Exercise tab strip */}
       <ExerciseTabStrip
-        cards={cards.map((c) => ({ cardId: c.cardId, hasSets: (cardSets[c.cardId] ?? []).some((s) => s.loggedAt !== null) }))}
-        activeCardId={activeCardId}
+        cards={cards.map((c) => ({
+          cardId: c.cardId,
+          hasSets: (cardSets[c.cardId] ?? []).some((s) => s.loggedAt !== null),
+          linkedToNext: linkedWithNext.has(c.cardId),
+        }))}
+        activeGroupCardIds={activeGroupCardIds}
         onSelect={selectCard}
-        onAdd={() => setShowPicker(true)}
+        onAdd={() => { if (!isRestoring) setShowPicker(true); }}
       />
 
       <KeyboardAvoidingView
@@ -669,32 +846,51 @@ export default function GeneratedWorkoutScreen() {
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
       >
-        {activeCard ? (
-          <ExerciseCard
-            key={activeCard.cardId}
-            slotType={activeCard.slotType}
-            exercise={activeCard.exercise}
-            sets={cardSets[activeCard.cardId] ?? []}
-            suggestion={suggestions[activeCard.cardId] ?? null}
-            weightUnit={weightUnit}
-            removeMode={removeMode}
-            selectedForRemoval={selectedForRemoval}
-            onSwitch={() => setSwitchingCardId(activeCard.cardId)}
-            onDelete={() => setDeletingCardId(activeCard.cardId)}
-            onSetWeightChange={(setId, v) => onSetWeightChange(activeCard.cardId, setId, v)}
-            onSetSecondaryChange={(setId, v) => onSetSecondaryChange(activeCard.cardId, setId, v)}
-            onSetBlur={(setId) => onSetBlur(activeCard.cardId, setId)}
-            onToggleChecked={(setId) => toggleSetChecked(activeCard.cardId, setId)}
-            onToggleSelectForRemoval={toggleSelectForRemoval}
-            onAddWarmupSet={() => addWarmupSet(activeCard.cardId)}
-            onAddSet={() => addSet(activeCard.cardId)}
-            onEnterRemoveMode={enterRemoveMode}
-            onCancelRemoveMode={cancelRemoveMode}
-            onConfirmRemove={() => requestConfirmRemove(activeCard.cardId)}
-            onGenerateSets={() => regenerateSets(activeCard.cardId)}
-            isLastExercise={isLastExercise}
-            onAdvance={requestAdvance}
-          />
+        {activeGroup.length > 0 ? (
+          <View style={{ gap: 16 }}>
+            {activeGroup.map((member) => {
+              const memberIndex = cards.findIndex((c) => c.cardId === member.cardId);
+              const memberIsLinked = linkedWithNext.has(member.cardId);
+              return (
+                <ExerciseCard
+                  key={member.cardId}
+                  exercise={member.exercise}
+                  sets={cardSets[member.cardId] ?? []}
+                  suggestion={suggestions[member.cardId] ?? null}
+                  weightUnit={weightUnit}
+                  removeMode={removeModeCardId === member.cardId}
+                  selectedForRemoval={selectedForRemoval}
+                  onSwitch={() => setSwitchingCardId(member.cardId)}
+                  onDelete={() => setDeletingCardId(member.cardId)}
+                  onSetWeightChange={(setId, v) => onSetWeightChange(member.cardId, setId, v)}
+                  onSetSecondaryChange={(setId, v) => onSetSecondaryChange(member.cardId, setId, v)}
+                  onSetBlur={(setId) => onSetBlur(member.cardId, setId)}
+                  onToggleChecked={(setId) => toggleSetChecked(member.cardId, setId)}
+                  onToggleSelectForRemoval={toggleSelectForRemoval}
+                  onAddWarmupSet={() => addWarmupSet(member.cardId)}
+                  onAddSet={() => addSet(member.cardId)}
+                  onAddDropSet={(afterSetId) => addDropSet(member.cardId, afterSetId)}
+                  onEnterRemoveMode={() => enterRemoveMode(member.cardId)}
+                  onCancelRemoveMode={cancelRemoveMode}
+                  onConfirmRemove={() => requestConfirmRemove(member.cardId)}
+                  onGenerateSets={() => regenerateSets(member.cardId)}
+                  isLastExercise={!memberIsLinked && memberIndex === cards.length - 1}
+                  onAdvance={() => requestAdvance(member.cardId)}
+                  canLinkWithNext={memberIndex < cards.length - 1}
+                  isLinkedWithNext={memberIsLinked}
+                  onToggleLinkWithNext={() => toggleLinkWithNext(member.cardId)}
+                  showAdvanceButton={!memberIsLinked}
+                  currentMeasurementType={currentMeasurementType[member.cardId] ?? defaultMeasurementType(member.exercise)}
+                  onChangeMeasurementType={(type) => changeMeasurementType(member.cardId, type)}
+                />
+              );
+            })}
+          </View>
+        ) : isRestoring ? (
+          <View style={{ paddingVertical: 64, alignItems: 'center', gap: 12 }}>
+            <ActivityIndicator color={C.textMuted} />
+            <Text style={{ color: C.textDim, fontSize: 14 }}>{t('loadingWorkout')}</Text>
+          </View>
         ) : (
           <TouchableOpacity
             onPress={() => setShowPicker(true)}
@@ -740,44 +936,46 @@ export default function GeneratedWorkoutScreen() {
             )}
           </View>
 
-          <ScrollView
+          <FlatList
             style={{ flex: 1 }}
             keyboardShouldPersistTaps="handled"
             contentContainerStyle={{ paddingBottom: pickerListBottomPadding }}
-          >
-            <TouchableOpacity
-              onPress={() => setShowCreate(true)}
-              style={{ flexDirection: 'row', alignItems: 'center', gap: 10, paddingHorizontal: 20, paddingVertical: 16, borderBottomWidth: 1, borderBottomColor: C.border }}
-            >
-              <View style={{ width: 28, height: 28, borderRadius: 8, backgroundColor: C.card, borderWidth: 1, borderColor: C.borderAlt, alignItems: 'center', justifyContent: 'center' }}>
-                <Ionicons name="add" size={18} color={C.text} />
-              </View>
-              <Text style={{ color: C.text, fontSize: 15, fontWeight: '600' }}>{t('routines:createExercise')}</Text>
-            </TouchableOpacity>
-
-            {switchCandidates.length === 0 ? (
+            data={switchCandidates}
+            keyExtractor={(candidate) => candidate.id ?? candidate.name}
+            initialNumToRender={20}
+            windowSize={7}
+            ListHeaderComponent={
+              <TouchableOpacity
+                onPress={() => setShowCreate(true)}
+                style={{ flexDirection: 'row', alignItems: 'center', gap: 10, paddingHorizontal: 20, paddingVertical: 16, borderBottomWidth: 1, borderBottomColor: C.border }}
+              >
+                <View style={{ width: 28, height: 28, borderRadius: 8, backgroundColor: C.card, borderWidth: 1, borderColor: C.borderAlt, alignItems: 'center', justifyContent: 'center' }}>
+                  <Ionicons name="add" size={18} color={C.text} />
+                </View>
+                <Text style={{ color: C.text, fontSize: 15, fontWeight: '600' }}>{t('routines:createExercise')}</Text>
+              </TouchableOpacity>
+            }
+            ListEmptyComponent={
               <View style={{ alignItems: 'center', paddingTop: 48, paddingHorizontal: 32 }}>
                 <Text style={{ color: C.textDim, fontSize: 15, textAlign: 'center' }}>
                   {q ? t('routines:noExercisesMatchSearch') : t('noSimilarExercisesFound')}
                 </Text>
               </View>
-            ) : (
-              switchCandidates.map((candidate) => (
-                <TouchableOpacity
-                  key={candidate.id ?? candidate.name}
-                  onPress={() => selectAlternative(switchingCardId!, candidate)}
-                  style={{ paddingHorizontal: 20, paddingVertical: 16, borderBottomWidth: 1, borderBottomColor: C.border }}
-                >
-                  <Text style={{ color: C.text, fontSize: 16, fontWeight: '600' }}>{getExerciseDisplayName(candidate, locale)}</Text>
-                  {candidate.primary_muscles.length > 0 && (
-                    <Text style={{ color: C.textDim, fontSize: 13, marginTop: 2 }}>
-                      {getMuscleLabels(candidate.primary_muscles, locale).join(', ')}
-                    </Text>
-                  )}
-                </TouchableOpacity>
-              ))
+            }
+            renderItem={({ item: candidate }) => (
+              <TouchableOpacity
+                onPress={() => selectAlternative(switchingCardId!, candidate)}
+                style={{ paddingHorizontal: 20, paddingVertical: 16, borderBottomWidth: 1, borderBottomColor: C.border }}
+              >
+                <Text style={{ color: C.text, fontSize: 16, fontWeight: '600' }}>{getExerciseDisplayName(candidate, locale)}</Text>
+                {candidate.primary_muscles.length > 0 && (
+                  <Text style={{ color: C.textDim, fontSize: 13, marginTop: 2 }}>
+                    {getMuscleLabels(candidate.primary_muscles, locale).join(', ')}
+                  </Text>
+                )}
+              </TouchableOpacity>
             )}
-          </ScrollView>
+          />
         </SafeAreaView>
       </Modal>
 
@@ -817,24 +1015,27 @@ export default function GeneratedWorkoutScreen() {
             )}
           </View>
 
-          <ScrollView
+          <FlatList
             style={{ flex: 1 }}
             keyboardShouldPersistTaps="handled"
             contentContainerStyle={{ paddingBottom: pickerListBottomPadding }}
-          >
-            <TouchableOpacity
-              onPress={() => setShowCreateForAdd(true)}
-              style={{ flexDirection: 'row', alignItems: 'center', gap: 10, paddingHorizontal: 20, paddingVertical: 16, borderBottomWidth: 1, borderBottomColor: C.border }}
-            >
-              <View style={{ width: 28, height: 28, borderRadius: 8, backgroundColor: C.card, borderWidth: 1, borderColor: C.borderAlt, alignItems: 'center', justifyContent: 'center' }}>
-                <Ionicons name="add" size={18} color={C.text} />
-              </View>
-              <Text style={{ color: C.text, fontSize: 15, fontWeight: '600' }}>{t('routines:createExercise')}</Text>
-            </TouchableOpacity>
-
-            {pickerCandidates.map((candidate) => (
+            data={pickerCandidates}
+            keyExtractor={(candidate) => candidate.id ?? candidate.name}
+            initialNumToRender={20}
+            windowSize={7}
+            ListHeaderComponent={
               <TouchableOpacity
-                key={candidate.id ?? candidate.name}
+                onPress={() => setShowCreateForAdd(true)}
+                style={{ flexDirection: 'row', alignItems: 'center', gap: 10, paddingHorizontal: 20, paddingVertical: 16, borderBottomWidth: 1, borderBottomColor: C.border }}
+              >
+                <View style={{ width: 28, height: 28, borderRadius: 8, backgroundColor: C.card, borderWidth: 1, borderColor: C.borderAlt, alignItems: 'center', justifyContent: 'center' }}>
+                  <Ionicons name="add" size={18} color={C.text} />
+                </View>
+                <Text style={{ color: C.text, fontSize: 15, fontWeight: '600' }}>{t('routines:createExercise')}</Text>
+              </TouchableOpacity>
+            }
+            renderItem={({ item: candidate }) => (
+              <TouchableOpacity
                 onPress={() => addCard(candidate)}
                 style={{ paddingHorizontal: 20, paddingVertical: 16, borderBottomWidth: 1, borderBottomColor: C.border }}
               >
@@ -845,8 +1046,8 @@ export default function GeneratedWorkoutScreen() {
                   </Text>
                 )}
               </TouchableOpacity>
-            ))}
-          </ScrollView>
+            )}
+          />
         </SafeAreaView>
       </Modal>
 
@@ -915,7 +1116,13 @@ export default function GeneratedWorkoutScreen() {
         message={t('unfinishedSetsMessage')}
         confirmLabel={t('continueAnyway')}
         onCancel={() => setShowUnfinishedWarning(false)}
-        onConfirm={() => { setShowUnfinishedWarning(false); advance(); }}
+        onConfirm={() => {
+          setShowUnfinishedWarning(false);
+          const fromCardId = pendingAdvanceFromCardId.current;
+          if (!fromCardId) return;
+          const group = computeGroups(cards, linkedWithNext).find((g) => g.some((c) => c.cardId === fromCardId)) ?? [];
+          advance(group);
+        }}
       />
 
       {/* Remove sets confirmation */}

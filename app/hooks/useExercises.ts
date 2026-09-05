@@ -4,6 +4,7 @@ import {
   insertExercise,
   updateExercise as dbUpdateExercise,
   deleteExercise as dbDeleteExercise,
+  subscribeToExerciseChanges,
   type Exercise,
   type NewExerciseInput,
 } from '../db/exercises';
@@ -20,6 +21,8 @@ export function useExercises() {
     setIsLoading(true);
     loadLocal().finally(() => setIsLoading(false));
   }, []);
+
+  useEffect(() => subscribeToExerciseChanges(loadLocal), [loadLocal]);
 
   const createExercise = useCallback(
     async (input: NewExerciseInput) => {
@@ -45,5 +48,5 @@ export function useExercises() {
     [loadLocal],
   );
 
-  return { exercises, createExercise, editExercise, deleteExercise, isLoading };
+  return { exercises, createExercise, editExercise, deleteExercise, isLoading, reload: loadLocal };
 }

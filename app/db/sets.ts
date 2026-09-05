@@ -14,6 +14,9 @@ export type WorkoutSet = {
   duration_seconds: number | null;
   is_warmup: number;
   position: number;
+  drop_set_number: number;
+  distance: number | null;
+  measurement_type: string;
 };
 
 export type NewSetInput = {
@@ -28,6 +31,9 @@ export type NewSetInput = {
   duration_seconds?: number | null;
   is_warmup?: number;
   position: number;
+  drop_set_number?: number;
+  distance?: number | null;
+  measurement_type?: string;
 };
 
 export type UpdateSetInput = {
@@ -37,6 +43,8 @@ export type UpdateSetInput = {
   unit: string;
   logged_at: string;
   duration_seconds?: number | null;
+  distance?: number | null;
+  measurement_type?: string;
 };
 
 type RawSetRow = {
@@ -53,6 +61,9 @@ type RawSetRow = {
   duration_seconds: number | null;
   is_warmup: number;
   position: number;
+  drop_set_number: number;
+  distance: number | null;
+  measurement_type: string;
 };
 
 export function generateId(): string {
@@ -65,8 +76,8 @@ export async function insertSet(input: NewSetInput): Promise<string> {
   await db.runAsync(
     `INSERT INTO sets
        (id, workout_id, exercise_id,
-        reps, difficulty, weight, unit, logged_at, created_at, duration_seconds, is_warmup, position)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        reps, difficulty, weight, unit, logged_at, created_at, duration_seconds, is_warmup, position, drop_set_number, distance, measurement_type)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     id,
     input.workout_id,
     input.exercise_id,
@@ -79,6 +90,9 @@ export async function insertSet(input: NewSetInput): Promise<string> {
     input.duration_seconds ?? null,
     input.is_warmup ?? 0,
     input.position,
+    input.drop_set_number ?? 0,
+    input.distance ?? null,
+    input.measurement_type ?? 'reps',
   );
   return id;
 }
@@ -86,13 +100,15 @@ export async function insertSet(input: NewSetInput): Promise<string> {
 export async function updateSet(id: string, input: UpdateSetInput): Promise<void> {
   const db = await getDb();
   await db.runAsync(
-    `UPDATE sets SET reps = ?, difficulty = ?, weight = ?, unit = ?, logged_at = ?, duration_seconds = ? WHERE id = ?`,
+    `UPDATE sets SET reps = ?, difficulty = ?, weight = ?, unit = ?, logged_at = ?, duration_seconds = ?, distance = ?, measurement_type = ? WHERE id = ?`,
     input.reps,
     input.difficulty,
     input.weight,
     input.unit,
     input.logged_at,
     input.duration_seconds ?? null,
+    input.distance ?? null,
+    input.measurement_type ?? 'reps',
     id,
   );
 }
@@ -225,7 +241,9 @@ export async function getTotalVolume(): Promise<number> {
      JOIN workouts w ON s.workout_id = w.id
      WHERE w.finished_at IS NOT NULL
        AND s.logged_at NOT IN ('seed', 'pending')
-       AND s.is_warmup = 0`,
+       AND s.is_warmup = 0
+       AND s.weight >= 0
+       AND s.reps >= 0`,
   );
   return row?.total ?? 0;
 }

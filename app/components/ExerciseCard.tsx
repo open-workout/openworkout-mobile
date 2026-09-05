@@ -1,15 +1,19 @@
+import { useState } from 'react';
 import { View, Text, TouchableOpacity, Linking } from 'react-native';
+import { Image } from 'expo-image';
 import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
 import type { Exercise } from '../db/exercises';
-import { SetRow, type LocalSet } from './SetRows';
+import { SetRow, availableMeasurementTypes, type LocalSet, type MeasurementType } from './SetRows';
 import { OverloadHint } from './OverloadHint';
+import { ExerciseThumbnail } from './ExerciseThumbnail';
+import { ExerciseAnimationModal, hasExerciseAnimation } from './ExerciseAnimationModal';
+import { EXERCISE_ANIMATIONS } from '../constants/exerciseMedia.generated';
 import type { OverloadSuggestion } from '../lib/progressiveOverload';
 import { getExerciseDisplayName, getMuscleLabels } from '../lib/exerciseTranslations';
 import { C, accent } from '../theme/colors';
 
 type Props = {
-  slotType: string;
   exercise: Exercise;
   sets: LocalSet[];
   suggestion: OverloadSuggestion | null;
@@ -25,19 +29,25 @@ type Props = {
   onToggleSelectForRemoval: (setId: string) => void;
   onAddWarmupSet: () => void;
   onAddSet: () => void;
+  onAddDropSet: (afterSetId: string) => void;
   onEnterRemoveMode: () => void;
   onCancelRemoveMode: () => void;
   onConfirmRemove: () => void;
   onGenerateSets: () => void;
   isLastExercise: boolean;
   onAdvance: () => void;
+  canLinkWithNext: boolean;
+  isLinkedWithNext: boolean;
+  onToggleLinkWithNext: () => void;
+  showAdvanceButton: boolean;
+  currentMeasurementType: MeasurementType;
+  onChangeMeasurementType: (type: MeasurementType) => void;
 };
 
 // The single-exercise pane shown below the horizontal exercise tab strip
 // during an active workout — always expanded (no accordion state) since
 // only one exercise is visible at a time.
 export function ExerciseCard({
-  slotType,
   exercise,
   sets,
   suggestion,
@@ -53,68 +63,143 @@ export function ExerciseCard({
   onToggleSelectForRemoval,
   onAddWarmupSet,
   onAddSet,
+  onAddDropSet,
   onEnterRemoveMode,
   onCancelRemoveMode,
   onConfirmRemove,
   onGenerateSets,
   isLastExercise,
   onAdvance,
+  canLinkWithNext,
+  isLinkedWithNext,
+  onToggleLinkWithNext,
+  showAdvanceButton,
+  currentMeasurementType,
+  onChangeMeasurementType,
 }: Props) {
   const { t, i18n } = useTranslation('workout');
   const locale = i18n.language;
   const muscles = getMuscleLabels(exercise.primary_muscles, locale).join(', ');
-  const loggingType = exercise.logging_type === 'time' ? 'time' : 'reps';
+  const requiresWeight = exercise.requires_weight;
+  const availableTypes = availableMeasurementTypes(exercise);
+  const measurementLabel = (type: MeasurementType) =>
+    type === 'time' ? t('durationHeader') : type === 'distance' ? t('distanceHeader') : t('repsHeader');
   const canSwitch = sets.every((s) => s.loggedAt === null);
+  const [showAnimation, setShowAnimation] = useState(false);
+  const [animationCollapsed, setAnimationCollapsed] = useState(false);
+  const animationSource = exercise.csv_id ? EXERCISE_ANIMATIONS[exercise.csv_id] : undefined;
 
   return (
-    <View style={{ backgroundColor: C.card, borderRadius: 16, borderWidth: 1, borderColor: C.borderAlt, overflow: 'hidden' }}>
-      <View style={{ flexDirection: 'row', alignItems: 'flex-start', padding: 16, paddingBottom: 8, gap: 12 }}>
-        <View style={{ flex: 1 }}>
-          <Text style={{ color: C.textDim, fontSize: 10, fontWeight: '700', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 6 }}>
-            {t(`explore:addExerciseModal.exerciseTypes.${slotType}.label`, { defaultValue: slotType })}
-          </Text>
-          <Text style={{ color: C.text, fontSize: 18, fontWeight: '700', marginBottom: 4 }}>
-            {getExerciseDisplayName(exercise, locale)}
-          </Text>
-          {!!muscles && (
-            <Text style={{ color: C.textMuted, fontSize: 13 }}>
-              {muscles}
+    <View style={{ gap: 16 }}>
+      {animationSource && (
+        <View style={{ backgroundColor: C.card, borderRadius: 16, borderWidth: 1, borderColor: C.borderAlt, overflow: 'hidden' }}>
+          <TouchableOpacity
+            onPress={() => setAnimationCollapsed((c) => !c)}
+            activeOpacity={0.7}
+            style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16, paddingVertical: 12 }}
+          >
+            <Text style={{ color: C.textMuted, fontSize: 11, fontWeight: '700', textTransform: 'uppercase', letterSpacing: 0.8 }}>
+              {t('demonstration')}
             </Text>
+            <Ionicons name={animationCollapsed ? 'chevron-down' : 'chevron-up'} size={16} color={C.textMuted} />
+          </TouchableOpacity>
+          {!animationCollapsed && (
+            <Image
+              source={animationSource}
+              style={{ width: '100%', aspectRatio: 1, backgroundColor: '#000' }}
+              contentFit="contain"
+            />
           )}
         </View>
+      )}
 
-        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 2 }}>
-          {canSwitch && (
-            <TouchableOpacity
-              onPress={onSwitch}
-              style={{ flexDirection: 'row', alignItems: 'center', gap: 5, backgroundColor: '#141414', borderRadius: 10, borderWidth: 1, borderColor: C.border, paddingHorizontal: 10, paddingVertical: 7 }}
-            >
-              <Ionicons name="swap-horizontal-outline" size={15} color={C.textMuted} />
-              <Text style={{ color: C.textMuted, fontSize: 12, fontWeight: '600' }}>{t('switch')}</Text>
+      <View>
+        <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 12 }}>
+          <ExerciseThumbnail
+            csvId={exercise.csv_id}
+            size={48}
+            onPress={hasExerciseAnimation(exercise.csv_id) ? () => setShowAnimation(true) : undefined}
+          />
+          <View style={{ flex: 1 }}>
+            <Text style={{ color: C.text, fontSize: 20, fontWeight: '700', marginBottom: 4 }}>
+              {getExerciseDisplayName(exercise, locale)}
+            </Text>
+            {!!muscles && (
+              <Text style={{ color: C.textMuted, fontSize: 13 }}>
+                {muscles}
+              </Text>
+            )}
+          </View>
+
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 2 }}>
+            {canSwitch && (
+              <TouchableOpacity
+                onPress={onSwitch}
+                style={{ flexDirection: 'row', alignItems: 'center', gap: 5, backgroundColor: '#141414', borderRadius: 10, borderWidth: 1, borderColor: C.border, paddingHorizontal: 10, paddingVertical: 7 }}
+              >
+                <Ionicons name="swap-horizontal-outline" size={15} color={C.textMuted} />
+                <Text style={{ color: C.textMuted, fontSize: 12, fontWeight: '600' }}>{t('switch')}</Text>
+              </TouchableOpacity>
+            )}
+            <TouchableOpacity onPress={onDelete}>
+              <Ionicons name="trash-outline" size={17} color={C.textDim} />
             </TouchableOpacity>
+          </View>
+        </View>
+
+        <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingTop: 8 }}>
+          {canLinkWithNext ? (
+            <TouchableOpacity
+              onPress={onToggleLinkWithNext}
+              style={{ flexDirection: 'row', alignItems: 'center', gap: 5, backgroundColor: isLinkedWithNext ? 'rgba(16,185,129,0.12)' : '#141414', borderRadius: 10, borderWidth: 1, borderColor: isLinkedWithNext ? accent.green : C.border, paddingHorizontal: 10, paddingVertical: 6 }}
+            >
+              <Ionicons name={isLinkedWithNext ? 'close-circle-outline' : 'link-outline'} size={14} color={isLinkedWithNext ? accent.green : C.textMuted} />
+              <Text style={{ color: isLinkedWithNext ? accent.green : C.textMuted, fontSize: 12, fontWeight: '600' }}>
+                {isLinkedWithNext ? t('removeSuperset') : t('makeSuperset')}
+              </Text>
+            </TouchableOpacity>
+          ) : (
+            <View />
           )}
-          <TouchableOpacity onPress={onDelete}>
-            <Ionicons name="trash-outline" size={17} color={C.textDim} />
+          <TouchableOpacity
+            onPress={() => Linking.openURL(`https://www.google.com/search?q=${encodeURIComponent(exercise.name + ' exercise')}`)}
+            style={{ flexDirection: 'row', alignItems: 'center', gap: 5, paddingVertical: 4 }}
+          >
+            <Ionicons name="search-outline" size={13} color={C.textDim} />
+            <Text style={{ color: C.textDim, fontSize: 12, fontWeight: '600' }}>{t('search')}</Text>
           </TouchableOpacity>
         </View>
       </View>
 
-      <View style={{ flexDirection: 'row', justifyContent: 'flex-end', paddingHorizontal: 12, paddingBottom: 10 }}>
-        <TouchableOpacity
-          onPress={() => Linking.openURL(`https://www.google.com/search?q=${encodeURIComponent(exercise.name + ' exercise')}`)}
-          style={{ flexDirection: 'row', alignItems: 'center', gap: 5, paddingHorizontal: 8, paddingVertical: 4 }}
-        >
-          <Ionicons name="search-outline" size={13} color={C.textDim} />
-          <Text style={{ color: C.textDim, fontSize: 12, fontWeight: '600' }}>{t('search')}</Text>
-        </TouchableOpacity>
-      </View>
-
-      <View style={{ borderTopWidth: 1, borderTopColor: C.border }}>
-        <View style={{ flexDirection: 'row', paddingHorizontal: 16, paddingVertical: 10, gap: 8 }}>
-          <View style={{ width: 26 }} />
-          {[weightUnit.toUpperCase(), loggingType === 'time' ? t('durationHeader') : t('repsHeader')].map((h) => (
-            <Text key={h} style={{ flex: 1, textAlign: 'center', color: C.textDim, fontSize: 11, fontWeight: '700', letterSpacing: 0.8 }}>{h}</Text>
-          ))}
+      <View style={{ backgroundColor: C.card, borderRadius: 16, borderWidth: 1, borderColor: C.borderAlt, overflow: 'hidden' }}>
+        <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, paddingVertical: 10, gap: 8 }}>
+          <View style={{ width: 30 }} />
+          {requiresWeight && (
+            <Text style={{ flex: 1, textAlign: 'center', color: C.textDim, fontSize: 11, fontWeight: '700', letterSpacing: 0.8 }}>
+              {weightUnit.toUpperCase()}
+            </Text>
+          )}
+          <View style={{ flex: 1, alignItems: 'center' }}>
+            {availableTypes.length > 1 ? (
+              <View style={{ flexDirection: 'row', backgroundColor: '#141414', borderRadius: 8, padding: 2, gap: 2 }}>
+                {availableTypes.map((type) => (
+                  <TouchableOpacity
+                    key={type}
+                    onPress={() => onChangeMeasurementType(type)}
+                    style={{ paddingHorizontal: 8, paddingVertical: 3, borderRadius: 6, backgroundColor: type === currentMeasurementType ? accent.green : 'transparent' }}
+                  >
+                    <Text style={{ fontSize: 10, fontWeight: '800', letterSpacing: 0.5, color: type === currentMeasurementType ? '#052e1c' : C.textDim }}>
+                      {measurementLabel(type)}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            ) : (
+              <Text style={{ color: C.textDim, fontSize: 11, fontWeight: '700', letterSpacing: 0.8 }}>
+                {measurementLabel(availableTypes[0])}
+              </Text>
+            )}
+          </View>
           <View style={{ width: 28 }} />
         </View>
 
@@ -132,15 +217,17 @@ export function ExerciseCard({
             </TouchableOpacity>
           </View>
         ) : (
-          sets.map((set) => (
+          sets.map((set, index) => (
             <SetRow
               key={set.id}
               set={set}
-              loggingType={loggingType}
+              requiresWeight={requiresWeight}
               onWeightChange={(v) => onSetWeightChange(set.id, v)}
               onSecondaryChange={(v) => onSetSecondaryChange(set.id, v)}
               onBlur={() => onSetBlur(set.id)}
               onToggleChecked={() => onToggleChecked(set.id)}
+              onAddDropSet={() => onAddDropSet(set.id)}
+              showDropButton={requiresWeight && (index === sets.length - 1 || sets[index + 1].dropSetNumber === 0)}
               selectionMode={removeMode}
               selected={selectedForRemoval.has(set.id)}
               onToggleSelect={() => onToggleSelectForRemoval(set.id)}
@@ -193,7 +280,7 @@ export function ExerciseCard({
           )}
         </View>
 
-        {!removeMode && (
+        {!removeMode && showAdvanceButton && (
           <TouchableOpacity
             onPress={onAdvance}
             activeOpacity={0.85}
@@ -206,6 +293,11 @@ export function ExerciseCard({
           </TouchableOpacity>
         )}
       </View>
+
+      <ExerciseAnimationModal
+        csvId={showAnimation ? exercise.csv_id : null}
+        onClose={() => setShowAnimation(false)}
+      />
     </View>
   );
 }

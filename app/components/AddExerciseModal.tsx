@@ -18,11 +18,8 @@ import { getMuscleLabel } from '../lib/exerciseTranslations';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
-type ExerciseType = 'compound' | 'accessory' | 'isolation';
-
 type FormState = {
   name: string;
-  exercise_type: ExerciseType;
   primary_muscles: string[];
   secondary_muscles: string[];
   altNameDraft: string;
@@ -35,7 +32,6 @@ type FormState = {
 
 const INITIAL_FORM: FormState = {
   name: '',
-  exercise_type: 'compound',
   primary_muscles: [],
   secondary_muscles: [],
   altNameDraft: '',
@@ -52,8 +48,6 @@ const MUSCLE_SECTIONS: { id: string; muscles: string[]; isSuper: boolean }[] = [
   { id: 'back', muscles: ['traps', 'lats', 'rhomboids', 'lower back'], isSuper: false },
   { id: 'shoulders', muscles: ['front delts', 'side delts', 'rear delts'], isSuper: false },
 ];
-
-const EXERCISE_TYPES: ExerciseType[] = ['compound', 'accessory', 'isolation'];
 
 // ─── Palette (matches app theme) ─────────────────────────────────────────────
 
@@ -224,7 +218,6 @@ export default function AddExerciseModal({ visible, onClose, onSubmit, exercise 
     if (exercise) {
       setForm({
         name: exercise.name,
-        exercise_type: (exercise.exercise_type as ExerciseType) ?? 'compound',
         primary_muscles: exercise.primary_muscles ?? [],
         secondary_muscles: exercise.secondary_muscles ?? [],
         altNameDraft: '',
@@ -276,7 +269,6 @@ export default function AddExerciseModal({ visible, onClose, onSubmit, exercise 
     try {
       await onSubmit({
         name: form.name.trim(),
-        exercise_type: form.exercise_type,
         primary_muscles: form.primary_muscles,
         secondary_muscles: form.secondary_muscles,
         alt_names: form.alt_names,
@@ -371,47 +363,6 @@ export default function AddExerciseModal({ visible, onClose, onSubmit, exercise 
             {!!nameError && (
               <Text style={{ color: '#ef4444', fontSize: 12, marginTop: 6 }}>{nameError}</Text>
             )}
-
-            {/* ── Exercise Type ── */}
-            <SectionHeader>{t('exerciseTypeSectionHeader')}</SectionHeader>
-            <View style={{
-              flexDirection: 'row',
-              gap: 8,
-            }}>
-              {EXERCISE_TYPES.map((value) => {
-                const active = form.exercise_type === value;
-                return (
-                  <TouchableOpacity
-                    key={value}
-                    onPress={() => set('exercise_type', value)}
-                    style={{
-                      flex: 1,
-                      backgroundColor: active ? C.active : C.card,
-                      borderWidth: 1,
-                      borderColor: active ? C.active : C.border,
-                      borderRadius: 12,
-                      paddingVertical: 12,
-                      alignItems: 'center',
-                    }}
-                  >
-                    <Text style={{
-                      color: active ? C.activeDark : C.text,
-                      fontSize: 13,
-                      fontWeight: '700',
-                    }}>
-                      {t(`exerciseTypes.${value}.label`)}
-                    </Text>
-                    <Text style={{
-                      color: active ? '#52525b' : C.textDim,
-                      fontSize: 11,
-                      marginTop: 2,
-                    }}>
-                      {t(`exerciseTypes.${value}.description`)}
-                    </Text>
-                  </TouchableOpacity>
-                );
-              })}
-            </View>
 
             {/* ── Primary Muscles ── */}
             <MuscleSelector

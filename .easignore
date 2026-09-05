@@ -1,0 +1,15 @@
+# EAS Build reads this file INSTEAD of .gitignore when deciding what to
+# upload for a cloud build. Keep it in sync with .gitignore, except it must
+# NOT exclude assets/exercises/media/ - those files aren't committed to git
+# but still need to reach the build server. See README.md#exercise-media.
+
+expo-env.d.ts
+.expo
+
+android
+
+node_modules
+
+.env
+
+*.csv

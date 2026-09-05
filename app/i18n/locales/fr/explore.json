@@ -4,15 +4,11 @@
   "noExercisesFound": "Aucun exercice trouvé",
   "exerciseCount_one": "{{count}} exercice",
   "exerciseCount_other": "{{count}} exercices",
-  "type": "Type",
   "primary": "Principal",
   "secondary": "Secondaire",
   "notes": "Notes",
+  "equipment": "Équipement",
   "exercise": "exercice",
-  "exerciseType": {
-    "compound": "Polyarticulaire",
-    "isolation": "Isolation"
-  },
   "deleteExercise": "Supprimer l'exercice",
   "deleteExerciseMessage": "Retirer « {{name}} » de votre bibliothèque ?",
   "addExerciseModal": {
@@ -22,12 +18,6 @@
     "nameSectionHeader": "Nom",
     "namePlaceholder": "ex. Développé couché barre",
     "nameRequired": "Le nom est requis",
-    "exerciseTypeSectionHeader": "Type d'exercice",
-    "exerciseTypes": {
-      "compound": { "label": "Polyarticulaire", "description": "Plusieurs articulations" },
-      "accessory": { "label": "Accessoire", "description": "Mouvement de soutien" },
-      "isolation": { "label": "Isolation", "description": "Une seule articulation" }
-    },
     "primaryMusclesSectionHeader": "Muscles principaux",
     "secondaryMusclesSectionHeader": "Muscles secondaires",
     "altNamesSectionHeader": "Noms alternatifs",

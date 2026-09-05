@@ -10,7 +10,6 @@ import type { Exercise } from '../../app/db/exercises';
 const BENCH_PRESS_SEED: Exercise = {
   id: 'ex-bench-seed',
   name: 'Bench Press (Barbell)',
-  exercise_type: 'compound',
   primary_muscles: ['chest'],
   secondary_muscles: ['front delts', 'triceps'],
   alt_names: ['Bench Press', 'Flat Bench'],
@@ -23,6 +22,9 @@ const BENCH_PRESS_SEED: Exercise = {
   can_be_done_in_time: true,
   can_be_done_in_distance: false,
   requires_weight: true,
+  equipment: [],
+  csv_id: null,
+  human_readable_id: null,
 };
 
 beforeEach(() => {
@@ -32,6 +34,7 @@ beforeEach(() => {
     createExercise: jest.fn(),
     editExercise: jest.fn(),
     deleteExercise: jest.fn(),
+    reload: jest.fn(),
   });
   i18n.changeLanguage('en');
 });
@@ -72,6 +75,7 @@ describe('Library exercise search in a non-English locale', () => {
       createExercise: jest.fn(),
       editExercise: jest.fn(),
       deleteExercise: jest.fn(),
+      reload: jest.fn(),
     });
   });
 

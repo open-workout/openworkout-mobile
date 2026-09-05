@@ -1,16 +1,19 @@
 import { View, Text, ScrollView, FlatList, TouchableOpacity, TextInput, StatusBar, ActivityIndicator, KeyboardAvoidingView, Platform } from "react-native";
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
+import { Ionicons } from '@expo/vector-icons';
 import { useState, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useExercises } from '../hooks/useExercises';
 import AddExerciseModal from './AddExerciseModal';
 import ConfirmModal from './ConfirmModal';
+import { ExerciseThumbnail } from './ExerciseThumbnail';
+import { ExerciseAnimationModal, hasExerciseAnimation } from './ExerciseAnimationModal';
 import type { Exercise } from '../db/exercises';
 import {
   exerciseMatchesQuery,
   getExerciseDisplayName,
   getMuscleLabel,
+  getEquipmentLabel,
   getCategoryLabel,
 } from '../lib/exerciseTranslations';
 import { accent } from '../theme/colors';
@@ -41,6 +44,7 @@ export default function ExercisesTabPage() {
   const [editingExercise, setEditingExercise] = useState<Exercise | null>(null);
   const [deletingExercise, setDeletingExercise] = useState<Exercise | null>(null);
   const [expandedKey, setExpandedKey] = useState<string | null>(null);
+  const [animatingCsvId, setAnimatingCsvId] = useState<string | null>(null);
   const { exercises, isLoading, createExercise, editExercise, deleteExercise } = useExercises();
 
   const filtered = useMemo(() => {
@@ -145,6 +149,7 @@ export default function ExercisesTabPage() {
                   onToggle={() => setExpandedKey(expandedKey === key ? null : key)}
                   onEdit={() => setEditingExercise(ex)}
                   onDelete={() => setDeletingExercise(ex)}
+                  onShowAnimation={() => setAnimatingCsvId(ex.csv_id)}
                 />
               );
             }}
@@ -177,24 +182,24 @@ export default function ExercisesTabPage() {
           setDeletingExercise(null);
         }}
       />
+      <ExerciseAnimationModal csvId={animatingCsvId} onClose={() => setAnimatingCsvId(null)} />
     </SafeAreaView>
   );
 }
 
-function ExerciseRow({ exercise, expanded, onToggle, onEdit, onDelete }: {
+function ExerciseRow({ exercise, expanded, onToggle, onEdit, onDelete, onShowAnimation }: {
   exercise: Exercise;
   expanded: boolean;
   onToggle: () => void;
   onEdit: () => void;
   onDelete: () => void;
+  onShowAnimation: () => void;
 }) {
   const { t, i18n } = useTranslation('explore');
   const locale = i18n.language;
   const muscle = exercise.primary_muscles[0]
     ? getMuscleLabel(exercise.primary_muscles[0], locale)
-    : exercise.exercise_type
-      ? t(`exerciseType.${exercise.exercise_type}`, { defaultValue: exercise.exercise_type })
-      : '—';
+    : t('exercise');
 
   return (
     <View style={{
@@ -207,13 +212,15 @@ function ExerciseRow({ exercise, expanded, onToggle, onEdit, onDelete }: {
     }}>
       {/* Main row */}
       <View style={{ flexDirection: 'row', alignItems: 'center', padding: 12 }}>
-        <View style={{ width: 64, height: 64, borderRadius: 12, backgroundColor: '#27272a', borderWidth: 1, borderColor: '#3f3f46', alignItems: 'center', justifyContent: 'center' }}>
-          <MaterialCommunityIcons name="dumbbell" size={24} color="#a1a1aa" />
-        </View>
+        <ExerciseThumbnail
+          csvId={exercise.csv_id}
+          size={64}
+          onPress={hasExerciseAnimation(exercise.csv_id) ? onShowAnimation : undefined}
+        />
         <View style={{ flex: 1, marginLeft: 16 }}>
           <Text style={{ color: '#f4f4f5', fontSize: 14, fontWeight: '700' }}>{getExerciseDisplayName(exercise, locale)}</Text>
           <Text style={{ color: '#52525b', fontSize: 12, marginTop: 4 }}>
-            {muscle} • {exercise.exercise_type ? t(`exerciseType.${exercise.exercise_type}`, { defaultValue: exercise.exercise_type }) : t('exercise')}
+            {muscle}
           </Text>
         </View>
         <TouchableOpacity
@@ -227,14 +234,6 @@ function ExerciseRow({ exercise, expanded, onToggle, onEdit, onDelete }: {
       {/* Expanded detail panel */}
       {expanded && (
         <View style={{ borderTopWidth: 1, borderTopColor: '#27272a', paddingHorizontal: 16, paddingVertical: 14, gap: 12 }}>
-          {exercise.exercise_type ? (
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-              <Text style={{ color: '#52525b', fontSize: 11, fontWeight: '700', textTransform: 'uppercase', letterSpacing: 0.8, width: 72 }}>{t('type')}</Text>
-              <View style={{ backgroundColor: '#27272a', borderRadius: 8, paddingHorizontal: 10, paddingVertical: 4 }}>
-                <Text style={{ color: '#a1a1aa', fontSize: 12, fontWeight: '600' }}>{t(`exerciseType.${exercise.exercise_type}`, { defaultValue: exercise.exercise_type })}</Text>
-              </View>
-            </View>
-          ) : null}
 
           {exercise.primary_muscles.length > 0 && (
             <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 8 }}>
@@ -256,6 +255,19 @@ function ExerciseRow({ exercise, expanded, onToggle, onEdit, onDelete }: {
                 {exercise.secondary_muscles.map((m) => (
                   <View key={m} style={{ backgroundColor: '#18181b', borderWidth: 1, borderColor: '#27272a', borderRadius: 20, paddingHorizontal: 10, paddingVertical: 4 }}>
                     <Text style={{ color: '#71717a', fontSize: 12 }}>{getMuscleLabel(m, locale)}</Text>
+                  </View>
+                ))}
+              </View>
+            </View>
+          )}
+
+          {exercise.equipment.length > 0 && (
+            <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 8 }}>
+              <Text style={{ color: '#52525b', fontSize: 11, fontWeight: '700', textTransform: 'uppercase', letterSpacing: 0.8, width: 72, paddingTop: 4 }}>{t('equipment')}</Text>
+              <View style={{ flex: 1, flexDirection: 'row', flexWrap: 'wrap', gap: 6 }}>
+                {exercise.equipment.map((eq) => (
+                  <View key={eq} style={{ backgroundColor: '#1c1c1f', borderWidth: 1, borderColor: '#3f3f46', borderRadius: 20, paddingHorizontal: 10, paddingVertical: 4 }}>
+                    <Text style={{ color: '#d4d4d8', fontSize: 12 }}>{getEquipmentLabel(eq, locale)}</Text>
                   </View>
                 ))}
               </View>

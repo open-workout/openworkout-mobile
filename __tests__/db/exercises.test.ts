@@ -17,7 +17,6 @@ beforeEach(() => {
 
 const BASE_INPUT = {
   name: 'Bench Press',
-  exercise_type: 'compound',
   primary_muscles: ['chest'],
   secondary_muscles: ['triceps'],
   alt_names: ['Flat Press'],
@@ -38,14 +37,13 @@ describe('insertExercise', () => {
     expect(mockDb.runAsync.mock.calls[0][0]).toContain('INSERT INTO exercises');
   });
 
-  it('passes name, exercise_type and JSON-encoded muscles as SQL params', async () => {
+  it('passes name and JSON-encoded muscles as SQL params', async () => {
     const id = await insertExercise(BASE_INPUT);
-    const [, rowId, name, exerciseType, primaryMuscles, secondaryMuscles, altNames] =
+    const [, rowId, name, primaryMuscles, secondaryMuscles, altNames] =
       mockDb.runAsync.mock.calls[0] as string[];
 
     expect(rowId).toBe(id);
     expect(name).toBe('Bench Press');
-    expect(exerciseType).toBe('compound');
     expect(primaryMuscles).toBe('["chest"]');
     expect(secondaryMuscles).toBe('["triceps"]');
     expect(altNames).toBe('["Flat Press"]');
@@ -54,7 +52,7 @@ describe('insertExercise', () => {
   it('passes weight_direction correctly', async () => {
     await insertExercise({ ...BASE_INPUT, weight_direction: -1 });
     const params = mockDb.runAsync.mock.calls[0];
-    expect(params[8]).toBe(-1);
+    expect(params[7]).toBe(-1);
   });
 });
 
@@ -69,7 +67,6 @@ describe('getAllExercises', () => {
       {
         id: 'abc',
         name: 'Squat',
-        exercise_type: 'compound',
         primary_muscles: '["legs","quads"]',
         secondary_muscles: '["glutes"]',
         alt_names: '["Back Squat"]',
@@ -92,7 +89,6 @@ describe('getAllExercises', () => {
       {
         id: 'xyz',
         name: 'Custom',
-        exercise_type: 'isolation',
         primary_muscles: null,
         secondary_muscles: '',
         alt_names: '[]',

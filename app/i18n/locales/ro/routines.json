@@ -14,14 +14,6 @@
   "whatAreYouTrainingToday": "Ce antrenezi azi?",
   "workoutTab": "Antrenament",
   "routinesTab": "Rutine",
-  "whatMusclesTitle": "Ce mușchi?",
-  "generateWorkout": "Generează antrenament",
-  "continueManually": "Continuă manual",
-  "skip": "Sari peste",
-  "noSplitConfigured": "Niciun program configurat · configurează unul în Profil",
-  "customWorkout": "Antrenament personalizat",
-  "generateWorkoutBasedOnMuscles": "Bazat pe mușchii selectați",
-  "selectDayToEnable": "Selectează o zi mai sus pentru a activa",
   "manualMode": "Mod manual",
   "buildFromScratch": "Construiește-ți antrenamentul de la zero",
   "noRoutinesYet": "Nicio rutină încă",
@@ -81,7 +73,5 @@
   "menuProgramOfToday": "Programul de azi",
   "comingSoon": "În curând",
   "menuRoutine": "Rutină",
-  "menuRoutineHint": "Pornește de la o rutină salvată",
-  "menuDaySplit": "Ziua din split",
-  "menuDaySplitHint": "Alege o zi din split-ul tău sau generează una"
+  "menuRoutineHint": "Pornește de la o rutină salvată"
 }

@@ -14,14 +14,6 @@
   "whatAreYouTrainingToday": "What are you training today?",
   "workoutTab": "Workout",
   "routinesTab": "Routines",
-  "whatMusclesTitle": "What muscles?",
-  "generateWorkout": "Generate workout",
-  "continueManually": "Continue manually",
-  "skip": "Skip",
-  "noSplitConfigured": "No split configured · set one up in Settings",
-  "customWorkout": "Custom workout",
-  "generateWorkoutBasedOnMuscles": "Based on selected muscles",
-  "selectDayToEnable": "Select a day above to enable",
   "manualMode": "Manual mode",
   "buildFromScratch": "Build your workout from scratch",
   "noRoutinesYet": "No routines yet",
@@ -80,7 +72,5 @@
   "menuProgramOfToday": "Program of Today",
   "comingSoon": "Coming soon",
   "menuRoutine": "Routine",
-  "menuRoutineHint": "Start from a saved routine",
-  "menuDaySplit": "Day of Split",
-  "menuDaySplitHint": "Pick a day from your split, or generate one"
+  "menuRoutineHint": "Start from a saved routine"
 }

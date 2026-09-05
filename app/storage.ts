@@ -6,18 +6,12 @@ const WORKOUT_PREFS_KEY = 'workout_preferences';
 const LANGUAGE_KEY = 'app_language';
 
 export type WorkoutPreferences = {
-  compound_exercises: number;
-  accessory_exercises: number;
-  isolation_exercises: number;
   progress_reps: number;
   weekly_goal: number;
   sets_per_exercise: number;
 };
 
 export const DEFAULT_WORKOUT_PREFS: WorkoutPreferences = {
-  compound_exercises: 1,
-  accessory_exercises: 1,
-  isolation_exercises: 1,
   progress_reps: 8,
   weekly_goal: 3,
   sets_per_exercise: 3,

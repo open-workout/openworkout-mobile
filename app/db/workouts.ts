@@ -7,6 +7,7 @@ export type Workout = {
   finished_at: string | null;
   split_day_name: string | null;
   created_at: number;
+  superset_links: string;
 };
 
 export type NewWorkoutInput = {
@@ -23,6 +24,7 @@ type RawWorkoutRow = {
   finished_at: string | null;
   split_day_name: string | null;
   created_at: number;
+  superset_links: string;
 };
 
 function generateId(): string {
@@ -48,6 +50,11 @@ export async function insertWorkout(input: NewWorkoutInput): Promise<string> {
 export async function updateWorkoutTitle(id: string, title: string): Promise<void> {
   const db = await getDb();
   await db.runAsync(`UPDATE workouts SET title = ? WHERE id = ?`, title, id);
+}
+
+export async function updateWorkoutSupersetLinks(id: string, links: string[]): Promise<void> {
+  const db = await getDb();
+  await db.runAsync(`UPDATE workouts SET superset_links = ? WHERE id = ?`, JSON.stringify(links), id);
 }
 
 export async function markWorkoutFinished(id: string, finishedAt: string): Promise<void> {

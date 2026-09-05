@@ -6,7 +6,7 @@ import { I18nextProvider } from 'react-i18next';
 import '@/global.css';
 import { setDb } from './db/database';
 import { SEED_EXERCISES } from './constants/exerciseData';
-import exercisesJson from './constants/exercises.json';
+import { insertCsvExercises } from './db/exercises';
 import i18n from './i18n';
 import { getLanguage } from './storage';
 import { C } from './theme/colors';
@@ -46,6 +46,19 @@ async function initializeDb(database: SQLiteDatabase) {
   if (setCols.length > 0 && !setCols.find((c) => c.name === 'position')) {
     await database.execAsync('ALTER TABLE sets ADD COLUMN position INTEGER NOT NULL DEFAULT 0;');
   }
+  // Migration: add distance and measurement_type columns to sets if missing
+  // (measurement_type is per-set — the same exercise can be logged with
+  // different sets in reps, time, or distance)
+  if (setCols.length > 0 && !setCols.find((c) => c.name === 'distance')) {
+    await database.execAsync('ALTER TABLE sets ADD COLUMN distance REAL;');
+  }
+  if (setCols.length > 0 && !setCols.find((c) => c.name === 'measurement_type')) {
+    await database.execAsync(`ALTER TABLE sets ADD COLUMN measurement_type TEXT NOT NULL DEFAULT 'reps';`);
+  }
+  // Migration: add drop_set_number column to sets if missing (0 = normal set, N = the Nth drop in its chain)
+  if (setCols.length > 0 && !setCols.find((c) => c.name === 'drop_set_number')) {
+    await database.execAsync('ALTER TABLE sets ADD COLUMN drop_set_number INTEGER NOT NULL DEFAULT 0;');
+  }
 
   // Migration: add logging_type column to exercises if missing (reps vs. time based)
   if (exerciseCols.length > 0 && !exerciseCols.find((c) => c.name === 'logging_type')) {
@@ -69,24 +82,52 @@ async function initializeDb(database: SQLiteDatabase) {
     await database.execAsync('ALTER TABLE exercises ADD COLUMN requires_weight INTEGER NOT NULL DEFAULT 0;');
   }
 
+  // Migration: add equipment and csv_id columns to exercises if missing (from the CSV-imported dataset)
+  if (exerciseCols.length > 0 && !exerciseCols.find((c) => c.name === 'equipment')) {
+    await database.execAsync(`ALTER TABLE exercises ADD COLUMN equipment TEXT NOT NULL DEFAULT '[]';`);
+  }
+  if (exerciseCols.length > 0 && !exerciseCols.find((c) => c.name === 'csv_id')) {
+    await database.execAsync('ALTER TABLE exercises ADD COLUMN csv_id TEXT;');
+  }
+  if (exerciseCols.length > 0 && !exerciseCols.find((c) => c.name === 'human_readable_id')) {
+    await database.execAsync('ALTER TABLE exercises ADD COLUMN human_readable_id TEXT;');
+  }
+
+  // Migration: drop exercise_type — the compound/accessory/isolation concept was removed.
+  if (exerciseCols.length > 0 && exerciseCols.find((c) => c.name === 'exercise_type')) {
+    await database.execAsync('ALTER TABLE exercises DROP COLUMN exercise_type;');
+  }
+
   // Migration: add split_day_name column to workouts if missing (tracks split rotation)
   const workoutCols = await database.getAllAsync<{ name: string }>('PRAGMA table_info(workouts)');
   if (workoutCols.length > 0 && !workoutCols.find((c) => c.name === 'split_day_name')) {
     await database.execAsync('ALTER TABLE workouts ADD COLUMN split_day_name TEXT;');
+  }
+  // Migration: add superset_links column to workouts if missing (JSON array of exercise refs
+  // that are each linked with whichever exercise comes right after them)
+  if (workoutCols.length > 0 && !workoutCols.find((c) => c.name === 'superset_links')) {
+    await database.execAsync(`ALTER TABLE workouts ADD COLUMN superset_links TEXT NOT NULL DEFAULT '[]';`);
   }
 
   await database.execAsync(`
     CREATE TABLE IF NOT EXISTS exercises (
       id                TEXT PRIMARY KEY,
       name              TEXT NOT NULL,
-      exercise_type     TEXT,
       primary_muscles   TEXT,
       secondary_muscles TEXT,
       alt_names         TEXT,
       description       TEXT,
       weight_direction  INTEGER DEFAULT 1,
       logging_type      TEXT NOT NULL DEFAULT 'reps',
-      created_at        INTEGER
+      created_at        INTEGER,
+      equipment         TEXT NOT NULL DEFAULT '[]',
+      csv_id            TEXT,
+      human_readable_id TEXT,
+      animation_name    TEXT,
+      can_be_done_in_reps     INTEGER NOT NULL DEFAULT 1,
+      can_be_done_in_time     INTEGER NOT NULL DEFAULT 1,
+      can_be_done_in_distance INTEGER NOT NULL DEFAULT 0,
+      requires_weight         INTEGER NOT NULL DEFAULT 0
     );
   `);
   await database.execAsync(`
@@ -96,7 +137,8 @@ async function initializeDb(database: SQLiteDatabase) {
       started_at     TEXT NOT NULL,
       finished_at    TEXT,
       split_day_name TEXT,
-      created_at     INTEGER NOT NULL
+      created_at     INTEGER NOT NULL,
+      superset_links TEXT NOT NULL DEFAULT '[]'
     );
   `);
   await database.execAsync(`
@@ -113,7 +155,10 @@ async function initializeDb(database: SQLiteDatabase) {
       is_pr            INTEGER NOT NULL DEFAULT 0,
       duration_seconds INTEGER,
       is_warmup        INTEGER NOT NULL DEFAULT 0,
-      position         INTEGER NOT NULL DEFAULT 0
+      position         INTEGER NOT NULL DEFAULT 0,
+      drop_set_number  INTEGER NOT NULL DEFAULT 0,
+      distance         REAL,
+      measurement_type TEXT NOT NULL DEFAULT 'reps'
     );
   `);
   await database.execAsync(`
@@ -153,12 +198,11 @@ async function initializeDb(database: SQLiteDatabase) {
         const id = `seed_${Math.random().toString(36).slice(2, 10)}`;
         await database.runAsync(
           `INSERT INTO exercises
-             (id, name, exercise_type, primary_muscles, secondary_muscles,
+             (id, name, primary_muscles, secondary_muscles,
               alt_names, description, weight_direction, logging_type, created_at)
-           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
           id,
           ex.name,
-          ex.exercise_type,
           JSON.stringify(ex.primary_muscles),
           JSON.stringify(ex.secondary_muscles),
           JSON.stringify(ex.alt_names),
@@ -171,53 +215,17 @@ async function initializeDb(database: SQLiteDatabase) {
     });
   }
 
-  // Seed the larger imported exercise dataset (independent of the check above, since
+  // Seed the CSV-derived exercise dataset (independent of the check above, since
   // installs that already had the original SEED_EXERCISES seeded would otherwise never
-  // pick this up). Gated on its own one-time marker so it only runs once.
-  const jsonSeeded = await database.getFirstAsync<{ id: string }>(
-    `SELECT id FROM exercises WHERE id LIKE 'seedjson_%' LIMIT 1`,
+  // pick this up). Gated on its own one-time marker so it only runs once. Supersedes the
+  // older seedjson_ dataset (thinner: no equipment, no csv_id) — delete those rows first
+  // so upgrading installs don't end up with both.
+  const csvSeeded = await database.getFirstAsync<{ id: string }>(
+    `SELECT id FROM exercises WHERE id LIKE 'seedcsv_%' LIMIT 1`,
   );
-  if (!jsonSeeded) {
-    const now = Date.now();
-    await database.withTransactionAsync(async () => {
-      for (const ex of exercisesJson as Array<{
-        id: string;
-        name: string;
-        animationName: string;
-        canBeDoneInReps: boolean;
-        canBeDoneInTime: boolean;
-        canBeDoneInDistance: boolean;
-        requiresWeight: boolean;
-        primaryMuscles: string[];
-      }>) {
-        const id = `seedjson_${ex.id}`;
-        const weightDirection = /assisted/i.test(ex.name) ? -1 : 1;
-        const loggingType = ex.canBeDoneInReps ? 'reps' : 'time';
-        await database.runAsync(
-          `INSERT INTO exercises
-             (id, name, exercise_type, primary_muscles, secondary_muscles,
-              alt_names, description, weight_direction, logging_type, created_at,
-              animation_name, can_be_done_in_reps, can_be_done_in_time,
-              can_be_done_in_distance, requires_weight)
-           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-          id,
-          ex.name,
-          'accessory',
-          JSON.stringify(ex.primaryMuscles),
-          '[]',
-          '[]',
-          '',
-          weightDirection,
-          loggingType,
-          now,
-          ex.animationName,
-          ex.canBeDoneInReps ? 1 : 0,
-          ex.canBeDoneInTime ? 1 : 0,
-          ex.canBeDoneInDistance ? 1 : 0,
-          ex.requiresWeight ? 1 : 0,
-        );
-      }
-    });
+  if (!csvSeeded) {
+    await database.runAsync(`DELETE FROM exercises WHERE id LIKE 'seedjson_%'`);
+    await insertCsvExercises(database);
   }
 }
 

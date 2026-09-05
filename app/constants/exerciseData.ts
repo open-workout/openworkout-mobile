@@ -4,7 +4,6 @@ export const SEED_EXERCISES: NewExerciseInput[] = [
   // ─── CHEST ───────────────────────────────────────────────────────────────────
   {
     name: 'Bench Press (Barbell)',
-    exercise_type: 'compound',
     primary_muscles: ['chest'],
     secondary_muscles: ['front delts', 'triceps'],
     alt_names: ['Bench Press', 'Flat Bench'],
@@ -13,7 +12,6 @@ export const SEED_EXERCISES: NewExerciseInput[] = [
   },
   {
     name: 'Incline Bench Press (Barbell)',
-    exercise_type: 'compound',
     primary_muscles: ['chest'],
     secondary_muscles: ['front delts', 'triceps'],
     alt_names: ['Incline Bench Press'],
@@ -22,7 +20,6 @@ export const SEED_EXERCISES: NewExerciseInput[] = [
   },
   {
     name: 'Decline Bench Press (Barbell)',
-    exercise_type: 'compound',
     primary_muscles: ['chest'],
     secondary_muscles: ['front delts', 'triceps'],
     alt_names: ['Decline Bench Press'],
@@ -31,7 +28,6 @@ export const SEED_EXERCISES: NewExerciseInput[] = [
   },
   {
     name: 'Dumbbell Bench Press',
-    exercise_type: 'compound',
     primary_muscles: ['chest'],
     secondary_muscles: ['front delts', 'triceps'],
     alt_names: ['DB Bench Press'],
@@ -40,7 +36,6 @@ export const SEED_EXERCISES: NewExerciseInput[] = [
   },
   {
     name: 'Incline Dumbbell Bench Press',
-    exercise_type: 'compound',
     primary_muscles: ['chest'],
     secondary_muscles: ['front delts', 'triceps'],
     alt_names: ['Incline DB Press'],
@@ -49,7 +44,6 @@ export const SEED_EXERCISES: NewExerciseInput[] = [
   },
   {
     name: 'Decline Dumbbell Bench Press',
-    exercise_type: 'compound',
     primary_muscles: ['chest'],
     secondary_muscles: ['front delts', 'triceps'],
     alt_names: ['Decline DB Press'],
@@ -58,7 +52,6 @@ export const SEED_EXERCISES: NewExerciseInput[] = [
   },
   {
     name: 'Dumbbell Fly',
-    exercise_type: 'isolation',
     primary_muscles: ['chest'],
     secondary_muscles: ['front delts'],
     alt_names: ['DB Fly', 'Flat Fly'],
@@ -67,7 +60,6 @@ export const SEED_EXERCISES: NewExerciseInput[] = [
   },
   {
     name: 'Incline Dumbbell Fly',
-    exercise_type: 'isolation',
     primary_muscles: ['chest'],
     secondary_muscles: ['front delts'],
     alt_names: ['Incline DB Fly'],
@@ -76,7 +68,6 @@ export const SEED_EXERCISES: NewExerciseInput[] = [
   },
   {
     name: 'Cable Fly',
-    exercise_type: 'isolation',
     primary_muscles: ['chest'],
     secondary_muscles: ['front delts'],
     alt_names: ['Cable Crossover'],
@@ -85,7 +76,6 @@ export const SEED_EXERCISES: NewExerciseInput[] = [
   },
   {
     name: 'Low-to-High Cable Fly',
-    exercise_type: 'isolation',
     primary_muscles: ['chest'],
     secondary_muscles: ['front delts'],
     alt_names: [],
@@ -94,7 +84,6 @@ export const SEED_EXERCISES: NewExerciseInput[] = [
   },
   {
     name: 'High-to-Low Cable Fly',
-    exercise_type: 'isolation',
     primary_muscles: ['chest'],
     secondary_muscles: ['front delts'],
     alt_names: [],
@@ -103,7 +92,6 @@ export const SEED_EXERCISES: NewExerciseInput[] = [
   },
   {
     name: 'Push-Up',
-    exercise_type: 'compound',
     primary_muscles: ['chest'],
     secondary_muscles: ['front delts', 'triceps'],
     alt_names: ['Press-Up'],
@@ -112,7 +100,6 @@ export const SEED_EXERCISES: NewExerciseInput[] = [
   },
   {
     name: 'Wide-Grip Push-Up',
-    exercise_type: 'compound',
     primary_muscles: ['chest'],
     secondary_muscles: ['front delts', 'triceps'],
     alt_names: [],
@@ -121,7 +108,6 @@ export const SEED_EXERCISES: NewExerciseInput[] = [
   },
   {
     name: 'Decline Push-Up',
-    exercise_type: 'compound',
     primary_muscles: ['chest'],
     secondary_muscles: ['front delts', 'triceps'],
     alt_names: [],
@@ -130,7 +116,6 @@ export const SEED_EXERCISES: NewExerciseInput[] = [
   },
   {
     name: 'Diamond Push-Up',
-    exercise_type: 'compound',
     primary_muscles: ['triceps'],
     secondary_muscles: ['chest', 'front delts'],
     alt_names: ['Close-Grip Push-Up'],
@@ -139,7 +124,6 @@ export const SEED_EXERCISES: NewExerciseInput[] = [
   },
   {
     name: 'Dip',
-    exercise_type: 'compound',
     primary_muscles: ['chest'],
     secondary_muscles: ['front delts', 'triceps'],
     alt_names: ['Weighted Dip'],
@@ -148,7 +132,6 @@ export const SEED_EXERCISES: NewExerciseInput[] = [
   },
   {
     name: 'Machine Chest Press',
-    exercise_type: 'compound',
     primary_muscles: ['chest'],
     secondary_muscles: ['front delts', 'triceps'],
     alt_names: ['Chest Press Machine'],
@@ -157,7 +140,6 @@ export const SEED_EXERCISES: NewExerciseInput[] = [
   },
   {
     name: 'Pec Deck',
-    exercise_type: 'isolation',
     primary_muscles: ['chest'],
     secondary_muscles: [],
     alt_names: ['Machine Fly', 'Butterfly Machine'],
@@ -166,7 +148,6 @@ export const SEED_EXERCISES: NewExerciseInput[] = [
   },
   {
     name: 'Smith Machine Bench Press',
-    exercise_type: 'compound',
     primary_muscles: ['chest'],
     secondary_muscles: ['front delts', 'triceps'],
     alt_names: [],
@@ -175,7 +156,6 @@ export const SEED_EXERCISES: NewExerciseInput[] = [
   },
   {
     name: 'Landmine Press',
-    exercise_type: 'compound',
     primary_muscles: ['chest', 'shoulders'],
     secondary_muscles: ['triceps'],
     alt_names: [],
@@ -184,7 +164,6 @@ export const SEED_EXERCISES: NewExerciseInput[] = [
   },
   {
     name: 'Dumbbell Pullover',
-    exercise_type: 'accessory',
     primary_muscles: ['chest'],
     secondary_muscles: ['lats'],
     alt_names: [],
@@ -195,7 +174,6 @@ export const SEED_EXERCISES: NewExerciseInput[] = [
   // ────────────────────────────────────────────────────────────────────────
   {
     name: 'Deadlift',
-    exercise_type: 'compound',
     primary_muscles: ['lower back', 'glutes', 'hamstrings'],
     secondary_muscles: ['traps'],
     alt_names: ['Barbell Deadlift', 'Conventional Deadlift'],
@@ -204,7 +182,6 @@ export const SEED_EXERCISES: NewExerciseInput[] = [
   },
   {
     name: 'Romanian Deadlift',
-    exercise_type: 'compound',
     primary_muscles: ['hamstrings', 'glutes'],
     secondary_muscles: ['lower back'],
     alt_names: ['RDL', 'Stiff-Leg Deadlift'],
@@ -213,7 +190,6 @@ export const SEED_EXERCISES: NewExerciseInput[] = [
   },
   {
     name: 'Trap Bar Deadlift',
-    exercise_type: 'compound',
     primary_muscles: ['quads', 'glutes'],
     secondary_muscles: ['lower back', 'hamstrings'],
     alt_names: ['Hex Bar Deadlift'],
@@ -222,7 +198,6 @@ export const SEED_EXERCISES: NewExerciseInput[] = [
   },
   {
     name: 'Pull-Up',
-    exercise_type: 'compound',
     primary_muscles: ['back'],
     secondary_muscles: ['biceps', 'forearms'],
     alt_names: [],
@@ -231,7 +206,6 @@ export const SEED_EXERCISES: NewExerciseInput[] = [
   },
   {
     name: 'Chin-Up',
-    exercise_type: 'compound',
     primary_muscles: ['back', 'biceps'],
     secondary_muscles: ['forearms'],
     alt_names: [],
@@ -240,7 +214,6 @@ export const SEED_EXERCISES: NewExerciseInput[] = [
   },
   {
     name: 'Lat Pulldown',
-    exercise_type: 'compound',
     primary_muscles: ['back'],
     secondary_muscles: ['biceps', 'forearms'],
     alt_names: ['Wide-Grip Lat Pulldown'],
@@ -249,7 +222,6 @@ export const SEED_EXERCISES: NewExerciseInput[] = [
   },
   {
     name: 'Bent-Over Row (Barbell)',
-    exercise_type: 'compound',
     primary_muscles: ['back'],
     secondary_muscles: ['biceps', 'forearms'],
     alt_names: ['Barbell Row', 'Pendlay Row'],
@@ -258,7 +230,6 @@ export const SEED_EXERCISES: NewExerciseInput[] = [
   },
   {
     name: 'Dumbbell Row',
-    exercise_type: 'compound',
     primary_muscles: ['lats', 'rhomboids'],
     secondary_muscles: ['biceps', 'traps'],
     alt_names: ['Single-Arm Dumbbell Row', 'DB Row'],
@@ -267,7 +238,6 @@ export const SEED_EXERCISES: NewExerciseInput[] = [
   },
   {
     name: 'T-Bar Row',
-    exercise_type: 'compound',
     primary_muscles: ['lats', 'rhomboids'],
     secondary_muscles: ['biceps', 'traps'],
     alt_names: ['Landmine Row'],
@@ -276,7 +246,6 @@ export const SEED_EXERCISES: NewExerciseInput[] = [
   },
   {
     name: 'Seated Cable Row',
-    exercise_type: 'compound',
     primary_muscles: ['lats', 'rhomboids'],
     secondary_muscles: ['biceps'],
     alt_names: ['Cable Row'],
@@ -285,7 +254,6 @@ export const SEED_EXERCISES: NewExerciseInput[] = [
   },
   {
     name: 'Wide-Grip Cable Row',
-    exercise_type: 'compound',
     primary_muscles: ['lats', 'rhomboids'],
     secondary_muscles: ['biceps'],
     alt_names: [],
@@ -294,7 +262,6 @@ export const SEED_EXERCISES: NewExerciseInput[] = [
   },
   {
     name: 'Chest-Supported Row',
-    exercise_type: 'compound',
     primary_muscles: ['rhomboids', 'lats'],
     secondary_muscles: ['biceps', 'rear delts'],
     alt_names: ['Incline Dumbbell Row'],
@@ -303,7 +270,6 @@ export const SEED_EXERCISES: NewExerciseInput[] = [
   },
   {
     name: 'Machine Row',
-    exercise_type: 'acessory',
     primary_muscles: ['lats', 'rhomboids'],
     secondary_muscles: ['biceps'],
     alt_names: ['Hammer Strength Row'],
@@ -312,7 +278,6 @@ export const SEED_EXERCISES: NewExerciseInput[] = [
   },
   {
     name: 'Inverted Row',
-    exercise_type: 'compound',
     primary_muscles: ['rhomboids', 'lats'],
     secondary_muscles: ['biceps'],
     alt_names: ['Australian Pull-Up', 'Bodyweight Row'],
@@ -321,7 +286,6 @@ export const SEED_EXERCISES: NewExerciseInput[] = [
   },
   {
     name: 'Shrug (Barbell)',
-    exercise_type: 'accessory',
     primary_muscles: ['traps'],
     secondary_muscles: [],
     alt_names: [],
@@ -330,7 +294,6 @@ export const SEED_EXERCISES: NewExerciseInput[] = [
   },
   {
     name: 'Dumbbell Shrug',
-    exercise_type: 'accessory',
     primary_muscles: ['traps'],
     secondary_muscles: [],
     alt_names: [],
@@ -339,7 +302,6 @@ export const SEED_EXERCISES: NewExerciseInput[] = [
   },
   {
     name: 'Good Morning',
-    exercise_type: 'acessory',
     primary_muscles: ['lower back', 'hamstrings'],
     secondary_muscles: ['glutes'],
     alt_names: [],
@@ -348,7 +310,6 @@ export const SEED_EXERCISES: NewExerciseInput[] = [
   },
   {
     name: 'Back Extension',
-    exercise_type: 'accessory',
     primary_muscles: ['lower back'],
     secondary_muscles: ['glutes', 'hamstrings'],
     alt_names: ['Hyperextension', '45° Back Extension'],
@@ -357,7 +318,6 @@ export const SEED_EXERCISES: NewExerciseInput[] = [
   },
   {
     name: 'Straight-Arm Pulldown',
-    exercise_type: 'isolation',
     primary_muscles: ['lats'],
     secondary_muscles: ['biceps', 'forearms'],
     alt_names: ['Straight-Arm Cable Pulldown'],
@@ -366,7 +326,6 @@ export const SEED_EXERCISES: NewExerciseInput[] = [
   },
   {
     name: 'Face Pull',
-    exercise_type: 'accessory',
     primary_muscles: ['rear delts', 'rhomboids'],
     secondary_muscles: ['traps'],
     alt_names: ['Cable Face Pull'],
@@ -375,7 +334,6 @@ export const SEED_EXERCISES: NewExerciseInput[] = [
   },
   {
     name: 'Assisted Pull-Up Machine',
-    exercise_type: 'compound',
     primary_muscles: ['lats'],
     secondary_muscles: ['biceps', 'rhomboids', 'forearms'],
     alt_names: ['Assisted Pull-Up'],
@@ -384,7 +342,6 @@ export const SEED_EXERCISES: NewExerciseInput[] = [
   },
   {
     name: 'Kroc Row',
-    exercise_type: 'accessory',
     primary_muscles: ['lats', 'rhomboids'],
     secondary_muscles: ['biceps', 'traps'],
     alt_names: [],
@@ -393,7 +350,6 @@ export const SEED_EXERCISES: NewExerciseInput[] = [
   },
   {
     name: 'Snatch-Grip Deadlift',
-    exercise_type: 'compound',
     primary_muscles: ['lower back', 'traps'],
     secondary_muscles: ['glutes', 'hamstrings'],
     alt_names: [],
@@ -402,7 +358,6 @@ export const SEED_EXERCISES: NewExerciseInput[] = [
   },
   {
     name: 'Cable Pullthrough',
-    exercise_type: 'accessory',
     primary_muscles: ['glutes', 'lower back'],
     secondary_muscles: ['hamstrings'],
     alt_names: [],
@@ -411,7 +366,6 @@ export const SEED_EXERCISES: NewExerciseInput[] = [
   },
   {
     name: 'Dumbbell Romanian Deadlift',
-    exercise_type: 'compound',
     primary_muscles: ['hamstrings', 'glutes'],
     secondary_muscles: ['lower back'],
     alt_names: ['DB RDL'],
@@ -420,7 +374,6 @@ export const SEED_EXERCISES: NewExerciseInput[] = [
   },
   {
     name: 'Reverse Hyperextension',
-    exercise_type: 'accessory',
     primary_muscles: ['glutes'],
     secondary_muscles: ['lower back', 'hamstrings'],
     alt_names: ['Reverse Hyper'],
@@ -429,7 +382,6 @@ export const SEED_EXERCISES: NewExerciseInput[] = [
   },
   {
     name: 'Cable Shrug',
-    exercise_type: 'accessory',
     primary_muscles: ['traps'],
     secondary_muscles: [],
     alt_names: [],
@@ -440,7 +392,6 @@ export const SEED_EXERCISES: NewExerciseInput[] = [
   // ─── SHOULDERS ────────────────────────────────────────────────────────────────
   {
     name: 'Overhead Press(Barbell) ',
-    exercise_type: 'compound',
     primary_muscles: ['shoulders'],
     secondary_muscles: ['traps', 'triceps'],
     alt_names: ['Military Press', 'OHP', 'Overhead Press'],
@@ -449,7 +400,6 @@ export const SEED_EXERCISES: NewExerciseInput[] = [
   },
   {
     name: 'Dumbbell Shoulder Press',
-    exercise_type: 'compound',
     primary_muscles: ['shoulders'],
     secondary_muscles: ['triceps'],
     alt_names: ['DB Shoulder Press', 'DB Overhead Press'],
@@ -458,7 +408,6 @@ export const SEED_EXERCISES: NewExerciseInput[] = [
   },
   {
     name: 'Arnold Press',
-    exercise_type: 'compound',
     primary_muscles: ['shoulders'],
     secondary_muscles: ['triceps'],
     alt_names: [],
@@ -467,7 +416,6 @@ export const SEED_EXERCISES: NewExerciseInput[] = [
   },
   {
     name: 'Push Press',
-    exercise_type: 'compound',
     primary_muscles: ['shoulders'],
     secondary_muscles: ['traps', 'triceps'],
     alt_names: [],
@@ -476,7 +424,6 @@ export const SEED_EXERCISES: NewExerciseInput[] = [
   },
   {
     name: 'Machine Shoulder Press',
-    exercise_type: 'compound',
     primary_muscles: ['shoulders'],
     secondary_muscles: ['triceps'],
     alt_names: ['Seated Machine Press'],
@@ -485,7 +432,6 @@ export const SEED_EXERCISES: NewExerciseInput[] = [
   },
   {
     name: 'Smith Machine Overhead Press',
-    exercise_type: 'compound',
     primary_muscles: ['shoulders'],
     secondary_muscles: ['triceps'],
     alt_names: [],
@@ -494,7 +440,6 @@ export const SEED_EXERCISES: NewExerciseInput[] = [
   },
   {
     name: 'Lateral Raise',
-    exercise_type: 'isolation',
     primary_muscles: ['side delts'],
     secondary_muscles: [],
     alt_names: ['Dumbbell Lateral Raise', 'Side Raise'],
@@ -503,7 +448,6 @@ export const SEED_EXERCISES: NewExerciseInput[] = [
   },
   {
     name: 'Cable Lateral Raise',
-    exercise_type: 'isolation',
     primary_muscles: ['side delts'],
     secondary_muscles: [],
     alt_names: [],
@@ -512,7 +456,6 @@ export const SEED_EXERCISES: NewExerciseInput[] = [
   },
   {
     name: 'Machine Lateral Raise',
-    exercise_type: 'isolation',
     primary_muscles: ['side delts'],
     secondary_muscles: [],
     alt_names: [],
@@ -521,7 +464,6 @@ export const SEED_EXERCISES: NewExerciseInput[] = [
   },
   {
     name: 'Dumbbell Front Raise',
-    exercise_type: 'isolation',
     primary_muscles: ['front delts'],
     secondary_muscles: [],
     alt_names: ['Front Raise'],
@@ -530,7 +472,6 @@ export const SEED_EXERCISES: NewExerciseInput[] = [
   },
   {
     name: 'Cable Front Raise',
-    exercise_type: 'isolation',
     primary_muscles: ['front delts'],
     secondary_muscles: [],
     alt_names: [],
@@ -539,7 +480,6 @@ export const SEED_EXERCISES: NewExerciseInput[] = [
   },
   {
     name: 'Plate Front Raise',
-    exercise_type: 'isolation',
     primary_muscles: ['front delts'],
     secondary_muscles: [],
     alt_names: [],
@@ -548,7 +488,6 @@ export const SEED_EXERCISES: NewExerciseInput[] = [
   },
   {
     name: 'Reverse Dumbbell Fly',
-    exercise_type: 'isolation',
     primary_muscles: ['rear delts'],
     secondary_muscles: ['rhomboids'],
     alt_names: ['Bent-Over Lateral Raise', 'Rear Delt Fly'],
@@ -557,7 +496,6 @@ export const SEED_EXERCISES: NewExerciseInput[] = [
   },
   {
     name: 'Reverse Pec Deck',
-    exercise_type: 'isolation',
     primary_muscles: ['rear delts'],
     secondary_muscles: ['rhomboids'],
     alt_names: ['Rear Delt Machine'],
@@ -566,7 +504,6 @@ export const SEED_EXERCISES: NewExerciseInput[] = [
   },
   {
     name: 'Cable Reverse Fly',
-    exercise_type: 'isolation',
     primary_muscles: ['rear delts'],
     secondary_muscles: ['rhomboids'],
     alt_names: [],
@@ -575,7 +512,6 @@ export const SEED_EXERCISES: NewExerciseInput[] = [
   },
   {
     name: 'Upright Row (Barbell)',
-    exercise_type: 'accessory',
     primary_muscles: ['side delts', 'traps'],
     secondary_muscles: ['front delts', 'biceps'],
     alt_names: ['Upright Row'],
@@ -584,7 +520,6 @@ export const SEED_EXERCISES: NewExerciseInput[] = [
   },
   {
     name: 'Dumbbell Upright Row',
-    exercise_type: 'accessory',
     primary_muscles: ['side delts', 'traps'],
     secondary_muscles: ['front delts', 'biceps'],
     alt_names: [],
@@ -593,7 +528,6 @@ export const SEED_EXERCISES: NewExerciseInput[] = [
   },
   {
     name: 'Y-Raise',
-    exercise_type: 'accessory',
     primary_muscles: ['rear delts'],
     secondary_muscles: ['rhomboids', 'traps'],
     alt_names: ['Dumbbell Y-Raise', 'Prone Y-Raise'],
@@ -602,7 +536,6 @@ export const SEED_EXERCISES: NewExerciseInput[] = [
   },
   {
     name: 'Cuban Press',
-    exercise_type: 'accessory',
     primary_muscles: ['rear delts', 'side delts'],
     secondary_muscles: ['front delts'],
     alt_names: [],
@@ -611,7 +544,6 @@ export const SEED_EXERCISES: NewExerciseInput[] = [
   },
   {
     name: 'Landmine Lateral Raise',
-    exercise_type: 'isolation',
     primary_muscles: ['side delts'],
     secondary_muscles: [],
     alt_names: [],
@@ -622,7 +554,6 @@ export const SEED_EXERCISES: NewExerciseInput[] = [
   // ─── LEGS ─────────────────────────────────────────────────────────────────────
   {
     name: 'Back Squat (Barbell)',
-    exercise_type: 'compound',
     primary_muscles: ['legs'],
     secondary_muscles: ['lower back', 'core'],
     alt_names: ['Back Squat', 'Squat'],
@@ -631,7 +562,6 @@ export const SEED_EXERCISES: NewExerciseInput[] = [
   },
   {
     name: 'Front Squat (Barbell)',
-    exercise_type: 'compound',
     primary_muscles: ['legs'],
     secondary_muscles: ['lower back', 'core'],
     alt_names: [],
@@ -640,7 +570,6 @@ export const SEED_EXERCISES: NewExerciseInput[] = [
   },
   {
     name: 'Goblet Squat',
-    exercise_type: 'compound',
     primary_muscles: ['legs'],
     secondary_muscles: ['core'],
     alt_names: [],
@@ -649,7 +578,6 @@ export const SEED_EXERCISES: NewExerciseInput[] = [
   },
   {
     name: 'Box Squat',
-    exercise_type: 'compound',
     primary_muscles: ['legs'],
     secondary_muscles: ['lower back', 'core'],
     alt_names: [],
@@ -658,7 +586,6 @@ export const SEED_EXERCISES: NewExerciseInput[] = [
   },
   {
     name: 'Pause Squat',
-    exercise_type: 'compound',
     primary_muscles: ['legs'],
     secondary_muscles: ['lower back', 'core'],
     alt_names: [],
@@ -667,7 +594,6 @@ export const SEED_EXERCISES: NewExerciseInput[] = [
   },
   {
     name: 'Hack Squat',
-    exercise_type: 'compound',
     primary_muscles: ['quads'],
     secondary_muscles: ['glutes'],
     alt_names: ['Machine Hack Squat'],
@@ -676,7 +602,6 @@ export const SEED_EXERCISES: NewExerciseInput[] = [
   },
   {
     name: 'Smith Machine Squat',
-    exercise_type: 'compound',
     primary_muscles: ['quads', 'glutes'],
     secondary_muscles: ['hamstrings'],
     alt_names: [],
@@ -685,7 +610,6 @@ export const SEED_EXERCISES: NewExerciseInput[] = [
   },
   {
     name: 'Bulgarian Split Squat',
-    exercise_type: 'compound',
     primary_muscles: ['quads', 'glutes'],
     secondary_muscles: ['hamstrings'],
     alt_names: ['Rear-Foot Elevated Split Squat', 'RFESS'],
@@ -694,7 +618,6 @@ export const SEED_EXERCISES: NewExerciseInput[] = [
   },
   {
     name: 'Leg Press',
-    exercise_type: 'compound',
     primary_muscles: ['legs'],
     secondary_muscles: [],
     alt_names: [],
@@ -703,7 +626,6 @@ export const SEED_EXERCISES: NewExerciseInput[] = [
   },
   {
     name: 'Single-Leg Press',
-    exercise_type: 'compound',
     primary_muscles: ['quads', 'glutes'],
     secondary_muscles: ['hamstrings'],
     alt_names: [],
@@ -712,7 +634,6 @@ export const SEED_EXERCISES: NewExerciseInput[] = [
   },
   {
     name: 'Lunge (Barbell)',
-    exercise_type: 'compound',
     primary_muscles: ['legs'],
     secondary_muscles: ['lower back', 'core'],
     alt_names: [],
@@ -721,7 +642,6 @@ export const SEED_EXERCISES: NewExerciseInput[] = [
   },
   {
     name: 'Dumbbell Lunge',
-    exercise_type: 'compound',
     primary_muscles: ['legs'],
     secondary_muscles: ['lower back', 'core'],
     alt_names: ['Walking Lunge'],
@@ -730,7 +650,6 @@ export const SEED_EXERCISES: NewExerciseInput[] = [
   },
   {
     name: 'Reverse Lunge',
-    exercise_type: 'compound',
     primary_muscles: ['legs'],
     secondary_muscles: ['lower back', 'core'],
     alt_names: ['Step-Back Lunge'],
@@ -739,7 +658,6 @@ export const SEED_EXERCISES: NewExerciseInput[] = [
   },
   {
     name: 'Lateral Lunge',
-    exercise_type: 'compound',
     primary_muscles: ['legs'],
     secondary_muscles: ['lower back', 'core'],
     alt_names: ['Side Lunge'],
@@ -748,7 +666,6 @@ export const SEED_EXERCISES: NewExerciseInput[] = [
   },
   {
     name: 'Step-Up',
-    exercise_type: 'compound',
     primary_muscles: ['quads', 'glutes'],
     secondary_muscles: ['hamstrings'],
     alt_names: ['Box Step-Up'],
@@ -757,7 +674,6 @@ export const SEED_EXERCISES: NewExerciseInput[] = [
   },
   {
     name: 'Leg Extension',
-    exercise_type: 'isolation',
     primary_muscles: ['quads'],
     secondary_muscles: [],
     alt_names: ['Machine Leg Extension'],
@@ -766,7 +682,6 @@ export const SEED_EXERCISES: NewExerciseInput[] = [
   },
   {
     name: 'Lying Leg Curl',
-    exercise_type: 'isolation',
     primary_muscles: ['hamstrings'],
     secondary_muscles: [],
     alt_names: ['Prone Leg Curl'],
@@ -775,7 +690,6 @@ export const SEED_EXERCISES: NewExerciseInput[] = [
   },
   {
     name: 'Seated Leg Curl',
-    exercise_type: 'isolation',
     primary_muscles: ['hamstrings'],
     secondary_muscles: [],
     alt_names: ['Machine Leg Curl'],
@@ -784,7 +698,6 @@ export const SEED_EXERCISES: NewExerciseInput[] = [
   },
   {
     name: 'Nordic Curl',
-    exercise_type: 'isolation',
     primary_muscles: ['hamstrings'],
     secondary_muscles: [],
     alt_names: ['Nordic Hamstring Curl'],
@@ -793,7 +706,6 @@ export const SEED_EXERCISES: NewExerciseInput[] = [
   },
   {
     name: 'Single-Leg Romanian Deadlift',
-    exercise_type: 'compound',
     primary_muscles: ['hamstrings', 'glutes'],
     secondary_muscles: ['lower back'],
     alt_names: ['Single-Leg RDL', 'SL RDL'],
@@ -802,7 +714,6 @@ export const SEED_EXERCISES: NewExerciseInput[] = [
   },
   {
     name: 'Standing Calf Raise',
-    exercise_type: 'isolation',
     primary_muscles: ['calves'],
     secondary_muscles: [],
     alt_names: ['Calf Raise'],
@@ -811,7 +722,6 @@ export const SEED_EXERCISES: NewExerciseInput[] = [
   },
   {
     name: 'Seated Calf Raise',
-    exercise_type: 'isolation',
     primary_muscles: ['calves'],
     secondary_muscles: [],
     alt_names: [],
@@ -820,7 +730,6 @@ export const SEED_EXERCISES: NewExerciseInput[] = [
   },
   {
     name: 'Single-Leg Calf Raise',
-    exercise_type: 'isolation',
     primary_muscles: ['calves'],
     secondary_muscles: [],
     alt_names: [],
@@ -829,7 +738,6 @@ export const SEED_EXERCISES: NewExerciseInput[] = [
   },
   {
     name: 'Donkey Calf Raise',
-    exercise_type: 'isolation',
     primary_muscles: ['calves'],
     secondary_muscles: [],
     alt_names: [],
@@ -838,7 +746,6 @@ export const SEED_EXERCISES: NewExerciseInput[] = [
   },
   {
     name: 'Hip Thrust (Barbell)',
-    exercise_type: 'compound',
     primary_muscles: ['glutes'],
     secondary_muscles: ['hamstrings'],
     alt_names: ['Hip Thrust'],
@@ -847,7 +754,6 @@ export const SEED_EXERCISES: NewExerciseInput[] = [
   },
   {
     name: 'Dumbbell Hip Thrust',
-    exercise_type: 'compound',
     primary_muscles: ['glutes'],
     secondary_muscles: ['hamstrings'],
     alt_names: [],
@@ -856,7 +762,6 @@ export const SEED_EXERCISES: NewExerciseInput[] = [
   },
   {
     name: 'Glute Bridge',
-    exercise_type: 'accessory',
     primary_muscles: ['glutes'],
     secondary_muscles: ['hamstrings'],
     alt_names: ['Barbell Glute Bridge'],
@@ -865,7 +770,6 @@ export const SEED_EXERCISES: NewExerciseInput[] = [
   },
   {
     name: 'Single-Leg Hip Thrust',
-    exercise_type: 'compound',
     primary_muscles: ['glutes'],
     secondary_muscles: ['hamstrings'],
     alt_names: [],
@@ -874,7 +778,6 @@ export const SEED_EXERCISES: NewExerciseInput[] = [
   },
   {
     name: 'Adductor Machine',
-    exercise_type: 'isolation',
     primary_muscles: ['adductors'],
     secondary_muscles: [],
     alt_names: ['Inner Thigh Machine'],
@@ -883,7 +786,6 @@ export const SEED_EXERCISES: NewExerciseInput[] = [
   },
   {
     name: 'Abductor Machine',
-    exercise_type: 'isolation',
     primary_muscles: ['glutes'],
     secondary_muscles: [],
     alt_names: ['Outer Thigh Machine', 'Hip Abductor Machine'],
@@ -892,7 +794,6 @@ export const SEED_EXERCISES: NewExerciseInput[] = [
   },
   {
     name: 'Cable Kickback',
-    exercise_type: 'isolation',
     primary_muscles: ['glutes'],
     secondary_muscles: [],
     alt_names: ['Glute Kickback'],
@@ -901,7 +802,6 @@ export const SEED_EXERCISES: NewExerciseInput[] = [
   },
   {
     name: 'Pistol Squat',
-    exercise_type: 'compound',
     primary_muscles: ['quads', 'glutes'],
     secondary_muscles: ['hamstrings'],
     alt_names: ['Single-Leg Squat'],
@@ -910,7 +810,6 @@ export const SEED_EXERCISES: NewExerciseInput[] = [
   },
   {
     name: 'Zercher Squat',
-    exercise_type: 'compound',
     primary_muscles: ['legs'],
     secondary_muscles: ['lower back', 'core'],
     alt_names: [],
@@ -919,7 +818,6 @@ export const SEED_EXERCISES: NewExerciseInput[] = [
   },
   {
     name: 'Sumo Squat',
-    exercise_type: 'compound',
     primary_muscles: ['legs'],
     secondary_muscles: ['lower back', 'core'],
     alt_names: ['Plie Squat'],
@@ -930,7 +828,6 @@ export const SEED_EXERCISES: NewExerciseInput[] = [
   // ─── BICEPS ───────────────────────────────────────────────────────────────────
   {
     name: 'Curl (Barbell)',
-    exercise_type: 'isolation',
     primary_muscles: ['biceps'],
     secondary_muscles: ['forearms'],
     alt_names: ['Straight Bar Curl'],
@@ -939,7 +836,6 @@ export const SEED_EXERCISES: NewExerciseInput[] = [
   },
   {
     name: 'Dumbbell Curl',
-    exercise_type: 'isolation',
     primary_muscles: ['biceps'],
     secondary_muscles: ['forearms'],
     alt_names: ['Alternating Dumbbell Curl', 'DB Curl'],
@@ -948,7 +844,6 @@ export const SEED_EXERCISES: NewExerciseInput[] = [
   },
   {
     name: 'Hammer Curl',
-    exercise_type: 'isolation',
     primary_muscles: ['biceps', 'forearms'],
     secondary_muscles: [],
     alt_names: ['Neutral-Grip Curl'],
@@ -957,7 +852,6 @@ export const SEED_EXERCISES: NewExerciseInput[] = [
   },
   {
     name: 'Preacher Curl',
-    exercise_type: 'isolation',
     primary_muscles: ['biceps'],
     secondary_muscles: [],
     alt_names: ['EZ-Bar Preacher Curl', 'Barbell Preacher Curl'],
@@ -966,7 +860,6 @@ export const SEED_EXERCISES: NewExerciseInput[] = [
   },
   {
     name: 'Incline Dumbbell Curl',
-    exercise_type: 'isolation',
     primary_muscles: ['biceps'],
     secondary_muscles: [],
     alt_names: [],
@@ -975,7 +868,6 @@ export const SEED_EXERCISES: NewExerciseInput[] = [
   },
   {
     name: 'Concentration Curl',
-    exercise_type: 'isolation',
     primary_muscles: ['biceps'],
     secondary_muscles: [],
     alt_names: [],
@@ -984,7 +876,6 @@ export const SEED_EXERCISES: NewExerciseInput[] = [
   },
   {
     name: 'Cable Curl',
-    exercise_type: 'isolation',
     primary_muscles: ['biceps'],
     secondary_muscles: ['forearms'],
     alt_names: ['Cable Bicep Curl'],
@@ -993,7 +884,6 @@ export const SEED_EXERCISES: NewExerciseInput[] = [
   },
   {
     name: 'Cable Hammer Curl',
-    exercise_type: 'isolation',
     primary_muscles: ['biceps', 'forearms'],
     secondary_muscles: [],
     alt_names: ['Rope Cable Curl'],
@@ -1002,7 +892,6 @@ export const SEED_EXERCISES: NewExerciseInput[] = [
   },
   {
     name: 'EZ-Bar Curl',
-    exercise_type: 'isolation',
     primary_muscles: ['biceps'],
     secondary_muscles: ['forearms'],
     alt_names: [],
@@ -1011,7 +900,6 @@ export const SEED_EXERCISES: NewExerciseInput[] = [
   },
   {
     name: 'Machine Curl',
-    exercise_type: 'isolation',
     primary_muscles: ['biceps'],
     secondary_muscles: [],
     alt_names: ['Machine Bicep Curl'],
@@ -1020,7 +908,6 @@ export const SEED_EXERCISES: NewExerciseInput[] = [
   },
   {
     name: 'Reverse Curl',
-    exercise_type: 'isolation',
     primary_muscles: ['forearms', 'biceps'],
     secondary_muscles: [],
     alt_names: ['Reverse Barbell Curl'],
@@ -1029,7 +916,6 @@ export const SEED_EXERCISES: NewExerciseInput[] = [
   },
   {
     name: 'Drag Curl',
-    exercise_type: 'isolation',
     primary_muscles: ['biceps'],
     secondary_muscles: [],
     alt_names: [],
@@ -1038,7 +924,6 @@ export const SEED_EXERCISES: NewExerciseInput[] = [
   },
   {
     name: 'Spider Curl',
-    exercise_type: 'isolation',
     primary_muscles: ['biceps'],
     secondary_muscles: [],
     alt_names: [],
@@ -1047,7 +932,6 @@ export const SEED_EXERCISES: NewExerciseInput[] = [
   },
   {
     name: 'Zottman Curl',
-    exercise_type: 'isolation',
     primary_muscles: ['biceps', 'forearms'],
     secondary_muscles: [],
     alt_names: [],
@@ -1056,7 +940,6 @@ export const SEED_EXERCISES: NewExerciseInput[] = [
   },
   {
     name: 'Cross-Body Hammer Curl',
-    exercise_type: 'isolation',
     primary_muscles: ['biceps', 'forearms'],
     secondary_muscles: [],
     alt_names: [],
@@ -1065,7 +948,6 @@ export const SEED_EXERCISES: NewExerciseInput[] = [
   },
   {
     name: 'Bayesian Curl',
-    exercise_type: 'isolation',
     primary_muscles: ['biceps'],
     secondary_muscles: [],
     alt_names: ['Cable Bayesian Curl'],
@@ -1074,7 +956,6 @@ export const SEED_EXERCISES: NewExerciseInput[] = [
   },
   {
     name: 'Dumbbell Preacher Curl',
-    exercise_type: 'isolation',
     primary_muscles: ['biceps'],
     secondary_muscles: [],
     alt_names: [],
@@ -1085,7 +966,6 @@ export const SEED_EXERCISES: NewExerciseInput[] = [
   // ─── TRICEPS ──────────────────────────────────────────────────────────────────
   {
     name: 'Close-Grip Bench Press',
-    exercise_type: 'compound',
     primary_muscles: ['triceps'],
     secondary_muscles: ['chest', 'front delts'],
     alt_names: ['CGBP'],
@@ -1094,7 +974,6 @@ export const SEED_EXERCISES: NewExerciseInput[] = [
   },
   {
     name: 'Skull Crusher',
-    exercise_type: 'accessory',
     primary_muscles: ['triceps'],
     secondary_muscles: [],
     alt_names: ['Lying Tricep Extension', 'EZ-Bar Skull Crusher', 'Barbell Skull Crusher'],
@@ -1103,7 +982,6 @@ export const SEED_EXERCISES: NewExerciseInput[] = [
   },
   {
     name: 'Dumbbell Skull Crusher',
-    exercise_type: 'accessory',
     primary_muscles: ['triceps'],
     secondary_muscles: [],
     alt_names: [],
@@ -1112,7 +990,6 @@ export const SEED_EXERCISES: NewExerciseInput[] = [
   },
   {
     name: 'Tricep Pushdown (Bar)',
-    exercise_type: 'isolation',
     primary_muscles: ['triceps'],
     secondary_muscles: [],
     alt_names: ['Cable Pushdown', 'Straight Bar Pushdown'],
@@ -1121,7 +998,6 @@ export const SEED_EXERCISES: NewExerciseInput[] = [
   },
   {
     name: 'Tricep Pushdown (Rope)',
-    exercise_type: 'isolation',
     primary_muscles: ['triceps'],
     secondary_muscles: [],
     alt_names: ['Rope Pushdown', 'Cable Rope Pushdown'],
@@ -1130,7 +1006,6 @@ export const SEED_EXERCISES: NewExerciseInput[] = [
   },
   {
     name: 'Overhead Tricep Extension (Barbell)',
-    exercise_type: 'isolation',
     primary_muscles: ['triceps'],
     secondary_muscles: [],
     alt_names: ['French Press'],
@@ -1139,7 +1014,6 @@ export const SEED_EXERCISES: NewExerciseInput[] = [
   },
   {
     name: 'Overhead Tricep Extension (Dumbbell)',
-    exercise_type: 'isolation',
     primary_muscles: ['triceps'],
     secondary_muscles: [],
     alt_names: ['Dumbbell French Press'],
@@ -1148,7 +1022,6 @@ export const SEED_EXERCISES: NewExerciseInput[] = [
   },
   {
     name: 'Overhead Tricep Extension (Cable)',
-    exercise_type: 'isolation',
     primary_muscles: ['triceps'],
     secondary_muscles: [],
     alt_names: ['Cable Overhead Extension'],
@@ -1157,7 +1030,6 @@ export const SEED_EXERCISES: NewExerciseInput[] = [
   },
   {
     name: 'Tricep Dip',
-    exercise_type: 'compound',
     primary_muscles: ['triceps'],
     secondary_muscles: ['chest', 'front delts'],
     alt_names: ['Bench Dip'],
@@ -1166,7 +1038,6 @@ export const SEED_EXERCISES: NewExerciseInput[] = [
   },
   {
     name: 'Tricep Kickback',
-    exercise_type: 'isolation',
     primary_muscles: ['triceps'],
     secondary_muscles: [],
     alt_names: ['Dumbbell Kickback'],
@@ -1175,7 +1046,6 @@ export const SEED_EXERCISES: NewExerciseInput[] = [
   },
   {
     name: 'Single-Arm Overhead Extension',
-    exercise_type: 'isolation',
     primary_muscles: ['triceps'],
     secondary_muscles: [],
     alt_names: [],
@@ -1184,7 +1054,6 @@ export const SEED_EXERCISES: NewExerciseInput[] = [
   },
   {
     name: 'Single-Arm Pushdown',
-    exercise_type: 'isolation',
     primary_muscles: ['triceps'],
     secondary_muscles: [],
     alt_names: [],
@@ -1193,7 +1062,6 @@ export const SEED_EXERCISES: NewExerciseInput[] = [
   },
   {
     name: 'Bradford Press',
-    exercise_type: 'compound',
     primary_muscles: ['front delts', 'side delts'],
     secondary_muscles: ['triceps'],
     alt_names: [],
@@ -1202,7 +1070,6 @@ export const SEED_EXERCISES: NewExerciseInput[] = [
   },
   {
     name: 'Assisted Tricep Dip Machine',
-    exercise_type: 'compound',
     primary_muscles: ['triceps'],
     secondary_muscles: ['chest', 'front delts'],
     alt_names: [],
@@ -1213,7 +1080,6 @@ export const SEED_EXERCISES: NewExerciseInput[] = [
   // ─── FOREARMS ─────────────────────────────────────────────────────────────────
   {
     name: 'Wrist Curl',
-    exercise_type: 'isolation',
     primary_muscles: ['forearms'],
     secondary_muscles: [],
     alt_names: ['Barbell Wrist Curl', 'Dumbbell Wrist Curl'],
@@ -1222,7 +1088,6 @@ export const SEED_EXERCISES: NewExerciseInput[] = [
   },
   {
     name: 'Reverse Wrist Curl',
-    exercise_type: 'isolation',
     primary_muscles: ['forearms'],
     secondary_muscles: [],
     alt_names: ['Barbell Reverse Wrist Curl'],
@@ -1231,7 +1096,6 @@ export const SEED_EXERCISES: NewExerciseInput[] = [
   },
   {
     name: 'Farmer\'s Carry',
-    exercise_type: 'accessory',
     primary_muscles: ['forearms', 'traps'],
     secondary_muscles: ['core'],
     alt_names: ['Farmer\'s Walk'],
@@ -1240,7 +1104,6 @@ export const SEED_EXERCISES: NewExerciseInput[] = [
   },
   {
     name: 'Plate Pinch',
-    exercise_type: 'accessory',
     primary_muscles: ['forearms'],
     secondary_muscles: [],
     alt_names: [],
@@ -1249,7 +1112,6 @@ export const SEED_EXERCISES: NewExerciseInput[] = [
   },
   {
     name: 'Dead Hang',
-    exercise_type: 'accessory',
     primary_muscles: ['forearms'],
     secondary_muscles: ['lats'],
     alt_names: [],
@@ -1258,7 +1120,6 @@ export const SEED_EXERCISES: NewExerciseInput[] = [
   },
   {
     name: 'Thick Bar Curl',
-    exercise_type: 'isolation',
     primary_muscles: ['forearms', 'biceps'],
     secondary_muscles: [],
     alt_names: ['Fat Bar Curl'],
@@ -1267,7 +1128,6 @@ export const SEED_EXERCISES: NewExerciseInput[] = [
   },
   {
     name: 'Behind-the-Back Wrist Curl',
-    exercise_type: 'isolation',
     primary_muscles: ['forearms'],
     secondary_muscles: [],
     alt_names: [],
@@ -1276,7 +1136,6 @@ export const SEED_EXERCISES: NewExerciseInput[] = [
   },
   {
     name: 'Suitcase Carry',
-    exercise_type: 'accessory',
     primary_muscles: ['core', 'forearms'],
     secondary_muscles: ['traps'],
     alt_names: [],
@@ -1288,7 +1147,6 @@ export const SEED_EXERCISES: NewExerciseInput[] = [
 
   {
     name: 'Cable Crunch',
-    exercise_type: 'isolation',
     primary_muscles: ['abs'],
     secondary_muscles: [],
     alt_names: ['Kneeling Cable Crunch'],
@@ -1297,7 +1155,6 @@ export const SEED_EXERCISES: NewExerciseInput[] = [
   },
   {
     name: 'Machine Crunch',
-    exercise_type: 'isolation',
     primary_muscles: ['abs'],
     secondary_muscles: [],
     alt_names: [],
@@ -1306,7 +1163,6 @@ export const SEED_EXERCISES: NewExerciseInput[] = [
   },
   {
     name: 'Crunch',
-    exercise_type: 'isolation',
     primary_muscles: ['abs'],
     secondary_muscles: [],
     alt_names: [],
@@ -1315,7 +1171,6 @@ export const SEED_EXERCISES: NewExerciseInput[] = [
   },
   {
     name: 'Hanging Leg Raise',
-    exercise_type: 'isolation',
     primary_muscles: ['abs'],
     secondary_muscles: ['core'],
     alt_names: ['Hanging Knee Raise'],
@@ -1324,7 +1179,6 @@ export const SEED_EXERCISES: NewExerciseInput[] = [
   },
   {
     name: 'Lying Leg Raise',
-    exercise_type: 'isolation',
     primary_muscles: ['abs'],
     secondary_muscles: ['core'],
     alt_names: ['Flat Bench Leg Raise'],
@@ -1335,7 +1189,6 @@ export const SEED_EXERCISES: NewExerciseInput[] = [
   // ─── FULL BODY / POWER ────────────────────────────────────────────────────────
   {
     name: 'Clean (Barbell)',
-    exercise_type: 'compound',
     primary_muscles: ['legs'],
     secondary_muscles: ['traps', 'lower back', 'front delts'],
     alt_names: ['Power Clean'],
@@ -1344,7 +1197,6 @@ export const SEED_EXERCISES: NewExerciseInput[] = [
   },
   {
     name: 'Snatch (Barbell)',
-    exercise_type: 'compound',
     primary_muscles: ['legs'],
     secondary_muscles: ['traps', 'lower back', 'front delts'],
     alt_names: ['Power Snatch'],
@@ -1353,7 +1205,6 @@ export const SEED_EXERCISES: NewExerciseInput[] = [
   },
   {
     name: 'Kettlebell Swing',
-    exercise_type: 'accessory',
     primary_muscles: ['glutes', 'hamstrings'],
     secondary_muscles: ['lower back', 'core'],
     alt_names: ['KB Swing', 'Russian Kettlebell Swing'],
@@ -1362,7 +1213,6 @@ export const SEED_EXERCISES: NewExerciseInput[] = [
   },
   {
     name: 'Kettlebell Snatch',
-    exercise_type: 'compound',
     primary_muscles: ['glutes', 'quads'],
     secondary_muscles: ['traps', 'front delts'],
     alt_names: ['KB Snatch'],

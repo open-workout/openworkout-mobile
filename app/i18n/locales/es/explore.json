@@ -4,15 +4,11 @@
   "noExercisesFound": "No se encontraron ejercicios",
   "exerciseCount_one": "{{count}} ejercicio",
   "exerciseCount_other": "{{count}} ejercicios",
-  "type": "Tipo",
   "primary": "Primario",
   "secondary": "Secundario",
   "notes": "Notas",
+  "equipment": "Equipo",
   "exercise": "ejercicio",
-  "exerciseType": {
-    "compound": "Compuesto",
-    "isolation": "Aislamiento"
-  },
   "deleteExercise": "Eliminar ejercicio",
   "deleteExerciseMessage": "¿Quitar \"{{name}}\" de tu biblioteca?",
   "addExerciseModal": {
@@ -22,12 +18,6 @@
     "nameSectionHeader": "Nombre",
     "namePlaceholder": "ej. Press de banca con barra",
     "nameRequired": "El nombre es obligatorio",
-    "exerciseTypeSectionHeader": "Tipo de ejercicio",
-    "exerciseTypes": {
-      "compound": { "label": "Compuesto", "description": "Multiarticular" },
-      "accessory": { "label": "Accesorio", "description": "Ejercicio de apoyo" },
-      "isolation": { "label": "Aislamiento", "description": "Una sola articulación" }
-    },
     "primaryMusclesSectionHeader": "Músculos primarios",
     "secondaryMusclesSectionHeader": "Músculos secundarios",
     "altNamesSectionHeader": "Nombres alternativos",

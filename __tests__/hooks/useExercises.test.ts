@@ -1,6 +1,7 @@
 jest.mock('../../app/db/exercises', () => ({
   getAllExercises: jest.fn(),
   insertExercise: jest.fn(),
+  subscribeToExerciseChanges: jest.fn(() => () => {}),
 }));
 
 import { renderHook, act, waitFor } from '@testing-library/react-native';
@@ -12,7 +13,6 @@ const MOCK_EXERCISES: Exercise[] = [
   {
     id: 'abc',
     name: 'Bench Press',
-    exercise_type: 'compound',
     primary_muscles: ['chest'],
     secondary_muscles: ['triceps'],
     alt_names: [],
@@ -25,12 +25,14 @@ const MOCK_EXERCISES: Exercise[] = [
     can_be_done_in_time: true,
     can_be_done_in_distance: false,
     requires_weight: true,
+    equipment: [],
+    csv_id: null,
+    human_readable_id: null,
   },
 ];
 
 const NEW_INPUT: NewExerciseInput = {
   name: 'Squat',
-  exercise_type: 'compound',
   primary_muscles: ['legs'],
   secondary_muscles: [],
   alt_names: [],

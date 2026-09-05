@@ -73,6 +73,8 @@ describe('updateSet', () => {
       'kg',
       '2026-05-26T09:00:00.000Z',
       null,
+      null,
+      'reps',
       'set_1',
     );
   });

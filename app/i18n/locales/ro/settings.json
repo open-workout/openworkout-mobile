@@ -24,7 +24,6 @@
   "deleteCustomExercisesMessage": "Aceasta va șterge definitiv toate exercițiile create de tine. Exercițiile predefinite nu vor fi afectate.",
   "selectLanguage": "Selectează limba",
   "workoutPrefs": {
-    "exercisesPerWorkout": "Exerciții per antrenament",
     "progressiveOverload": "Suprasolicitare progresivă",
     "progressReps": "Repetări țintă",
     "progressRepsInfoMessage": "Numărul de repetări care declanșează o creștere a greutății. Odată ce atingi acest număr de repetări la un set, aplicația sugerează adăugarea de greutate data viitoare — până atunci, sugerează adăugarea de repetări.",
@@ -32,7 +31,6 @@
     "setsPerExerciseInfoMessage": "Câte seturi sunt precompletate cu greutatea și repetările sugerate atunci când deschizi un exercițiu în timpul unui antrenament. Poți oricând adăuga sau elimina seturi pe parcurs.",
     "streak": "Serie",
     "weeklyGoal": "Obiectiv săptămânal",
-    "weeklyGoalInfoMessage": "Câte antrenamente pe săptămână contează pentru obiectivul tău de serie. Afișat pe Acasă ca progres săptămânal.",
-    "exercisesPerWorkoutInfoMessage": "Câte exerciții să fie incluse în fiecare antrenament generat."
+    "weeklyGoalInfoMessage": "Câte antrenamente pe săptămână contează pentru obiectivul tău de serie. Afișat pe Acasă ca progres săptămânal."
   }
 }

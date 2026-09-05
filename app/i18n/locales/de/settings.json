@@ -23,7 +23,6 @@
   "deleteCustomExercisesMessage": "Dadurch werden alle von dir erstellten Übungen dauerhaft gelöscht. Vorinstallierte Übungen sind davon nicht betroffen.",
   "selectLanguage": "Sprache wählen",
   "workoutPrefs": {
-    "exercisesPerWorkout": "Übungen pro Workout",
     "progressiveOverload": "Progressive Overload",
     "progressReps": "Ziel-Wiederholungen",
     "progressRepsInfoMessage": "Das Wiederholungsziel, das eine Gewichtssteigerung auslöst. Sobald du diese Anzahl an Wiederholungen bei einem Satz erreichst, schlägt die App vor, beim nächsten Mal mehr Gewicht zu nehmen — bis dahin schlägt sie vor, Wiederholungen hinzuzufügen.",
@@ -31,7 +30,6 @@
     "setsPerExerciseInfoMessage": "Wie viele Sätze mit vorgeschlagenem Gewicht und Wiederholungen vorausgefüllt werden, sobald du eine Übung während eines Workouts öffnest. Du kannst jederzeit Sätze hinzufügen oder entfernen.",
     "streak": "Serie",
     "weeklyGoal": "Wochenziel",
-    "weeklyGoalInfoMessage": "Wie viele Workouts pro Woche zu deinem Serienziel zählen. Wird auf der Startseite als Wochenfortschritt angezeigt.",
-    "exercisesPerWorkoutInfoMessage": "Wie viele Übungen in jedes generierte Workout aufgenommen werden."
+    "weeklyGoalInfoMessage": "Wie viele Workouts pro Woche zu deinem Serienziel zählen. Wird auf der Startseite als Wochenfortschritt angezeigt."
   }
 }

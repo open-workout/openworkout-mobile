@@ -23,7 +23,6 @@
   "deleteCustomExercisesMessage": "Cela supprimera définitivement tous les exercices que vous avez créés. Les exercices préchargés ne seront pas affectés.",
   "selectLanguage": "Choisir la langue",
   "workoutPrefs": {
-    "exercisesPerWorkout": "Exercices par séance",
     "progressiveOverload": "Surcharge progressive",
     "progressReps": "Répétitions cibles",
     "progressRepsInfoMessage": "L'objectif de répétitions qui déclenche une augmentation de poids. Une fois ce nombre de répétitions atteint sur une série, l'application suggère d'ajouter du poids la prochaine fois — sinon, elle suggère d'ajouter des répétitions.",
@@ -31,7 +30,6 @@
     "setsPerExerciseInfoMessage": "Le nombre de séries pré-remplies avec le poids et les répétitions suggérés lorsque vous ouvrez un exercice pendant une séance. Vous pouvez toujours ajouter ou supprimer des séries à tout moment.",
     "streak": "Série",
     "weeklyGoal": "Objectif hebdomadaire",
-    "weeklyGoalInfoMessage": "Le nombre de séances par semaine qui comptent pour votre objectif de série. Affiché sur l'accueil comme votre progression hebdomadaire.",
-    "exercisesPerWorkoutInfoMessage": "Le nombre d'exercices à inclure dans chaque séance générée."
+    "weeklyGoalInfoMessage": "Le nombre de séances par semaine qui comptent pour votre objectif de série. Affiché sur l'accueil comme votre progression hebdomadaire."
   }
 }

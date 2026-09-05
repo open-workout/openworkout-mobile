@@ -29,7 +29,6 @@
   "resetExerciseLibraryConfirm": "Reset",
   "resetExerciseLibraryDone": "Exercise library reset",
   "workoutPrefs": {
-    "exercisesPerWorkout": "Exercises per workout",
     "progressiveOverload": "Progressive Overload",
     "progressReps": "Progress Reps",
     "progressRepsInfoMessage": "The rep target that triggers a weight increase. Once you hit this many reps on a set, the app suggests adding weight next time — until then, it suggests adding reps.",
@@ -37,7 +36,6 @@
     "setsPerExerciseInfoMessage": "How many sets are pre-filled with suggested weight and reps whenever you open an exercise during a workout. You can always add or remove sets on the fly.",
     "streak": "Streak",
     "weeklyGoal": "Weekly Goal",
-    "weeklyGoalInfoMessage": "How many workouts per week count toward your streak goal. Shown on Home as your weekly progress.",
-    "exercisesPerWorkoutInfoMessage": "How many exercises to include in each generated workout."
+    "weeklyGoalInfoMessage": "How many workouts per week count toward your streak goal. Shown on Home as your weekly progress."
   }
 }

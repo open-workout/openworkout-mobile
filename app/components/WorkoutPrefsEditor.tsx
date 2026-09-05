@@ -13,7 +13,6 @@ type Props = {
 type Field = keyof WorkoutPreferences;
 
 const FIELD_INFO_KEY: Record<Field, string> = {
-  exercises_per_workout: 'exercisesPerWorkoutInfoMessage',
   progress_reps: 'progressRepsInfoMessage',
   weekly_goal: 'weeklyGoalInfoMessage',
   sets_per_exercise: 'setsPerExerciseInfoMessage',
@@ -26,27 +25,11 @@ export default function WorkoutPrefsEditor({ prefs, onChange }: Props) {
   const fieldTitle = (field: Field): string => {
     if (field === 'progress_reps') return t('workoutPrefs.progressReps');
     if (field === 'weekly_goal') return t('workoutPrefs.weeklyGoal');
-    if (field === 'sets_per_exercise') return t('workoutPrefs.setsPerExercise');
-    return t('workoutPrefs.exercisesPerWorkout');
+    return t('workoutPrefs.setsPerExercise');
   };
 
   return (
     <View style={{ gap: 24 }}>
-      <View>
-        <Text style={{ color: '#52525b', fontSize: 10, fontWeight: '700', textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 12 }}>
-          {t('workoutPrefs.exercisesPerWorkout')}
-        </Text>
-        <View style={{ backgroundColor: 'rgba(24,24,27,0.6)', borderWidth: 1, borderColor: 'rgba(39,39,42,0.8)', borderRadius: 16, overflow: 'hidden' }}>
-          <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 20, paddingVertical: 14 }}>
-            <RowLabel label={t('workoutPrefs.exercisesPerWorkout')} field="exercises_per_workout" onInfo={setInfoField} />
-            <Stepper
-              value={prefs.exercises_per_workout}
-              onDecrement={() => onChange({ ...prefs, exercises_per_workout: Math.max(1, prefs.exercises_per_workout - 1) })}
-              onIncrement={() => onChange({ ...prefs, exercises_per_workout: Math.min(10, prefs.exercises_per_workout + 1) })}
-            />
-          </View>
-        </View>
-      </View>
       <View>
         <Text style={{ color: '#52525b', fontSize: 10, fontWeight: '700', textTransform: 'uppercase', letterSpacing: 0.8, marginBottom: 12 }}>
           {t('workoutPrefs.setsPerExercise')}

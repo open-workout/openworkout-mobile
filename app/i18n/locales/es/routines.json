@@ -14,14 +14,6 @@
   "whatAreYouTrainingToday": "¿Qué vas a entrenar hoy?",
   "workoutTab": "Entrenamiento",
   "routinesTab": "Rutinas",
-  "whatMusclesTitle": "¿Qué músculos?",
-  "generateWorkout": "Generar entrenamiento",
-  "continueManually": "Continuar manualmente",
-  "skip": "Omitir",
-  "noSplitConfigured": "Ninguna rutina configurada · configura una en el perfil",
-  "customWorkout": "Entrenamiento personalizado",
-  "generateWorkoutBasedOnMuscles": "Basado en los músculos seleccionados",
-  "selectDayToEnable": "Selecciona un día arriba para habilitar",
   "manualMode": "Modo manual",
   "buildFromScratch": "Crea tu entrenamiento desde cero",
   "noRoutinesYet": "Aún no hay rutinas",
@@ -80,7 +72,5 @@
   "menuProgramOfToday": "Programa de hoy",
   "comingSoon": "Próximamente",
   "menuRoutine": "Rutina",
-  "menuRoutineHint": "Empieza desde una rutina guardada",
-  "menuDaySplit": "Día de la rutina",
-  "menuDaySplitHint": "Elige un día de tu rutina o genera uno"
+  "menuRoutineHint": "Empieza desde una rutina guardada"
 }

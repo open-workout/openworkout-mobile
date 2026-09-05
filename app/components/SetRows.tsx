@@ -30,6 +30,7 @@ export function SetRow({
   onBlur,
   onToggleChecked,
   onAddDropSet,
+  showDropButton,
   selectionMode,
   selected,
   onToggleSelect,
@@ -41,6 +42,7 @@ export function SetRow({
   onBlur: () => void;
   onToggleChecked: () => void;
   onAddDropSet: () => void;
+  showDropButton: boolean;
   selectionMode: boolean;
   selected: boolean;
   onToggleSelect: () => void;
@@ -50,13 +52,14 @@ export function SetRow({
   const canCheck = isSetFilled(set, loggingType);
   const secondaryValue = loggingType === 'time' ? set.durationSeconds : set.reps;
   const bg = selected ? 'rgba(239,68,68,0.08)' : checked ? 'rgba(16,185,129,0.06)' : 'transparent';
+  const isDropSet = set.dropSetNumber > 0;
 
   return (
     <View style={{ backgroundColor: bg, borderTopWidth: 1, borderTopColor: 'rgba(39,39,42,0.5)', position: 'relative' }}>
       {checked && !selectionMode && (
         <View style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: 2, backgroundColor: '#10b981' }} />
       )}
-      <View style={{ flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, paddingTop: 12, paddingBottom: selectionMode ? 12 : 4, gap: 8 }}>
+      <View style={{ flexDirection: 'row', alignItems: 'center', paddingLeft: isDropSet ? 40 : 16, paddingRight: isDropSet ? 28 : 16, paddingTop: 12, paddingBottom: selectionMode ? 12 : 4, gap: 8 }}>
         <View style={{ width: 30, alignItems: 'center' }}>
           {set.isWarmup ? (
             <Ionicons name="flame-outline" size={14} color={accent.amber} />
@@ -108,10 +111,10 @@ export function SetRow({
           )}
         </TouchableOpacity>
       </View>
-      {!selectionMode && (
+      {!selectionMode && showDropButton && (
         <TouchableOpacity
           onPress={onAddDropSet}
-          style={{ flexDirection: 'row', alignItems: 'center', gap: 4, paddingHorizontal: 16, paddingLeft: 38, paddingBottom: 10 }}
+          style={{ flexDirection: 'row', alignItems: 'center', gap: 4, paddingLeft: isDropSet ? 62 : 38, paddingRight: 16, paddingBottom: 10 }}
           hitSlop={{ top: 4, bottom: 4, left: 4, right: 8 }}
         >
           <Ionicons name="trending-down-outline" size={12} color={accent.amber} />

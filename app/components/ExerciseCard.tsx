@@ -187,7 +187,7 @@ export function ExerciseCard({
             </TouchableOpacity>
           </View>
         ) : (
-          sets.map((set) => (
+          sets.map((set, index) => (
             <SetRow
               key={set.id}
               set={set}
@@ -197,6 +197,7 @@ export function ExerciseCard({
               onBlur={() => onSetBlur(set.id)}
               onToggleChecked={() => onToggleChecked(set.id)}
               onAddDropSet={() => onAddDropSet(set.id)}
+              showDropButton={index === sets.length - 1 || sets[index + 1].dropSetNumber === 0}
               selectionMode={removeMode}
               selected={selectedForRemoval.has(set.id)}
               onToggleSelect={() => onToggleSelectForRemoval(set.id)}

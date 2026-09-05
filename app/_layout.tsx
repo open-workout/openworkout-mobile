@@ -104,7 +104,12 @@ async function initializeDb(database: SQLiteDatabase) {
       created_at        INTEGER,
       equipment         TEXT NOT NULL DEFAULT '[]',
       csv_id            TEXT,
-      human_readable_id TEXT
+      human_readable_id TEXT,
+      animation_name    TEXT,
+      can_be_done_in_reps     INTEGER NOT NULL DEFAULT 1,
+      can_be_done_in_time     INTEGER NOT NULL DEFAULT 1,
+      can_be_done_in_distance INTEGER NOT NULL DEFAULT 0,
+      requires_weight         INTEGER NOT NULL DEFAULT 0
     );
   `);
   await database.execAsync(`

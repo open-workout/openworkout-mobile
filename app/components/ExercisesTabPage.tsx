@@ -1,11 +1,13 @@
 import { View, Text, ScrollView, FlatList, TouchableOpacity, TextInput, StatusBar, ActivityIndicator, KeyboardAvoidingView, Platform } from "react-native";
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
+import { Ionicons } from '@expo/vector-icons';
 import { useState, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useExercises } from '../hooks/useExercises';
 import AddExerciseModal from './AddExerciseModal';
 import ConfirmModal from './ConfirmModal';
+import { ExerciseThumbnail } from './ExerciseThumbnail';
+import { ExerciseAnimationModal, hasExerciseAnimation } from './ExerciseAnimationModal';
 import type { Exercise } from '../db/exercises';
 import {
   exerciseMatchesQuery,
@@ -42,6 +44,7 @@ export default function ExercisesTabPage() {
   const [editingExercise, setEditingExercise] = useState<Exercise | null>(null);
   const [deletingExercise, setDeletingExercise] = useState<Exercise | null>(null);
   const [expandedKey, setExpandedKey] = useState<string | null>(null);
+  const [animatingCsvId, setAnimatingCsvId] = useState<string | null>(null);
   const { exercises, isLoading, createExercise, editExercise, deleteExercise } = useExercises();
 
   const filtered = useMemo(() => {
@@ -146,6 +149,7 @@ export default function ExercisesTabPage() {
                   onToggle={() => setExpandedKey(expandedKey === key ? null : key)}
                   onEdit={() => setEditingExercise(ex)}
                   onDelete={() => setDeletingExercise(ex)}
+                  onShowAnimation={() => setAnimatingCsvId(ex.csv_id)}
                 />
               );
             }}
@@ -178,16 +182,18 @@ export default function ExercisesTabPage() {
           setDeletingExercise(null);
         }}
       />
+      <ExerciseAnimationModal csvId={animatingCsvId} onClose={() => setAnimatingCsvId(null)} />
     </SafeAreaView>
   );
 }
 
-function ExerciseRow({ exercise, expanded, onToggle, onEdit, onDelete }: {
+function ExerciseRow({ exercise, expanded, onToggle, onEdit, onDelete, onShowAnimation }: {
   exercise: Exercise;
   expanded: boolean;
   onToggle: () => void;
   onEdit: () => void;
   onDelete: () => void;
+  onShowAnimation: () => void;
 }) {
   const { t, i18n } = useTranslation('explore');
   const locale = i18n.language;
@@ -206,9 +212,11 @@ function ExerciseRow({ exercise, expanded, onToggle, onEdit, onDelete }: {
     }}>
       {/* Main row */}
       <View style={{ flexDirection: 'row', alignItems: 'center', padding: 12 }}>
-        <View style={{ width: 64, height: 64, borderRadius: 12, backgroundColor: '#27272a', borderWidth: 1, borderColor: '#3f3f46', alignItems: 'center', justifyContent: 'center' }}>
-          <MaterialCommunityIcons name="dumbbell" size={24} color="#a1a1aa" />
-        </View>
+        <ExerciseThumbnail
+          csvId={exercise.csv_id}
+          size={64}
+          onPress={hasExerciseAnimation(exercise.csv_id) ? onShowAnimation : undefined}
+        />
         <View style={{ flex: 1, marginLeft: 16 }}>
           <Text style={{ color: '#f4f4f5', fontSize: 14, fontWeight: '700' }}>{getExerciseDisplayName(exercise, locale)}</Text>
           <Text style={{ color: '#52525b', fontSize: 12, marginTop: 4 }}>

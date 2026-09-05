@@ -13,3 +13,7 @@ node_modules
 .env
 
 *.csv
+
+# Licensed exercise thumbnails/animations - not for public source control.
+# See scripts/generate-exercise-media.js and README.md#exercise-media.
+assets/exercises/media/

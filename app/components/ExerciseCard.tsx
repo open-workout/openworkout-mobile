@@ -1,9 +1,12 @@
+import { useState } from 'react';
 import { View, Text, TouchableOpacity, Linking } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
 import type { Exercise } from '../db/exercises';
 import { SetRow, type LocalSet } from './SetRows';
 import { OverloadHint } from './OverloadHint';
+import { ExerciseThumbnail } from './ExerciseThumbnail';
+import { ExerciseAnimationModal, hasExerciseAnimation } from './ExerciseAnimationModal';
 import type { OverloadSuggestion } from '../lib/progressiveOverload';
 import { getExerciseDisplayName, getMuscleLabels } from '../lib/exerciseTranslations';
 import { C, accent } from '../theme/colors';
@@ -63,10 +66,16 @@ export function ExerciseCard({
   const muscles = getMuscleLabels(exercise.primary_muscles, locale).join(', ');
   const loggingType = exercise.logging_type === 'time' ? 'time' : 'reps';
   const canSwitch = sets.every((s) => s.loggedAt === null);
+  const [showAnimation, setShowAnimation] = useState(false);
 
   return (
     <View style={{ backgroundColor: C.card, borderRadius: 16, borderWidth: 1, borderColor: C.borderAlt, overflow: 'hidden' }}>
       <View style={{ flexDirection: 'row', alignItems: 'flex-start', padding: 16, paddingBottom: 8, gap: 12 }}>
+        <ExerciseThumbnail
+          csvId={exercise.csv_id}
+          size={48}
+          onPress={hasExerciseAnimation(exercise.csv_id) ? () => setShowAnimation(true) : undefined}
+        />
         <View style={{ flex: 1 }}>
           <Text style={{ color: C.text, fontSize: 18, fontWeight: '700', marginBottom: 4 }}>
             {getExerciseDisplayName(exercise, locale)}
@@ -201,6 +210,11 @@ export function ExerciseCard({
           </TouchableOpacity>
         )}
       </View>
+
+      <ExerciseAnimationModal
+        csvId={showAnimation ? exercise.csv_id : null}
+        onClose={() => setShowAnimation(false)}
+      />
     </View>
   );
 }

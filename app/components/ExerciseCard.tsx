@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { View, Text, TouchableOpacity, Linking } from 'react-native';
+import { Image } from 'expo-image';
 import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
 import type { Exercise } from '../db/exercises';
@@ -7,6 +8,7 @@ import { SetRow, type LocalSet } from './SetRows';
 import { OverloadHint } from './OverloadHint';
 import { ExerciseThumbnail } from './ExerciseThumbnail';
 import { ExerciseAnimationModal, hasExerciseAnimation } from './ExerciseAnimationModal';
+import { EXERCISE_ANIMATIONS } from '../constants/exerciseMedia.generated';
 import type { OverloadSuggestion } from '../lib/progressiveOverload';
 import { getExerciseDisplayName, getMuscleLabels } from '../lib/exerciseTranslations';
 import { C, accent } from '../theme/colors';
@@ -67,9 +69,33 @@ export function ExerciseCard({
   const loggingType = exercise.logging_type === 'time' ? 'time' : 'reps';
   const canSwitch = sets.every((s) => s.loggedAt === null);
   const [showAnimation, setShowAnimation] = useState(false);
+  const [animationCollapsed, setAnimationCollapsed] = useState(false);
+  const animationSource = exercise.csv_id ? EXERCISE_ANIMATIONS[exercise.csv_id] : undefined;
 
   return (
     <View style={{ backgroundColor: C.card, borderRadius: 16, borderWidth: 1, borderColor: C.borderAlt, overflow: 'hidden' }}>
+      {animationSource && (
+        <View style={{ borderBottomWidth: 1, borderBottomColor: C.border }}>
+          <TouchableOpacity
+            onPress={() => setAnimationCollapsed((c) => !c)}
+            activeOpacity={0.7}
+            style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16, paddingVertical: 12 }}
+          >
+            <Text style={{ color: C.textMuted, fontSize: 11, fontWeight: '700', textTransform: 'uppercase', letterSpacing: 0.8 }}>
+              {t('demonstration')}
+            </Text>
+            <Ionicons name={animationCollapsed ? 'chevron-down' : 'chevron-up'} size={16} color={C.textMuted} />
+          </TouchableOpacity>
+          {!animationCollapsed && (
+            <Image
+              source={animationSource}
+              style={{ width: '100%', aspectRatio: 1, backgroundColor: '#000' }}
+              contentFit="contain"
+            />
+          )}
+        </View>
+      )}
+
       <View style={{ flexDirection: 'row', alignItems: 'flex-start', padding: 16, paddingBottom: 8, gap: 12 }}>
         <ExerciseThumbnail
           csvId={exercise.csv_id}

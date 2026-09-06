@@ -68,22 +68,50 @@ function slugifyEquipment(raw) {
     .filter(Boolean);
 }
 
+// Maps a single raw anatomical name, as it appears in the CSV's Target
+// column (e.g. "Adductor Longus", "Deltoid Posterior"), onto our simplified
+// muscle vocabulary. Returns null for anything unrecognized (e.g. the
+// occasional truncated/malformed Target entry in the source data) rather
+// than guessing.
+function targetNameToMuscle(rawTarget) {
+  const t = rawTarget.trim();
+  if (/Hamstring/i.test(t)) return 'hamstrings';
+  if (/Adductor/i.test(t) || t === 'Gracilis' || t === 'Pectineous') return 'adductors';
+  if (/Gluteus/i.test(t)) return 'glutes';
+  if (/Quadricep/i.test(t) || t === 'Sartorius' || t === 'Tensor Fasciae Latae') return 'quads';
+  if (/Gastrocnemius|Soleus/i.test(t)) return 'calves';
+  if (/Deltoid|Infraspinatus|Teres Major|Teres Minor/i.test(t)) return 'shoulders';
+  if (/Trapezius|Latissimus Dorsi|Erector Spinae/i.test(t)) return 'back';
+  if (/Biceps Brachii|Brachialis|Brachioradialis/i.test(t)) return 'biceps';
+  if (/Triceps Brachii/i.test(t)) return 'triceps';
+  if (/Pectoralis|Serratus Anterior/i.test(t)) return 'chest';
+  if (/Obliques|Rectus Abdominis|Iliopsoas/i.test(t)) return 'abs';
+  if (/Splenius/i.test(t)) return 'neck';
+  return null;
+}
+
+// Thighs/Hips rows list every worked muscle in Target (e.g. "Gluteus
+// Maximus, Quadriceps" for a compound lift) rather than one dominant
+// muscle, so all of them count as primary muscles instead of picking just
+// one via a priority heuristic. Falls back to `fallback` when Target is
+// empty (quads for Thighs, glutes for Hips).
+function musclesFromTarget(target, fallback) {
+  const items = target.trim().split(',').map((s) => s.trim()).filter(Boolean);
+  const muscles = items.map(targetNameToMuscle).filter(Boolean);
+  return muscles.length > 0 ? muscles : [fallback];
+}
+
 function bodyPartToMuscle(part, target) {
   const p = part.trim();
-  if (!p) return null;
-  if (p === 'Hips') return 'glutes';
-  if (p === 'Waist') return 'abs';
+  if (!p) return [];
+  if (p === 'Hips') return musclesFromTarget(target, 'glutes');
+  if (p === 'Waist') return ['abs'];
   if (p === 'Upper Arms') {
     const firstWord = target.trim().split(/[\s,]+/)[0] ?? '';
-    return firstWord === 'Triceps' ? 'triceps' : 'biceps';
+    return [firstWord === 'Triceps' ? 'triceps' : 'biceps'];
   }
-  if (p === 'Thighs') {
-    if (/Hamstring/i.test(target)) return 'hamstrings';
-    if (/Adductor/i.test(target)) return 'adductors';
-    if (/Gluteus/i.test(target)) return 'glutes';
-    return 'quads';
-  }
-  return p.toLowerCase();
+  if (p === 'Thighs') return musclesFromTarget(target, 'quads');
+  return [p.toLowerCase()];
 }
 
 const MALE_FEMALE_PATTERN = /\(\s*(male|female)\s*\)/gi;
@@ -98,7 +126,7 @@ function humanReadableId(name) {
 
 function primaryMusclesFor(bodyPart, target) {
   const parts = bodyPart.split(',').map((s) => s.trim()).filter(Boolean);
-  const muscles = parts.map((p) => bodyPartToMuscle(p, target)).filter(Boolean);
+  const muscles = parts.flatMap((p) => bodyPartToMuscle(p, target));
   return Array.from(new Set(muscles));
 }
 

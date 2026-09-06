@@ -429,7 +429,7 @@
     "name": "Barbell Bench Squat",
     "humanReadableId": "BarbellBenchSquat",
     "primaryMuscles": [
-      "glutes"
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -480,7 +480,8 @@
     "name": "Barbell Clean-grip Front Squat",
     "humanReadableId": "BarbellCleangripFrontSquat",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -650,7 +651,8 @@
     "name": "Barbell Front Chest Squat",
     "humanReadableId": "BarbellFrontChestSquat",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -701,7 +703,8 @@
     "name": "Barbell Front Squat",
     "humanReadableId": "BarbellFrontSquat",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -718,7 +721,8 @@
     "name": "Barbell Full Squat",
     "humanReadableId": "BarbellFullSquat",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -769,7 +773,8 @@
     "name": "Barbell Hack Squat",
     "humanReadableId": "BarbellHackSquat",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -854,7 +859,8 @@
     "name": "Barbell Jefferson Squat",
     "humanReadableId": "BarbellJeffersonSquat",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -888,7 +894,8 @@
     "name": "Barbell Jump Squat",
     "humanReadableId": "BarbellJumpSquat",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -905,7 +912,8 @@
     "name": "Barbell Lunge",
     "humanReadableId": "BarbellLunge",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -1058,7 +1066,8 @@
     "name": "Barbell Narrow Stance Squat",
     "humanReadableId": "BarbellNarrowStanceSquat",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -1109,7 +1118,8 @@
     "name": "Barbell One Arm Side Deadlift",
     "humanReadableId": "BarbellOneArmSideDeadlift",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -1245,6 +1255,7 @@
     "name": "Barbell Rack Pull",
     "humanReadableId": "BarbellRackPull",
     "primaryMuscles": [
+      "back",
       "glutes"
     ],
     "secondaryMuscles": [],
@@ -1296,7 +1307,8 @@
     "name": "Barbell Rear Lunge (version 2)",
     "humanReadableId": "BarbellRearLunge",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -1313,7 +1325,8 @@
     "name": "Barbell Rear Lunge",
     "humanReadableId": "BarbellRearLunge",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -1415,7 +1428,7 @@
     "name": "Barbell Rollout",
     "humanReadableId": "BarbellRollout",
     "primaryMuscles": [
-      "glutes"
+      "abs"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -1432,6 +1445,7 @@
     "name": "Barbell Romanian Deadlift",
     "humanReadableId": "BarbellRomanianDeadlift",
     "primaryMuscles": [
+      "back",
       "glutes"
     ],
     "secondaryMuscles": [],
@@ -1636,7 +1650,8 @@
     "name": "Barbell Side Split Squat (version 2)",
     "humanReadableId": "BarbellSideSplitSquat",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -1653,7 +1668,8 @@
     "name": "Barbell Side Split Squat",
     "humanReadableId": "BarbellSideSplitSquat",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -1670,7 +1686,8 @@
     "name": "Barbell Single Leg Split Squat",
     "humanReadableId": "BarbellSingleLegSplitSquat",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -1704,7 +1721,8 @@
     "name": "Barbell Speed Squat",
     "humanReadableId": "BarbellSpeedSquat",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -1925,7 +1943,8 @@
     "name": "Barbell Step-up",
     "humanReadableId": "BarbellStepup",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -1942,6 +1961,8 @@
     "name": "Barbell Stiff Leg Good Morning",
     "humanReadableId": "BarbellStiffLegGoodMorning",
     "primaryMuscles": [
+      "back",
+      "glutes",
       "hamstrings"
     ],
     "secondaryMuscles": [],
@@ -1959,6 +1980,7 @@
     "name": "Barbell Straight Leg Deadlift",
     "humanReadableId": "BarbellStraightLegDeadlift",
     "primaryMuscles": [
+      "back",
       "hamstrings"
     ],
     "secondaryMuscles": [],
@@ -1976,7 +1998,8 @@
     "name": "Barbell Sumo Deadlift",
     "humanReadableId": "BarbellSumoDeadlift",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -2146,7 +2169,8 @@
     "name": "Barbell Zercher Squat",
     "humanReadableId": "BarbellZercherSquat",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -2265,7 +2289,8 @@
     "name": "Bent Side Knee Push-up",
     "humanReadableId": "BentSideKneePushup",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "chest"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -2435,7 +2460,8 @@
     "name": "Bridge Hip Abduction",
     "humanReadableId": "BridgeHipAbduction",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -2656,7 +2682,8 @@
     "name": "Cable Deadlift",
     "humanReadableId": "CableDeadlift",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -4730,7 +4757,7 @@
     "name": "Decline Sit-up",
     "humanReadableId": "DeclineSitup",
     "primaryMuscles": [
-      "glutes"
+      "abs"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -4883,7 +4910,8 @@
     "name": "Dumbbell Bench Squat",
     "humanReadableId": "DumbbellBenchSquat",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -4951,7 +4979,9 @@
     "name": "Dumbbell Clean",
     "humanReadableId": "DumbbellClean",
     "primaryMuscles": [
-      "glutes"
+      "shoulders",
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -5648,7 +5678,8 @@
     "name": "Dumbbell Lunge",
     "humanReadableId": "DumbbellLunge",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -6243,7 +6274,8 @@
     "name": "Dumbbell Plyo Squat",
     "humanReadableId": "DumbbellPlyoSquat",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -6413,7 +6445,8 @@
     "name": "Dumbbell Rear Lunge",
     "humanReadableId": "DumbbellRearLunge",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -6906,7 +6939,8 @@
     "name": "Dumbbell Single Leg Split Squat",
     "humanReadableId": "DumbbellSingleLegSplitSquat",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -6923,7 +6957,8 @@
     "name": "Dumbbell Single Leg Squat",
     "humanReadableId": "DumbbellSingleLegSquat",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -6940,7 +6975,8 @@
     "name": "Dumbbell Squat (back on stability ball wall)",
     "humanReadableId": "DumbbellSquat",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -6957,7 +6993,8 @@
     "name": "Dumbbell Squat",
     "humanReadableId": "DumbbellSquat",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -7263,7 +7300,8 @@
     "name": "Dumbbell Step-up",
     "humanReadableId": "DumbbellStepup",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -7280,6 +7318,7 @@
     "name": "Dumbbell Stiff Leg Deadlift",
     "humanReadableId": "DumbbellStiffLegDeadlift",
     "primaryMuscles": [
+      "back",
       "glutes"
     ],
     "secondaryMuscles": [],
@@ -7331,7 +7370,8 @@
     "name": "Dumbbell Sumo Squat (back on stability ball wall)",
     "humanReadableId": "DumbbellSumoSquat",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -7943,7 +7983,7 @@
     "name": "Hanging Leg Raise",
     "humanReadableId": "HangingLegRaise",
     "primaryMuscles": [
-      "glutes"
+      "abs"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -7994,7 +8034,7 @@
     "name": "Hanging Straight Leg Raise",
     "humanReadableId": "HangingStraightLegRaise",
     "primaryMuscles": [
-      "glutes"
+      "abs"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -8198,7 +8238,7 @@
     "name": "Hip Raise Crunch",
     "humanReadableId": "HipRaiseCrunch",
     "primaryMuscles": [
-      "glutes"
+      "abs"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -8640,7 +8680,8 @@
     "name": "Jump Squat (version 2)",
     "humanReadableId": "JumpSquat",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -8657,7 +8698,8 @@
     "name": "Jump Squat",
     "humanReadableId": "JumpSquat",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -8980,7 +9022,8 @@
     "name": "Kettlebell Front Squat",
     "humanReadableId": "KettlebellFrontSquat",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -8997,7 +9040,8 @@
     "name": "Kettlebell Goblet Squat",
     "humanReadableId": "KettlebellGobletSquat",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -9014,7 +9058,14 @@
     "name": "Kettlebell Hang Clean",
     "humanReadableId": "KettlebellHangClean",
     "primaryMuscles": [
-      "hamstrings"
+      "adductors",
+      "biceps",
+      "shoulders",
+      "calves",
+      "glutes",
+      "hamstrings",
+      "chest",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -9031,7 +9082,8 @@
     "name": "Kettlebell Lunge Pass Through",
     "humanReadableId": "KettlebellLungePassThrough",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -9167,7 +9219,8 @@
     "name": "Kettlebell Pistol Squat",
     "humanReadableId": "KettlebellPistolSquat",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -9252,6 +9305,8 @@
     "name": "Kettlebell Swing",
     "humanReadableId": "KettlebellSwing",
     "primaryMuscles": [
+      "shoulders",
+      "glutes",
       "hamstrings"
     ],
     "secondaryMuscles": [],
@@ -9286,7 +9341,8 @@
     "name": "Kettlebell Turkish Get Up (Squat style)",
     "humanReadableId": "KettlebellTurkishGetUp",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "abs"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -9354,7 +9410,8 @@
     "name": "Kick out Sit",
     "humanReadableId": "KickoutSit",
     "primaryMuscles": [
-      "hamstrings"
+      "hamstrings",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -9439,7 +9496,8 @@
     "name": "Kneeling Hip Flexor",
     "humanReadableId": "KneelingHipFlexor",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -9541,7 +9599,8 @@
     "name": "Lateral Step-up",
     "humanReadableId": "LateralStepup",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -9745,7 +9804,8 @@
     "name": "Lever Deadlift (plate loaded)",
     "humanReadableId": "LeverDeadlift",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -10306,7 +10366,9 @@
     "name": "Lunge Push-up",
     "humanReadableId": "LungePushup",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "chest",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -10323,7 +10385,8 @@
     "name": "Lunge",
     "humanReadableId": "Lunge",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -10374,7 +10437,7 @@
     "name": "Lying Crossover Stretch",
     "humanReadableId": "LyingCrossoverStretch",
     "primaryMuscles": [
-      "glutes"
+      "abs"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -10408,7 +10471,7 @@
     "name": "Lying Hip Leg Raise (on floor)",
     "humanReadableId": "LyingHipLegRaise",
     "primaryMuscles": [
-      "glutes"
+      "abs"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -10442,7 +10505,7 @@
     "name": "Lying Hip Straight Leg Raise",
     "humanReadableId": "LyingHipStraightLegRaise",
     "primaryMuscles": [
-      "glutes"
+      "abs"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -10493,7 +10556,7 @@
     "name": "Lying Scissor Kick",
     "humanReadableId": "LyingScissorKick",
     "primaryMuscles": [
-      "glutes"
+      "abs"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -10510,7 +10573,7 @@
     "name": "Lying Simultaneous Alternating Leg Raise",
     "humanReadableId": "LyingSimultaneousAlternatingLegRaise",
     "primaryMuscles": [
-      "glutes"
+      "abs"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -10527,7 +10590,8 @@
     "name": "March Sit (wall)",
     "humanReadableId": "MarchSit",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -10595,7 +10659,8 @@
     "name": "Monster Walk",
     "humanReadableId": "MonsterWalk",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -10833,7 +10898,8 @@
     "name": "Outside Leg Kick Push-Up",
     "humanReadableId": "OutsideLegKickPushUp",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "chest"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -10901,7 +10967,9 @@
     "name": "Plyo Side Lunge Stretch",
     "humanReadableId": "PlyoSideLungeStretch",
     "primaryMuscles": [
-      "adductors"
+      "adductors",
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -10918,6 +10986,7 @@
     "name": "Plyo Sit Squat (wall)",
     "humanReadableId": "PlyoSitSquat",
     "primaryMuscles": [
+      "calves",
       "quads"
     ],
     "secondaryMuscles": [],
@@ -10935,7 +11004,15 @@
     "name": "Power Clean",
     "humanReadableId": "PowerClean",
     "primaryMuscles": [
-      "hamstrings"
+      "adductors",
+      "biceps",
+      "shoulders",
+      "calves",
+      "glutes",
+      "hamstrings",
+      "chest",
+      "quads",
+      "triceps"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -11139,7 +11216,9 @@
     "name": "Push-Up Inside Leg Kick",
     "humanReadableId": "PushUpInsideLegKick",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "chest",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -11360,6 +11439,7 @@
     "name": "Reverse Hyper extension (on stability ball)",
     "humanReadableId": "ReverseHyperextension",
     "primaryMuscles": [
+      "back",
       "glutes"
     ],
     "secondaryMuscles": [],
@@ -11377,7 +11457,8 @@
     "name": "Reverse Lunge (leg kick)",
     "humanReadableId": "ReverseLunge",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -11802,6 +11883,7 @@
     "name": "Side Bridge (bent knee)",
     "humanReadableId": "SideBridge",
     "primaryMuscles": [
+      "abs",
       "quads"
     ],
     "secondaryMuscles": [],
@@ -11819,6 +11901,7 @@
     "name": "Side Bridge (knee tuck)",
     "humanReadableId": "SideBridge",
     "primaryMuscles": [
+      "abs",
       "quads"
     ],
     "secondaryMuscles": [],
@@ -11836,7 +11919,8 @@
     "name": "Side Bridge Hip Abduction (star)",
     "humanReadableId": "SideBridgeHipAbduction",
     "primaryMuscles": [
-      "glutes"
+      "abs",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -11853,7 +11937,8 @@
     "name": "Side Bridge Hip Abduction",
     "humanReadableId": "SideBridgeHipAbduction",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -11972,7 +12057,8 @@
     "name": "Side Lunge Stretch",
     "humanReadableId": "SideLungeStretch",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -12159,7 +12245,9 @@
     "name": "Sideway Leg Bridge",
     "humanReadableId": "SidewayLegBridge",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "abs",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -12227,7 +12315,8 @@
     "name": "Single Leg Bridge",
     "humanReadableId": "SingleLegBridge",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "abs"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -12329,7 +12418,8 @@
     "name": "Single Leg Squat (pistol)",
     "humanReadableId": "SingleLegSquat",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -12346,7 +12436,8 @@
     "name": "Single Leg Step-up",
     "humanReadableId": "SingleLegStepup",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -12363,7 +12454,8 @@
     "name": "Sit (wall)",
     "humanReadableId": "Sit",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -12448,7 +12540,8 @@
     "name": "Sled 45┬░ Leg Press",
     "humanReadableId": "Sled45LegPress",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -12465,7 +12558,8 @@
     "name": "Sled 45┬░ Leg Wide Press",
     "humanReadableId": "Sled45LegWidePress",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -12482,7 +12576,8 @@
     "name": "Sled Closer Hack Squat",
     "humanReadableId": "SledCloserHackSquat",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -12516,7 +12611,8 @@
     "name": "Sled Hack Squat",
     "humanReadableId": "SledHackSquat",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -12533,7 +12629,8 @@
     "name": "Sled Lying Squat",
     "humanReadableId": "SledLyingSquat",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -12618,6 +12715,7 @@
     "name": "Smith Bent Knee Good morning",
     "humanReadableId": "SmithBentKneeGoodmorning",
     "primaryMuscles": [
+      "back",
       "glutes"
     ],
     "secondaryMuscles": [],
@@ -12635,7 +12733,8 @@
     "name": "Smith Chair Squat",
     "humanReadableId": "SmithChairSquat",
     "primaryMuscles": [
-      "quads"
+      "quads",
+      "calves"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -12669,6 +12768,7 @@
     "name": "Smith Deadlift",
     "humanReadableId": "SmithDeadlift",
     "primaryMuscles": [
+      "back",
       "glutes"
     ],
     "secondaryMuscles": [],
@@ -12720,7 +12820,8 @@
     "name": "Smith Hack Squat",
     "humanReadableId": "SmithHackSquat",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -12805,7 +12906,8 @@
     "name": "Smith Leg Press",
     "humanReadableId": "SmithLegPress",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -12941,7 +13043,8 @@
     "name": "Smith Single Leg Split Squat",
     "humanReadableId": "SmithSingleLegSplitSquat",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -12958,7 +13061,8 @@
     "name": "Smith Sprint Lunge",
     "humanReadableId": "SmithSprintLunge",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -12975,7 +13079,8 @@
     "name": "Smith Squat",
     "humanReadableId": "SmithSquat",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -13077,7 +13182,14 @@
     "name": "Snatch Pull",
     "humanReadableId": "SnatchPull",
     "primaryMuscles": [
-      "hamstrings"
+      "adductors",
+      "biceps",
+      "shoulders",
+      "calves",
+      "glutes",
+      "hamstrings",
+      "chest",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -13111,7 +13223,8 @@
     "name": "Spider Crawl Push up",
     "humanReadableId": "SpiderCrawlPushup",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "abs"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -13162,7 +13275,8 @@
     "name": "Split Squat",
     "humanReadableId": "SplitSquat",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -13196,7 +13310,8 @@
     "name": "Squat (arms overhead)",
     "humanReadableId": "Squat",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -13213,7 +13328,8 @@
     "name": "Squat (with band)",
     "humanReadableId": "Squat",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -13264,7 +13380,8 @@
     "name": "Squat",
     "humanReadableId": "Squat",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -13298,6 +13415,7 @@
     "name": "Standing Hamstring Stretch",
     "humanReadableId": "StandingHamstringStretch",
     "primaryMuscles": [
+      "back",
       "hamstrings"
     ],
     "secondaryMuscles": [],
@@ -13315,7 +13433,8 @@
     "name": "Standing Hip Abduction (bent knee)",
     "humanReadableId": "StandingHipAbduction",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -13332,7 +13451,8 @@
     "name": "Standing Hip Abduction",
     "humanReadableId": "StandingHipAbduction",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -13502,7 +13622,8 @@
     "name": "Step-up",
     "humanReadableId": "Stepup",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -13519,7 +13640,8 @@
     "name": "Sumo Squat",
     "humanReadableId": "SumoSquat",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -13638,7 +13760,8 @@
     "name": "Suspended Split Squat",
     "humanReadableId": "SuspendedSplitSquat",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -13655,6 +13778,7 @@
     "name": "Toe Touch Sit (wall)",
     "humanReadableId": "ToeTouchSit",
     "primaryMuscles": [
+      "abs",
       "quads"
     ],
     "secondaryMuscles": [],
@@ -13672,7 +13796,8 @@
     "name": "Trap Bar Deadlift",
     "humanReadableId": "TrapBarDeadlift",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -13859,7 +13984,9 @@
     "name": "Twist Squat",
     "humanReadableId": "TwistSquat",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "abs",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -13927,7 +14054,7 @@
     "name": "Vertical Leg Raise (on parallel bars)",
     "humanReadableId": "VerticalLegRaise",
     "primaryMuscles": [
-      "glutes"
+      "abs"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -14216,6 +14343,7 @@
     "name": "Weighted Reduction Triangle",
     "humanReadableId": "WeightedReductionTriangle",
     "primaryMuscles": [
+      "glutes",
       "hamstrings"
     ],
     "secondaryMuscles": [],
@@ -14369,7 +14497,8 @@
     "name": "Weighted Squat",
     "humanReadableId": "WeightedSquat",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -14743,7 +14872,8 @@
     "name": "Barbell Full squat (with rack)",
     "humanReadableId": "BarbellFullsquat",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -14760,7 +14890,8 @@
     "name": "Cable hip abduction (version 2)",
     "humanReadableId": "Cablehipabduction",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -14794,7 +14925,8 @@
     "name": "Dumbbell Curtsey lunge",
     "humanReadableId": "DumbbellCurtseylunge",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -14828,7 +14960,7 @@
     "name": "Lever Horizontal One leg Press",
     "humanReadableId": "LeverHorizontalOnelegPress",
     "primaryMuscles": [
-      "glutes"
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -14845,7 +14977,8 @@
     "name": "Smith Lateral Step-Up",
     "humanReadableId": "SmithLateralStepUp",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -14896,7 +15029,8 @@
     "name": "Smith rear lunge (version 2)",
     "humanReadableId": "Smithrearlunge",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -15049,7 +15183,8 @@
     "name": "Band hip abduction",
     "humanReadableId": "Bandhipabduction",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -15066,7 +15201,7 @@
     "name": "Band hip adduction",
     "humanReadableId": "Bandhipadduction",
     "primaryMuscles": [
-      "glutes"
+      "adductors"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -15270,7 +15405,7 @@
     "name": "Band lying leg raise",
     "humanReadableId": "Bandlyinglegraise",
     "primaryMuscles": [
-      "glutes"
+      "abs"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -15525,7 +15660,7 @@
     "name": "Band standing straight leg raise",
     "humanReadableId": "Bandstandingstraightlegraise",
     "primaryMuscles": [
-      "glutes"
+      "abs"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -15678,6 +15813,7 @@
     "name": "Adductor stretch",
     "humanReadableId": "Adductorstretch",
     "primaryMuscles": [
+      "adductors",
       "glutes"
     ],
     "secondaryMuscles": [],
@@ -16460,7 +16596,8 @@
     "name": "Band Lying Hip Internal Rotation",
     "humanReadableId": "BandLyingHipInternalRotation",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -16664,7 +16801,8 @@
     "name": "Band Seated Hip Internal Rotation",
     "humanReadableId": "BandSeatedHipInternalRotation",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -16766,7 +16904,7 @@
     "name": "Band Lying Straight Leg Raise",
     "humanReadableId": "BandLyingStraightLegRaise",
     "primaryMuscles": [
-      "glutes"
+      "abs"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -17089,7 +17227,7 @@
     "name": "Band Standing Leg Raise",
     "humanReadableId": "BandStandingLegRaise",
     "primaryMuscles": [
-      "glutes"
+      "abs"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -17140,7 +17278,7 @@
     "name": "Assisted Single Leg Press",
     "humanReadableId": "AssistedSingleLegPress",
     "primaryMuscles": [
-      "quads"
+      "chest"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -17208,7 +17346,7 @@
     "name": "Lever Standing Hip Extension",
     "humanReadableId": "LeverStandingHipExtension",
     "primaryMuscles": [
-      "glutes"
+      "triceps"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -17242,7 +17380,7 @@
     "name": "Lever Side Hip Abduction",
     "humanReadableId": "LeverSideHipAbduction",
     "primaryMuscles": [
-      "glutes"
+      "abs"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -17276,7 +17414,8 @@
     "name": "Lever Standing Leg Raise",
     "humanReadableId": "LeverStandingLegRaise",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -17293,7 +17432,8 @@
     "name": "Lever Standing Rear Kick",
     "humanReadableId": "LeverStandingRearKick",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -17310,7 +17450,8 @@
     "name": "Lever Chair Squat",
     "humanReadableId": "LeverChairSquat",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -17327,7 +17468,7 @@
     "name": "Lever Full Squat",
     "humanReadableId": "LeverFullSquat",
     "primaryMuscles": [
-      "quads"
+      "chest"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -17344,7 +17485,7 @@
     "name": "Lever Pistol Squat",
     "humanReadableId": "LeverPistolSquat",
     "primaryMuscles": [
-      "quads"
+      "neck"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -17599,7 +17740,7 @@
     "name": "Seated Groin Stretch",
     "humanReadableId": "SeatedGroinStretch",
     "primaryMuscles": [
-      "glutes"
+      "adductors"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -17701,7 +17842,8 @@
     "name": "Barbell sumo squat",
     "humanReadableId": "Barbellsumosquat",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -17922,7 +18064,8 @@
     "name": "Suspension Hip Abduction",
     "humanReadableId": "SuspensionHipAbduction",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -18041,7 +18184,7 @@
     "name": "Suspension Mountain Climber",
     "humanReadableId": "SuspensionMountainClimber",
     "primaryMuscles": [
-      "glutes"
+      "abs"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -18058,7 +18201,7 @@
     "name": "Suspension Pike",
     "humanReadableId": "SuspensionPike",
     "primaryMuscles": [
-      "glutes"
+      "abs"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -18602,7 +18745,8 @@
     "name": "Suspension Jump Squat",
     "humanReadableId": "SuspensionJumpSquat",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -18670,7 +18814,8 @@
     "name": "Suspension Mountain Climber Push-up",
     "humanReadableId": "SuspensionMountainClimberPushup",
     "primaryMuscles": [
-      "glutes"
+      "abs",
+      "chest"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -18806,7 +18951,8 @@
     "name": "Suspension Rear Lunge",
     "humanReadableId": "SuspensionRearLunge",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -18857,7 +19003,8 @@
     "name": "Suspension Side Lunge",
     "humanReadableId": "SuspensionSideLunge",
     "primaryMuscles": [
-      "adductors"
+      "adductors",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -18925,7 +19072,8 @@
     "name": "Suspension Single Leg Squat (figure)",
     "humanReadableId": "SuspensionSingleLegSquat",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -18959,7 +19107,8 @@
     "name": "Suspension Spiderman Push-up",
     "humanReadableId": "SuspensionSpidermanPushup",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "chest"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -18993,7 +19142,8 @@
     "name": "Suspension Sprinter",
     "humanReadableId": "SuspensionSprinter",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -19010,7 +19160,8 @@
     "name": "Suspension Squat (Arms Overhead)",
     "humanReadableId": "SuspensionSquat",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -19027,6 +19178,8 @@
     "name": "Suspension Squat Power Pull",
     "humanReadableId": "SuspensionSquatPowerPull",
     "primaryMuscles": [
+      "shoulders",
+      "back",
       "quads"
     ],
     "secondaryMuscles": [],
@@ -19316,7 +19469,8 @@
     "name": "Suspension Abduction Lunge",
     "humanReadableId": "SuspensionAbductionLunge",
     "primaryMuscles": [
-      "adductors"
+      "adductors",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -19435,7 +19589,8 @@
     "name": "45 degree one leg hyperextension (arms in front of chest)",
     "humanReadableId": "45degreeoneleghyperextension",
     "primaryMuscles": [
-      "glutes"
+      "back",
+      "hamstrings"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -19452,7 +19607,9 @@
     "name": "45 degree twisting hyperextension",
     "humanReadableId": "45degreetwistinghyperextension",
     "primaryMuscles": [
-      "glutes"
+      "back",
+      "hamstrings",
+      "abs"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -19520,7 +19677,8 @@
     "name": "Dumbbell forward leaning lunge",
     "humanReadableId": "Dumbbellforwardleaninglunge",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -19605,7 +19763,7 @@
     "name": "Lying Simultaneous Alternating Straight Leg Raise",
     "humanReadableId": "LyingSimultaneousAlternatingStraightLegRaise",
     "primaryMuscles": [
-      "glutes"
+      "abs"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -19622,7 +19780,7 @@
     "name": "Lying Straight Leg Raise (version 2)",
     "humanReadableId": "LyingStraightLegRaise",
     "primaryMuscles": [
-      "glutes"
+      "abs"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -20387,7 +20545,8 @@
     "name": "Lever Seated Squat",
     "humanReadableId": "LeverSeatedSquat",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -20421,7 +20580,7 @@
     "name": "Plate Hyperextension",
     "humanReadableId": "PlateHyperextension",
     "primaryMuscles": [
-      "glutes"
+      "back"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -20540,7 +20699,7 @@
     "name": "Flutter Kicks (version 3)",
     "humanReadableId": "FlutterKicks",
     "primaryMuscles": [
-      "glutes"
+      "abs"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -20557,7 +20716,7 @@
     "name": "Lying Leg Raise and Hold",
     "humanReadableId": "LyingLegRaiseandHold",
     "primaryMuscles": [
-      "glutes"
+      "abs"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -23107,7 +23266,8 @@
     "name": "Squat side kick",
     "humanReadableId": "Squatsidekick",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -23277,7 +23437,8 @@
     "name": "Barbell Lateral Lunge",
     "humanReadableId": "BarbellLateralLunge",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -23447,7 +23608,8 @@
     "name": "Kneeling Jump Squat",
     "humanReadableId": "KneelingJumpSquat",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -23532,7 +23694,8 @@
     "name": "Sled 45 degrees One Leg Press",
     "humanReadableId": "Sled45degreesOneLegPress",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -23566,7 +23729,8 @@
     "name": "Straight Leg Outer Hip Abductor",
     "humanReadableId": "StraightLegOuterHipAbductor",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -23668,7 +23832,8 @@
     "name": "Smith Front Squat (Clean Grip)",
     "humanReadableId": "SmithFrontSquat",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -23685,7 +23850,8 @@
     "name": "Smith Low Bar Squat",
     "humanReadableId": "SmithLowBarSquat",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -23702,7 +23868,8 @@
     "name": "Barbell Low Bar Squat",
     "humanReadableId": "BarbellLowBarSquat",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -23719,7 +23886,8 @@
     "name": "Barbell High Bar Squat",
     "humanReadableId": "BarbellHighBarSquat",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -23872,7 +24040,10 @@
     "name": "Dumbbell RDL Stretch Isometric",
     "humanReadableId": "DumbbellRDLStretchIsometric",
     "primaryMuscles": [
-      "glutes"
+      "adductors",
+      "calves",
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -23889,7 +24060,9 @@
     "name": "Barbell Zercher Squat Hold Isometric",
     "humanReadableId": "BarbellZercherSquatHoldIsometric",
     "primaryMuscles": [
-      "adductors"
+      "adductors",
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -24110,7 +24283,8 @@
     "name": "Dumbbell Romanian Deadlift",
     "humanReadableId": "DumbbellRomanianDeadlift",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "hamstrings"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -24127,7 +24301,8 @@
     "name": "Walking Lunge",
     "humanReadableId": "WalkingLunge",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -24144,7 +24319,8 @@
     "name": "Barbell Full Squat (Back POV)",
     "humanReadableId": "BarbellFullSquat",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -24161,7 +24337,8 @@
     "name": "Barbell Full Squat (Side POV)",
     "humanReadableId": "BarbellFullSquat",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -24178,7 +24355,8 @@
     "name": "Sled 45┬░ Leg Press (Side POV)",
     "humanReadableId": "Sled45LegPress",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -24195,7 +24373,8 @@
     "name": "Sled 45┬░ Leg Press (Back POV)",
     "humanReadableId": "Sled45LegPress",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -24229,7 +24408,8 @@
     "name": "Twist Hip Lift",
     "humanReadableId": "TwistHipLift",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "abs"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -24280,7 +24460,8 @@
     "name": "Lateral Side Plank (bent leg)",
     "humanReadableId": "LateralSidePlank",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -24297,7 +24478,8 @@
     "name": "Lateral Side Plank",
     "humanReadableId": "LateralSidePlank",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -24399,7 +24581,8 @@
     "name": "One Leg Squat",
     "humanReadableId": "OneLegSquat",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -24484,7 +24667,9 @@
     "name": "Bow Yoga Pose",
     "humanReadableId": "BowYogaPose",
     "primaryMuscles": [
-      "glutes"
+      "back",
+      "glutes",
+      "hamstrings"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -24654,7 +24839,8 @@
     "name": "Supine Spinal Twist Yoga Pose",
     "humanReadableId": "SupineSpinalTwistYogaPose",
     "primaryMuscles": [
-      "glutes"
+      "back",
+      "abs"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -24705,6 +24891,7 @@
     "name": "Butterfly Yoga Pose",
     "humanReadableId": "ButterflyYogaPose",
     "primaryMuscles": [
+      "biceps",
       "quads"
     ],
     "secondaryMuscles": [],
@@ -24773,7 +24960,7 @@
     "name": "Band Decline Sit-up",
     "humanReadableId": "BandDeclineSitup",
     "primaryMuscles": [
-      "glutes"
+      "abs"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -25028,7 +25215,8 @@
     "name": "Barbell Quarter Squat",
     "humanReadableId": "BarbellQuarterSquat",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -25385,7 +25573,11 @@
     "name": "Barbell Snatch Deadlift",
     "humanReadableId": "BarbellSnatchDeadlift",
     "primaryMuscles": [
-      "hamstrings"
+      "adductors",
+      "calves",
+      "glutes",
+      "hamstrings",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -25521,6 +25713,7 @@
     "name": "Barbell Stiff Legged Deadlift",
     "humanReadableId": "BarbellStiffLeggedDeadlift",
     "primaryMuscles": [
+      "back",
       "glutes"
     ],
     "secondaryMuscles": [],
@@ -25555,7 +25748,8 @@
     "name": "Barbell full Zercher Squat",
     "humanReadableId": "BarbellfullZercherSquat",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -25572,7 +25766,8 @@
     "name": "Bodyweight Wall Squat",
     "humanReadableId": "BodyweightWallSquat",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -25742,7 +25937,8 @@
     "name": "Dumbbell Walking Lunges",
     "humanReadableId": "DumbbellWalkingLunges",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -25827,7 +26023,8 @@
     "name": "Exercise Ball Wall Squat",
     "humanReadableId": "ExerciseBallWallSquat",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -25895,7 +26092,8 @@
     "name": "Kettlebell One Arm Overhead Squat",
     "humanReadableId": "KettlebellOneArmOverheadSquat",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -26048,7 +26246,8 @@
     "name": "Sled 45├╕ Narrow Stance Leg Press",
     "humanReadableId": "Sled45NarrowStanceLegPress",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -26099,7 +26298,8 @@
     "name": "One Leg Quarter Squat",
     "humanReadableId": "OneLegQuarterSquat",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -26150,7 +26350,8 @@
     "name": "Bodyweight Rear Lunge",
     "humanReadableId": "BodyweightRearLunge",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -26184,7 +26385,8 @@
     "name": "Sled Reverse Hack Squat",
     "humanReadableId": "SledReverseHackSquat",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -26218,6 +26420,8 @@
     "name": "Runners Stretch",
     "humanReadableId": "RunnersStretch",
     "primaryMuscles": [
+      "calves",
+      "glutes",
       "hamstrings"
     ],
     "secondaryMuscles": [],
@@ -26252,7 +26456,7 @@
     "name": "Seated Wide Angle Pose Sequence",
     "humanReadableId": "SeatedWideAnglePoseSequence",
     "primaryMuscles": [
-      "quads"
+      "back"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -26456,6 +26660,7 @@
     "name": "Standing Hamstring and Calf Stretch with Strap",
     "humanReadableId": "StandingHamstringandCalfStretchwithStrap",
     "primaryMuscles": [
+      "calves",
       "hamstrings"
     ],
     "secondaryMuscles": [],
@@ -26694,7 +26899,7 @@
     "name": "Alternate Leg Raise",
     "humanReadableId": "AlternateLegRaise",
     "primaryMuscles": [
-      "glutes"
+      "abs"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -28037,7 +28242,8 @@
     "name": "Stability Ball Single Leg Squat",
     "humanReadableId": "StabilityBallSingleLegSquat",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -28156,6 +28362,7 @@
     "name": "Single Leg Foot Touch",
     "humanReadableId": "SingleLegFootTouch",
     "primaryMuscles": [
+      "back",
       "glutes"
     ],
     "secondaryMuscles": [],
@@ -28207,7 +28414,8 @@
     "name": "Squat On Bosu Ball",
     "humanReadableId": "SquatOnBosuBall",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -29091,6 +29299,7 @@
     "name": "Dumbbell Single Leg Deadlift",
     "humanReadableId": "DumbbellSingleLegDeadlift",
     "primaryMuscles": [
+      "back",
       "glutes"
     ],
     "secondaryMuscles": [],
@@ -29125,7 +29334,8 @@
     "name": "Single Leg Squat (pistol) male",
     "humanReadableId": "SingleLegSquatmale",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -29142,7 +29352,8 @@
     "name": "Dumbbell Goblet Squat",
     "humanReadableId": "DumbbellGobletSquat",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -29176,7 +29387,8 @@
     "name": "Single Leg Squat with Support (pistol)",
     "humanReadableId": "SingleLegSquatwithSupport",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -29346,7 +29558,9 @@
     "name": "Side Plank Hip Adduction",
     "humanReadableId": "SidePlankHipAdduction",
     "primaryMuscles": [
-      "glutes"
+      "adductors",
+      "glutes",
+      "abs"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -29941,7 +30155,8 @@
     "name": "Lying Knee To Chest Stretch",
     "humanReadableId": "LyingKneeToChestStretch",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "hamstrings"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -30570,7 +30785,9 @@
     "name": "Hip Circles Stretch",
     "humanReadableId": "HipCirclesStretch",
     "primaryMuscles": [
-      "glutes"
+      "adductors",
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -30791,7 +31008,7 @@
     "name": "Hyperextension (VERSION 2)",
     "humanReadableId": "Hyperextension",
     "primaryMuscles": [
-      "glutes"
+      "back"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -31046,7 +31263,8 @@
     "name": "Lever Squat (plate loaded)",
     "humanReadableId": "LeverSquat",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -31165,7 +31383,9 @@
     "name": "Lying Abductor Stretch",
     "humanReadableId": "LyingAbductorStretch",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "abs",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -31505,6 +31725,7 @@
     "name": "Sitting Wide Leg Adductor Stretch",
     "humanReadableId": "SittingWideLegAdductorStretch",
     "primaryMuscles": [
+      "adductors",
       "glutes"
     ],
     "secondaryMuscles": [],
@@ -31726,6 +31947,8 @@
     "name": "Seated Knee Flexor Stretch",
     "humanReadableId": "SeatedKneeFlexorStretch",
     "primaryMuscles": [
+      "calves",
+      "glutes",
       "hamstrings"
     ],
     "secondaryMuscles": [],
@@ -31743,6 +31966,9 @@
     "name": "Standing Reach Down Hamstring Stretch",
     "humanReadableId": "StandingReachDownHamstringStretch",
     "primaryMuscles": [
+      "back",
+      "calves",
+      "glutes",
       "hamstrings"
     ],
     "secondaryMuscles": [],
@@ -31760,7 +31986,10 @@
     "name": "Standing Reach Down Hamstring Crossed Legs Stretch",
     "humanReadableId": "StandingReachDownHamstringCrossedLegsStretch",
     "primaryMuscles": [
-      "hamstrings"
+      "calves",
+      "glutes",
+      "hamstrings",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -31794,7 +32023,10 @@
     "name": "Seated Hip Stretch With Opposite Leg From Behind",
     "humanReadableId": "SeatedHipStretchWithOppositeLegFromBehind",
     "primaryMuscles": [
-      "glutes"
+      "back",
+      "calves",
+      "glutes",
+      "hamstrings"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -32083,7 +32315,8 @@
     "name": "Lying Cross Over Knee Pull Down Stretch",
     "humanReadableId": "LyingCrossOverKneePullDownStretch",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "abs"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -32202,7 +32435,12 @@
     "name": "Pigeon Hip Stretch",
     "humanReadableId": "PigeonHipStretch",
     "primaryMuscles": [
-      "glutes"
+      "adductors",
+      "back",
+      "glutes",
+      "hamstrings",
+      "abs",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -32321,7 +32559,10 @@
     "name": "Flexion And Extension Hip Stretch",
     "humanReadableId": "FlexionAndExtensionHipStretch",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "hamstrings",
+      "abs",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -33796,7 +34037,11 @@
     "name": "Farmers walk",
     "humanReadableId": "Farmerswalk",
     "primaryMuscles": [
-      "hamstrings"
+      "adductors",
+      "calves",
+      "glutes",
+      "hamstrings",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -33898,7 +34143,11 @@
     "name": "Walk Wave Machine",
     "humanReadableId": "WalkWaveMachine",
     "primaryMuscles": [
-      "hamstrings"
+      "adductors",
+      "calves",
+      "glutes",
+      "hamstrings",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -33915,7 +34164,14 @@
     "name": "Walk Elliptical Cross Trainer",
     "humanReadableId": "WalkEllipticalCrossTrainer",
     "primaryMuscles": [
-      "hamstrings"
+      "biceps",
+      "shoulders",
+      "calves",
+      "glutes",
+      "hamstrings",
+      "back",
+      "chest",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -34087,6 +34343,7 @@
     "humanReadableId": "ResistanceBandFrontPlankWithKickedLeg",
     "primaryMuscles": [
       "glutes",
+      "chest",
       "abs"
     ],
     "secondaryMuscles": [],
@@ -34104,7 +34361,8 @@
     "name": "Resistance Band Full Squat",
     "humanReadableId": "ResistanceBandFullSquat",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -34481,7 +34739,8 @@
     "name": "Roll Hip Thrust",
     "humanReadableId": "RollHipThrust",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "hamstrings"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -34498,7 +34757,8 @@
     "name": "Roll Recumbent Hip External Rotator and Hip Extensor Stretch (Crossed Leg)",
     "humanReadableId": "RollRecumbentHipExternalRotatorandHipExtensorStretch",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "hamstrings"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -34652,7 +34912,8 @@
     "name": "Dumbbell Step Up",
     "humanReadableId": "DumbbellStepUp",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -34669,7 +34930,8 @@
     "name": "Sled 45 degrees Leg Press",
     "humanReadableId": "Sled45degreesLegPress",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -34806,7 +35068,8 @@
     "name": "Lever Seated Leg Press",
     "humanReadableId": "LeverSeatedLegPress",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -35147,7 +35410,8 @@
     "name": "Dumbbell Bulgarian Split Squat",
     "humanReadableId": "DumbbellBulgarianSplitSquat",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -35232,7 +35496,7 @@
     "name": "Stability Ball Rollout on Knees",
     "humanReadableId": "StabilityBallRolloutonKnees",
     "primaryMuscles": [
-      "glutes"
+      "abs"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -35249,7 +35513,7 @@
     "name": "Stability Ball Rollout",
     "humanReadableId": "StabilityBallRollout",
     "primaryMuscles": [
-      "glutes"
+      "abs"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -35487,7 +35751,11 @@
     "name": "Walking on Stepmill",
     "humanReadableId": "WalkingonStepmill",
     "primaryMuscles": [
-      "hamstrings"
+      "adductors",
+      "calves",
+      "glutes",
+      "hamstrings",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -35623,7 +35891,8 @@
     "name": "Dumbbell Sumo Squat",
     "humanReadableId": "DumbbellSumoSquat",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -35640,7 +35909,8 @@
     "name": "Dumbbells Sumo Squat",
     "humanReadableId": "DumbbellsSumoSquat",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -36358,7 +36628,8 @@
     "name": "Dumbbell Rear Lunge from Step",
     "humanReadableId": "DumbbellRearLungefromStep",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -36375,7 +36646,8 @@
     "name": "Split Squats",
     "humanReadableId": "SplitSquats",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -36392,7 +36664,8 @@
     "name": "Barbell Split Squat",
     "humanReadableId": "BarbellSplitSquat",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -36426,7 +36699,8 @@
     "name": "Single Leg Squat with Support",
     "humanReadableId": "SingleLegSquatwithSupport",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -36443,7 +36717,8 @@
     "name": "Lever Horizontal Leg Press",
     "humanReadableId": "LeverHorizontalLegPress",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -36511,7 +36786,7 @@
     "name": "Floor Hyperextension",
     "humanReadableId": "FloorHyperextension",
     "primaryMuscles": [
-      "glutes"
+      "back"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -37021,7 +37296,8 @@
     "name": "Resistance Band Lunge",
     "humanReadableId": "ResistanceBandLunge",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -37072,7 +37348,8 @@
     "name": "Dumbbell Bar Grip Sumo Squat",
     "humanReadableId": "DumbbellBarGripSumoSquat",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -37089,7 +37366,8 @@
     "name": "Dumbbell Sumo Squat off Benches",
     "humanReadableId": "DumbbellSumoSquatoffBenches",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -37157,7 +37435,6 @@
     "name": "Bottoms Up",
     "humanReadableId": "BottomsUp",
     "primaryMuscles": [
-      "glutes",
       "abs"
     ],
     "secondaryMuscles": [],
@@ -37210,7 +37487,8 @@
     "humanReadableId": "WallBall",
     "primaryMuscles": [
       "shoulders",
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -37347,7 +37625,8 @@
     "name": "Dumbbell Lateral Step-Up",
     "humanReadableId": "DumbbellLateralStepUp",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -37722,7 +38001,10 @@
     "name": "Power Sled Push",
     "humanReadableId": "PowerSledPush",
     "primaryMuscles": [
-      "hamstrings"
+      "adductors",
+      "calves",
+      "hamstrings",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -37739,7 +38021,12 @@
     "name": "Vibrate Plate Standing",
     "humanReadableId": "VibratePlateStanding",
     "primaryMuscles": [
-      "hamstrings"
+      "adductors",
+      "calves",
+      "glutes",
+      "hamstrings",
+      "abs",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -37773,7 +38060,12 @@
     "name": "Vibrate Plate Lunge",
     "humanReadableId": "VibratePlateLunge",
     "primaryMuscles": [
-      "hamstrings"
+      "adductors",
+      "calves",
+      "glutes",
+      "hamstrings",
+      "abs",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -37999,7 +38291,8 @@
     "name": "Cossack Squats",
     "humanReadableId": "CossackSquats",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -38067,7 +38360,8 @@
     "name": "Back Forward Leg Swings",
     "humanReadableId": "BackForwardLegSwings",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "abs"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -38084,6 +38378,7 @@
     "name": "Side to Side Leg Swings",
     "humanReadableId": "SidetoSideLegSwings",
     "primaryMuscles": [
+      "adductors",
       "glutes"
     ],
     "secondaryMuscles": [],
@@ -39328,7 +39623,8 @@
     "name": "Cable Stand-up",
     "humanReadableId": "CableStandup",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -39464,7 +39760,9 @@
     "name": "Hip - Abduction - Articulations",
     "humanReadableId": "HipAbductionArticulations",
     "primaryMuscles": [
-      "glutes"
+      "adductors",
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -39481,7 +39779,7 @@
     "name": "Hip - Adduction - Articulations",
     "humanReadableId": "HipAdductionArticulations",
     "primaryMuscles": [
-      "glutes"
+      "adductors"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -39498,7 +39796,8 @@
     "name": "Hip - Extension - Articulations",
     "humanReadableId": "HipExtensionArticulations",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "hamstrings"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -39515,7 +39814,8 @@
     "name": "Hip - Flexion - Articulations",
     "humanReadableId": "HipFlexionArticulations",
     "primaryMuscles": [
-      "glutes"
+      "abs",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -39532,7 +39832,7 @@
     "name": "Hip - Lateral Rotation (External Rotation) - Articulations",
     "humanReadableId": "HipLateralRotationArticulations",
     "primaryMuscles": [
-      "glutes"
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -39549,7 +39849,8 @@
     "name": "Hip - Medial Rotation (Internal Rotation) - Articulations",
     "humanReadableId": "HipMedialRotationArticulations",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -39583,6 +39884,7 @@
     "name": "Knee - Flexion - Articulations",
     "humanReadableId": "KneeFlexionArticulations",
     "primaryMuscles": [
+      "calves",
       "hamstrings"
     ],
     "secondaryMuscles": [],
@@ -39770,7 +40072,7 @@
     "name": "Spine (Lumbar) - Extension - Articulations",
     "humanReadableId": "SpineExtensionArticulations",
     "primaryMuscles": [
-      "glutes"
+      "back"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -39787,7 +40089,7 @@
     "name": "Spine (Lumbar) - Flexion - Articulations",
     "humanReadableId": "SpineFlexionArticulations",
     "primaryMuscles": [
-      "glutes"
+      "abs"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -39804,7 +40106,7 @@
     "name": "Spine (Lumbar) - Lateral Flexion - Articulations",
     "humanReadableId": "SpineLateralFlexionArticulations",
     "primaryMuscles": [
-      "glutes"
+      "abs"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -39821,7 +40123,7 @@
     "name": "Spine (Lumbar) - Rotation - Articulations",
     "humanReadableId": "SpineRotationArticulations",
     "primaryMuscles": [
-      "glutes"
+      "abs"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -40043,7 +40345,8 @@
     "name": "Barbell Split Squat (VERSION 2)",
     "humanReadableId": "BarbellSplitSquat",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -40213,7 +40516,8 @@
     "name": "Cable Narrow Chair Stand Up",
     "humanReadableId": "CableNarrowChairStandUp",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -40230,6 +40534,7 @@
     "name": "Cable Stiff Leg Deadlift from Stepbox",
     "humanReadableId": "CableStiffLegDeadliftfromStepbox",
     "primaryMuscles": [
+      "back",
       "glutes"
     ],
     "secondaryMuscles": [],
@@ -40264,9 +40569,9 @@
     "name": "Bicycle",
     "humanReadableId": "Bicycle",
     "primaryMuscles": [
-      "glutes",
       "hamstrings",
-      "abs"
+      "abs",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -40300,6 +40605,7 @@
     "name": "Control Balance",
     "humanReadableId": "ControlBalance",
     "primaryMuscles": [
+      "back",
       "glutes",
       "hamstrings",
       "abs"
@@ -40354,8 +40660,6 @@
     "name": "Double Leg Stretch",
     "humanReadableId": "DoubleLegStretch",
     "primaryMuscles": [
-      "glutes",
-      "quads",
       "abs"
     ],
     "secondaryMuscles": [],
@@ -40373,7 +40677,7 @@
     "name": "Floor Hyperextension (VERSION 2)",
     "humanReadableId": "FloorHyperextension",
     "primaryMuscles": [
-      "glutes"
+      "back"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -40390,7 +40694,6 @@
     "name": "Hip Twist Supported Arms",
     "humanReadableId": "HipTwistSupportedArms",
     "primaryMuscles": [
-      "glutes",
       "abs"
     ],
     "secondaryMuscles": [],
@@ -40408,8 +40711,6 @@
     "name": "Hundred",
     "humanReadableId": "Hundred",
     "primaryMuscles": [
-      "glutes",
-      "quads",
       "abs"
     ],
     "secondaryMuscles": [],
@@ -40427,8 +40728,6 @@
     "name": "JackKnife",
     "humanReadableId": "JackKnife",
     "primaryMuscles": [
-      "glutes",
-      "quads",
       "abs"
     ],
     "secondaryMuscles": [],
@@ -40446,6 +40745,7 @@
     "name": "Leg Pull Side",
     "humanReadableId": "LegPullSide",
     "primaryMuscles": [
+      "adductors",
       "glutes"
     ],
     "secondaryMuscles": [],
@@ -40464,8 +40764,6 @@
     "humanReadableId": "LegPull",
     "primaryMuscles": [
       "back",
-      "glutes",
-      "quads",
       "abs"
     ],
     "secondaryMuscles": [],
@@ -40501,6 +40799,7 @@
     "name": "Lying Double Leg Kick",
     "humanReadableId": "LyingDoubleLegKick",
     "primaryMuscles": [
+      "back",
       "glutes",
       "hamstrings"
     ],
@@ -40694,8 +40993,6 @@
     "name": "Scissors",
     "humanReadableId": "Scissors",
     "primaryMuscles": [
-      "glutes",
-      "quads",
       "abs"
     ],
     "secondaryMuscles": [],
@@ -40783,8 +41080,6 @@
     "name": "Single Straight Leg Stretch",
     "humanReadableId": "SingleStraightLegStretch",
     "primaryMuscles": [
-      "glutes",
-      "quads",
       "abs"
     ],
     "secondaryMuscles": [],
@@ -40875,7 +41170,7 @@
     "name": "Single Leg Stretch (bent knee)",
     "humanReadableId": "SingleLegStretch",
     "primaryMuscles": [
-      "quads"
+      "abs"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -40892,7 +41187,7 @@
     "name": "Spine Stretch Forward",
     "humanReadableId": "SpineStretchForward",
     "primaryMuscles": [
-      "glutes",
+      "back",
       "abs"
     ],
     "secondaryMuscles": [],
@@ -40982,7 +41277,9 @@
     "name": "Prone Press-Swan",
     "humanReadableId": "PronePressSwan",
     "primaryMuscles": [
+      "back",
       "glutes",
+      "hamstrings",
       "abs"
     ],
     "secondaryMuscles": [],
@@ -41716,7 +42013,8 @@
     "name": "Dumbbell Single Leg Step Up",
     "humanReadableId": "DumbbellSingleLegStepUp",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -42192,7 +42490,8 @@
     "name": "Dumbbell Goblet Split Squat Front Foot Elevanted",
     "humanReadableId": "DumbbellGobletSplitSquatFrontFootElevanted",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -42209,7 +42508,8 @@
     "name": "Dumbbell Split Squat Front Foot Elevanted",
     "humanReadableId": "DumbbellSplitSquatFrontFootElevanted",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -42226,7 +42526,8 @@
     "name": "Dumbbell Split Squat",
     "humanReadableId": "DumbbellSplitSquat",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -42294,7 +42595,8 @@
     "name": "Dumbbell Front Squat",
     "humanReadableId": "DumbbellFrontSquat",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -42311,8 +42613,9 @@
     "name": "Dumbbell Thruster",
     "humanReadableId": "DumbbellThruster",
     "primaryMuscles": [
+      "shoulders",
       "glutes",
-      "shoulders"
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -42348,7 +42651,8 @@
     "name": "Side Lunge",
     "humanReadableId": "SideLunge",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -42383,7 +42687,8 @@
     "humanReadableId": "LandmineSquatandPress",
     "primaryMuscles": [
       "shoulders",
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -42504,7 +42809,8 @@
     "name": "Squat mobility",
     "humanReadableId": "Squatmobility",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -42521,7 +42827,8 @@
     "name": "Squat mobility Complex",
     "humanReadableId": "SquatmobilityComplex",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -42538,7 +42845,8 @@
     "name": "Barbell Walk Calves Activation",
     "humanReadableId": "BarbellWalkCalvesActivation",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -42589,7 +42897,8 @@
     "name": "Kettlebell Goblet Squat Mobility",
     "humanReadableId": "KettlebellGobletSquatMobility",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -42793,7 +43102,8 @@
     "name": "Stair Up",
     "humanReadableId": "StairUp",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -43423,7 +43733,8 @@
     "name": "Potty Squat with Support",
     "humanReadableId": "PottySquatwithSupport",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -43515,7 +43826,8 @@
     "name": "Smith Sumo Squat",
     "humanReadableId": "SmithSumoSquat",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -43838,6 +44150,7 @@
     "name": "Stability Ball Reverse Hyperextension (off a bench)",
     "humanReadableId": "StabilityBallReverseHyperextension",
     "primaryMuscles": [
+      "back",
       "glutes"
     ],
     "secondaryMuscles": [],
@@ -43855,6 +44168,7 @@
     "name": "Frog Reverse Hyperextension (on a bench)",
     "humanReadableId": "FrogReverseHyperextension",
     "primaryMuscles": [
+      "back",
       "glutes"
     ],
     "secondaryMuscles": [],
@@ -43872,6 +44186,7 @@
     "name": "Incline Reverse Hyperextension",
     "humanReadableId": "InclineReverseHyperextension",
     "primaryMuscles": [
+      "back",
       "glutes"
     ],
     "secondaryMuscles": [],
@@ -43940,7 +44255,8 @@
     "name": "Barbell Squat (with hanging band technique)",
     "humanReadableId": "BarbellSquat",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -43991,7 +44307,8 @@
     "name": "Kettlebell Goblet Squat Jump",
     "humanReadableId": "KettlebellGobletSquatJump",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -44042,7 +44359,8 @@
     "name": "Frankenstein squat",
     "humanReadableId": "Frankensteinsquat",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -44230,6 +44548,7 @@
     "name": "Floor T-Raise",
     "humanReadableId": "FloorTRaise",
     "primaryMuscles": [
+      "back",
       "glutes"
     ],
     "secondaryMuscles": [],
@@ -44247,6 +44566,7 @@
     "name": "Prone Cobra Palms Under Thighs",
     "humanReadableId": "ProneCobraPalmsUnderThighs",
     "primaryMuscles": [
+      "back",
       "glutes"
     ],
     "secondaryMuscles": [],
@@ -44264,6 +44584,7 @@
     "name": "Swimmer Kicks",
     "humanReadableId": "SwimmerKicks",
     "primaryMuscles": [
+      "back",
       "glutes"
     ],
     "secondaryMuscles": [],
@@ -44281,6 +44602,7 @@
     "name": "Lying Back Extension",
     "humanReadableId": "LyingBackExtension",
     "primaryMuscles": [
+      "back",
       "glutes"
     ],
     "secondaryMuscles": [],
@@ -44298,6 +44620,7 @@
     "name": "Lying Back Extension with Press",
     "humanReadableId": "LyingBackExtensionwithPress",
     "primaryMuscles": [
+      "back",
       "glutes"
     ],
     "secondaryMuscles": [],
@@ -44315,6 +44638,7 @@
     "name": "Prone Cobra Hands Interlocked",
     "humanReadableId": "ProneCobraHandsInterlocked",
     "primaryMuscles": [
+      "back",
       "glutes"
     ],
     "secondaryMuscles": [],
@@ -44349,7 +44673,9 @@
     "name": "Basic Toe Touch",
     "humanReadableId": "BasicToeTouch",
     "primaryMuscles": [
+      "back",
       "glutes",
+      "hamstrings",
       "abs"
     ],
     "secondaryMuscles": [],
@@ -44626,7 +44952,8 @@
     "name": "Cable Assisted Inverse Leg Curl",
     "humanReadableId": "CableAssistedInverseLegCurl",
     "primaryMuscles": [
-      "hamstrings"
+      "hamstrings",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -44745,8 +45072,7 @@
     "name": "Lying Lower Back Stretch (bent knee)",
     "humanReadableId": "LyingLowerBackStretch",
     "primaryMuscles": [
-      "back",
-      "glutes"
+      "back"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -44763,8 +45089,7 @@
     "name": "Lying Lower Back Stretch",
     "humanReadableId": "LyingLowerBackStretch",
     "primaryMuscles": [
-      "back",
-      "glutes"
+      "back"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -44925,7 +45250,8 @@
     "name": "Knee Raise",
     "humanReadableId": "KneeRaise",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -45168,8 +45494,7 @@
     "name": "Lying Single Leg Raise",
     "humanReadableId": "LyingSingleLegRaise",
     "primaryMuscles": [
-      "glutes",
-      "quads"
+      "abs"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -45186,8 +45511,8 @@
     "name": "Lying Leg Raise to Side",
     "humanReadableId": "LyingLegRaisetoSide",
     "primaryMuscles": [
-      "glutes",
-      "abs"
+      "abs",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -45306,7 +45631,8 @@
     "name": "Smith Full Squat",
     "humanReadableId": "SmithFullSquat",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -45685,7 +46011,8 @@
     "humanReadableId": "BarbellThruster",
     "primaryMuscles": [
       "shoulders",
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -45741,7 +46068,8 @@
     "name": "Barbell Weighted Deadlift",
     "humanReadableId": "BarbellWeightedDeadlift",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -45758,7 +46086,8 @@
     "name": "Barbell Weighted Front Chest Squat",
     "humanReadableId": "BarbellWeightedFrontChestSquat",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -45792,7 +46121,8 @@
     "name": "Barbell Front Squat (from blocks)",
     "humanReadableId": "BarbellFrontSquat",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -45878,8 +46208,9 @@
     "name": "Barbell Weightlifting Complex",
     "humanReadableId": "BarbellWeightliftingComplex",
     "primaryMuscles": [
+      "shoulders",
       "glutes",
-      "shoulders"
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -45986,7 +46317,8 @@
     "name": "Kettlebell deadlift",
     "humanReadableId": "Kettlebelldeadlift",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -46004,8 +46336,9 @@
     "humanReadableId": "KettlebellHalfTurkishGetUp",
     "primaryMuscles": [
       "glutes",
-      "shoulders",
-      "abs"
+      "abs",
+      "quads",
+      "shoulders"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -46247,6 +46580,7 @@
     "name": "Dumbbell Single Stiff Leg Deadlift",
     "humanReadableId": "DumbbellSingleStiffLegDeadlift",
     "primaryMuscles": [
+      "back",
       "glutes"
     ],
     "secondaryMuscles": [],
@@ -46264,7 +46598,8 @@
     "name": "Dumbbell One Arm Lunge",
     "humanReadableId": "DumbbellOneArmLunge",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -46281,7 +46616,8 @@
     "name": "Dumbbell Lunge (VERSION 2)",
     "humanReadableId": "DumbbellLunge",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -46400,7 +46736,8 @@
     "name": "Cable Front Squat",
     "humanReadableId": "CableFrontSquat",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -46417,7 +46754,8 @@
     "name": "Cable Lateral Lunge",
     "humanReadableId": "CableLateralLunge",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -46434,7 +46772,8 @@
     "name": "Cable Lunge",
     "humanReadableId": "CableLunge",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -46485,7 +46824,8 @@
     "name": "Cable Front Squat (VERSION 2)",
     "humanReadableId": "CableFrontSquat",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -46502,7 +46842,8 @@
     "name": "Cable Lateral Lunge (VERSION 2)",
     "humanReadableId": "CableLateralLunge",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -46519,7 +46860,8 @@
     "name": "Cable Forward Lunge",
     "humanReadableId": "CableForwardLunge",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -46655,7 +46997,8 @@
     "name": "Hawaian Squat",
     "humanReadableId": "HawaianSquat",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -46672,7 +47015,8 @@
     "name": "Shrimp Squat",
     "humanReadableId": "ShrimpSquat",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -46689,7 +47033,8 @@
     "name": "Skater Squat",
     "humanReadableId": "SkaterSquat",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -46706,8 +47051,8 @@
     "name": "Dumbbell Swing",
     "humanReadableId": "DumbbellSwing",
     "primaryMuscles": [
-      "glutes",
       "shoulders",
+      "glutes",
       "hamstrings"
     ],
     "secondaryMuscles": [],
@@ -47028,7 +47373,8 @@
     "name": "Lever Seated Leg Press (VERSION 2)",
     "humanReadableId": "LeverSeatedLegPress",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -47148,7 +47494,8 @@
     "name": "Narrow Squat from Deficit",
     "humanReadableId": "NarrowSquatfromDeficit",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -47182,7 +47529,8 @@
     "name": "Glute March",
     "humanReadableId": "GluteMarch",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "abs"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -47199,7 +47547,7 @@
     "name": "Sliding Leg Curl on Floor with Towel",
     "humanReadableId": "SlidingLegCurlonFloorwithTowel",
     "primaryMuscles": [
-      "glutes"
+      "hamstrings"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -47216,7 +47564,9 @@
     "name": "Dumbbell Full Swing",
     "humanReadableId": "DumbbellFullSwing",
     "primaryMuscles": [
-      "glutes"
+      "shoulders",
+      "glutes",
+      "hamstrings"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -47233,7 +47583,8 @@
     "name": "Dumbbell Front Rack Lunge",
     "humanReadableId": "DumbbellFrontRackLunge",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -47250,7 +47601,8 @@
     "name": "Barbell Front Rack Lunge",
     "humanReadableId": "BarbellFrontRackLunge",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -47369,6 +47721,7 @@
     "name": "Standing Low Body Rotation",
     "humanReadableId": "StandingLowBodyRotation",
     "primaryMuscles": [
+      "back",
       "glutes"
     ],
     "secondaryMuscles": [],
@@ -47441,8 +47794,10 @@
     "name": "Standing Hip Circle",
     "humanReadableId": "StandingHipCircle",
     "primaryMuscles": [
+      "back",
       "glutes",
-      "abs"
+      "abs",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -47655,7 +48010,9 @@
     "name": "Swimmer Kicks (VERSION 2)",
     "humanReadableId": "SwimmerKicks",
     "primaryMuscles": [
-      "glutes"
+      "back",
+      "glutes",
+      "hamstrings"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -47673,7 +48030,8 @@
     "humanReadableId": "SpiderCrawlPushup",
     "primaryMuscles": [
       "chest",
-      "glutes"
+      "glutes",
+      "abs"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -47690,7 +48048,6 @@
     "name": "Decline Leg Hip Raise",
     "humanReadableId": "DeclineLegHipRaise",
     "primaryMuscles": [
-      "glutes",
       "abs"
     ],
     "secondaryMuscles": [],
@@ -47708,7 +48065,9 @@
     "name": "Medicine Ball Backward Throw",
     "humanReadableId": "MedicineBallBackwardThrow",
     "primaryMuscles": [
-      "glutes"
+      "back",
+      "glutes",
+      "hamstrings"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -47796,7 +48155,8 @@
     "name": "Step-up on Chair",
     "humanReadableId": "StepuponChair",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -47813,7 +48173,8 @@
     "name": "Dumbbell Side Lunge (VERSION 3)",
     "humanReadableId": "DumbbellSideLunge",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -47864,6 +48225,7 @@
     "name": "Dumbbell Superman",
     "humanReadableId": "DumbbellSuperman",
     "primaryMuscles": [
+      "back",
       "glutes"
     ],
     "secondaryMuscles": [],
@@ -47933,6 +48295,7 @@
     "name": "Side Plank Hip Adduction (bent knee)",
     "humanReadableId": "SidePlankHipAdduction",
     "primaryMuscles": [
+      "adductors",
       "glutes"
     ],
     "secondaryMuscles": [],
@@ -48128,7 +48491,8 @@
     "name": "Forward Lunge",
     "humanReadableId": "ForwardLunge",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -48280,7 +48644,8 @@
     "name": "Alternate Heel Touch Side Kick Squat",
     "humanReadableId": "AlternateHeelTouchSideKickSquat",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -48297,7 +48662,8 @@
     "name": "Alternate Sprinter Lunge",
     "humanReadableId": "AlternateSprinterLunge",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -48314,7 +48680,8 @@
     "name": "Split Sprinter Low Lunge",
     "humanReadableId": "SplitSprinterLowLunge",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -48331,7 +48698,8 @@
     "name": "Split Sprinter High Lunge",
     "humanReadableId": "SplitSprinterHighLunge",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -48348,6 +48716,7 @@
     "name": "Around the World Superman Hold",
     "humanReadableId": "AroundtheWorldSupermanHold",
     "primaryMuscles": [
+      "back",
       "glutes"
     ],
     "secondaryMuscles": [],
@@ -48434,6 +48803,7 @@
     "humanReadableId": "CobraPushup",
     "primaryMuscles": [
       "chest",
+      "back",
       "glutes"
     ],
     "secondaryMuscles": [],
@@ -48452,6 +48822,7 @@
     "humanReadableId": "KneelingCobraPushup",
     "primaryMuscles": [
       "chest",
+      "back",
       "glutes"
     ],
     "secondaryMuscles": [],
@@ -48521,7 +48892,8 @@
     "name": "Single Leg Low Box Squat",
     "humanReadableId": "SingleLegLowBoxSquat",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -48538,7 +48910,8 @@
     "name": "Single Leg Heel Touch Squat",
     "humanReadableId": "SingleLegHeelTouchSquat",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -48644,7 +49017,8 @@
     "name": "Full Squat Mobility",
     "humanReadableId": "FullSquatMobility",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -48662,7 +49036,8 @@
     "humanReadableId": "ElbowtoKneeSidePlankCrunch",
     "primaryMuscles": [
       "glutes",
-      "abs"
+      "abs",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -48767,9 +49142,8 @@
     "name": "Seated In Out Leg Raise on Floor",
     "humanReadableId": "SeatedInOutLegRaiseonFloor",
     "primaryMuscles": [
-      "glutes",
-      "quads",
-      "abs"
+      "abs",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -48787,9 +49161,8 @@
     "humanReadableId": "CrunchyFrogonFloor",
     "primaryMuscles": [
       "chest",
-      "glutes",
-      "quads",
-      "abs"
+      "abs",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -48806,6 +49179,7 @@
     "name": "Resistance Band Bird Dog",
     "humanReadableId": "ResistanceBandBirdDog",
     "primaryMuscles": [
+      "back",
       "glutes"
     ],
     "secondaryMuscles": [],
@@ -48823,7 +49197,6 @@
     "name": "Resistance Band Upper Body Dead Bug",
     "humanReadableId": "ResistanceBandUpperBodyDeadBug",
     "primaryMuscles": [
-      "glutes",
       "abs"
     ],
     "secondaryMuscles": [],
@@ -48912,7 +49285,7 @@
     "name": "Spine Backbend Stretch",
     "humanReadableId": "SpineBackbendStretch",
     "primaryMuscles": [
-      "glutes"
+      "back"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -48965,7 +49338,8 @@
     "humanReadableId": "BandhorizontalPallofPresswithResistanceBandSquat",
     "primaryMuscles": [
       "glutes",
-      "abs"
+      "abs",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -49073,7 +49447,8 @@
     "name": "Barbell Banded Squat",
     "humanReadableId": "BarbellBandedSquat",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -49126,7 +49501,8 @@
     "name": "Bulgarian Split Squat",
     "humanReadableId": "BulgarianSplitSquat",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -49160,7 +49536,8 @@
     "name": "Bodyweight Pulse Squat",
     "humanReadableId": "BodyweightPulseSquat",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -49297,7 +49674,8 @@
     "name": "Bodyweight Drop Jump Squat",
     "humanReadableId": "BodyweightDropJumpSquat",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -49789,8 +50167,8 @@
     "name": "Kettlebell Full Swing",
     "humanReadableId": "KettlebellFullSwing",
     "primaryMuscles": [
-      "glutes",
-      "shoulders"
+      "shoulders",
+      "glutes"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -49824,8 +50202,9 @@
     "name": "Kettlebell Sots Press",
     "humanReadableId": "KettlebellSotsPress",
     "primaryMuscles": [
+      "shoulders",
       "glutes",
-      "shoulders"
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -49860,7 +50239,8 @@
     "name": "Kettlebell Backward Lunge",
     "humanReadableId": "KettlebellBackwardLunge",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -49877,7 +50257,8 @@
     "name": "Kettlebell Farmers Carry",
     "humanReadableId": "KettlebellFarmersCarry",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -49894,8 +50275,9 @@
     "name": "Kettlebell Lunge Clean and Press",
     "humanReadableId": "KettlebellLungeCleanandPress",
     "primaryMuscles": [
+      "shoulders",
       "glutes",
-      "shoulders"
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -49966,7 +50348,8 @@
     "name": "Lunge with Leg Lift",
     "humanReadableId": "LungewithLegLift",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -49983,7 +50366,8 @@
     "name": "Lunge with Jump",
     "humanReadableId": "LungewithJump",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -50000,7 +50384,9 @@
     "name": "Single Leg Bridge with Hip Flexion",
     "humanReadableId": "SingleLegBridgewithHipFlexion",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "abs",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -50019,7 +50405,8 @@
     "primaryMuscles": [
       "shoulders",
       "glutes",
-      "abs"
+      "abs",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -50036,8 +50423,10 @@
     "name": "Single Leg Deadlift with Knee Lift",
     "humanReadableId": "SingleLegDeadliftwithKneeLift",
     "primaryMuscles": [
+      "shoulders",
+      "back",
       "glutes",
-      "shoulders"
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -50054,6 +50443,7 @@
     "name": "Weighted Single Leg Lift",
     "humanReadableId": "WeightedSingleLegLift",
     "primaryMuscles": [
+      "abs",
       "quads"
     ],
     "secondaryMuscles": [],
@@ -50105,7 +50495,8 @@
     "name": "Barbell Squat",
     "humanReadableId": "BarbellSquat",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -50191,7 +50582,8 @@
     "name": "Sled 45 degrees Narrow Stance Leg Press",
     "humanReadableId": "Sled45degreesNarrowStanceLegPress",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -50208,7 +50600,8 @@
     "name": "Sled 45 degrees Wide Stance Leg Press",
     "humanReadableId": "Sled45degreesWideStanceLegPress",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -50385,7 +50778,8 @@
     "name": "Dumbbell Contralateral Forward Lunge",
     "humanReadableId": "DumbbellContralateralForwardLunge",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -50488,7 +50882,9 @@
     "humanReadableId": "WeightedKneelingStepwithSwing",
     "primaryMuscles": [
       "shoulders",
-      "hamstrings"
+      "glutes",
+      "hamstrings",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -50506,7 +50902,8 @@
     "humanReadableId": "WeightedStretchLunge",
     "primaryMuscles": [
       "glutes",
-      "hamstrings"
+      "hamstrings",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -50523,8 +50920,10 @@
     "name": "Weighted Cossack Squats",
     "humanReadableId": "WeightedCossackSquats",
     "primaryMuscles": [
+      "adductors",
       "glutes",
-      "hamstrings"
+      "hamstrings",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -50542,7 +50941,8 @@
     "humanReadableId": "WeightedLungewithSwing",
     "primaryMuscles": [
       "shoulders",
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -50593,7 +50993,8 @@
     "name": "Dumbbell RDL Death March",
     "humanReadableId": "DumbbellRDLDeathMarch",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -50610,7 +51011,8 @@
     "name": "Trap Bar Split Stance RDL",
     "humanReadableId": "TrapBarSplitStanceRDL",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -50697,7 +51099,9 @@
     "humanReadableId": "PiketoCobraPushup",
     "primaryMuscles": [
       "chest",
-      "glutes"
+      "back",
+      "glutes",
+      "triceps"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -50714,7 +51118,7 @@
     "name": "Reverse Plank with Leg Lift",
     "humanReadableId": "ReversePlankwithLegLift",
     "primaryMuscles": [
-      "glutes",
+      "abs",
       "quads"
     ],
     "secondaryMuscles": [],
@@ -50749,6 +51153,7 @@
     "name": "Power Point Plank",
     "humanReadableId": "PowerPointPlank",
     "primaryMuscles": [
+      "abs",
       "quads"
     ],
     "secondaryMuscles": [],
@@ -50783,7 +51188,7 @@
     "name": "Side Lying Hip Adduction",
     "humanReadableId": "SideLyingHipAdduction",
     "primaryMuscles": [
-      "glutes"
+      "adductors"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -50973,7 +51378,9 @@
     "name": "Kettlebell Overhand Grip Swing",
     "humanReadableId": "KettlebellOverhandGripSwing",
     "primaryMuscles": [
-      "glutes"
+      "shoulders",
+      "glutes",
+      "hamstrings"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -51024,7 +51431,8 @@
     "name": "Dumbbell Gobelt Curtsey Lunge",
     "humanReadableId": "DumbbellGobeltCurtseyLunge",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -51075,8 +51483,9 @@
     "name": "Dumbbell Kneeling Hold to Stand",
     "humanReadableId": "DumbbellKneelingHoldtoStand",
     "primaryMuscles": [
+      "shoulders",
       "glutes",
-      "shoulders"
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -51162,7 +51571,8 @@
     "name": "Dumbbell Goblet Split Squat",
     "humanReadableId": "DumbbellGobletSplitSquat",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -51179,7 +51589,8 @@
     "name": "Dumbbell Goblet Box Squat",
     "humanReadableId": "DumbbellGobletBoxSquat",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -51350,7 +51761,8 @@
     "name": "Forward Pulse Lunge with Hands Overhead",
     "humanReadableId": "ForwardPulseLungewithHandsOverhead",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -51436,7 +51848,8 @@
     "humanReadableId": "DumbbellPressSquat",
     "primaryMuscles": [
       "chest",
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -51470,7 +51883,8 @@
     "name": "Dumbbell Overhead Squat",
     "humanReadableId": "DumbbellOverheadSquat",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -51487,7 +51901,8 @@
     "name": "Dumbbell Split Squat Front Foot Elevanted with Bosu Ball",
     "humanReadableId": "DumbbellSplitSquatFrontFootElevantedwithBosuBall",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -51504,7 +51919,8 @@
     "name": "Single Leg Step Up",
     "humanReadableId": "SingleLegStepUp",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -51573,7 +51989,8 @@
     "name": "Split Squat with Roll",
     "humanReadableId": "SplitSquatwithRoll",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -51590,8 +52007,9 @@
     "name": "Split Lateral Squat with Roll",
     "humanReadableId": "SplitLateralSquatwithRoll",
     "primaryMuscles": [
+      "adductors",
       "glutes",
-      "adductors"
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -51676,7 +52094,8 @@
     "name": "Barbell Curtsey Lunge",
     "humanReadableId": "BarbellCurtseyLunge",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -51710,7 +52129,8 @@
     "name": "Barbell Overhead Lunge",
     "humanReadableId": "BarbellOverheadLunge",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -51744,7 +52164,8 @@
     "name": "Barbell Front Bench Squat",
     "humanReadableId": "BarbellFrontBenchSquat",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -51761,7 +52182,8 @@
     "name": "Barbell Front Step Up",
     "humanReadableId": "BarbellFrontStepUp",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -51813,6 +52235,7 @@
     "name": "Barbell Sumo Romanian Deadlift",
     "humanReadableId": "BarbellSumoRomanianDeadlift",
     "primaryMuscles": [
+      "back",
       "glutes"
     ],
     "secondaryMuscles": [],
@@ -51830,7 +52253,8 @@
     "name": "Kettlebell Gobelt Curtsey Lunge",
     "humanReadableId": "KettlebellGobeltCurtseyLunge",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -51847,6 +52271,7 @@
     "name": "Kettlebell Straight leg Deadlift",
     "humanReadableId": "KettlebellStraightlegDeadlift",
     "primaryMuscles": [
+      "back",
       "glutes"
     ],
     "secondaryMuscles": [],
@@ -51864,7 +52289,9 @@
     "name": "Kettlebell Kickstand One Leg Deadlift",
     "humanReadableId": "KettlebellKickstandOneLegDeadlift",
     "primaryMuscles": [
-      "glutes"
+      "back",
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -52000,7 +52427,8 @@
     "name": "Bulgarian Split Squat with Chair",
     "humanReadableId": "BulgarianSplitSquatwithChair",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -52068,7 +52496,8 @@
     "name": "Assisted Pistol Squat with Bed Sheet",
     "humanReadableId": "AssistedPistolSquatwithBedSheet",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -52204,6 +52633,7 @@
     "name": "Lever Seated Good Morning",
     "humanReadableId": "LeverSeatedGoodMorning",
     "primaryMuscles": [
+      "back",
       "glutes"
     ],
     "secondaryMuscles": [],
@@ -52255,7 +52685,8 @@
     "name": "Dumbbell Single Leg Squat (VERSION 2)",
     "humanReadableId": "DumbbellSingleLegSquat",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -52272,7 +52703,8 @@
     "name": "Lever Seated Horizontal Leg Press",
     "humanReadableId": "LeverSeatedHorizontalLegPress",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -52289,7 +52721,8 @@
     "name": "Curtsey Squat",
     "humanReadableId": "CurtseySquat",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -52935,7 +53368,7 @@
     "name": "Lying Floor Hyperextension",
     "humanReadableId": "LyingFloorHyperextension",
     "primaryMuscles": [
-      "glutes"
+      "back"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -52969,7 +53402,7 @@
     "name": "Lying Floor Hyperextension with Towel",
     "humanReadableId": "LyingFloorHyperextensionwithTowel",
     "primaryMuscles": [
-      "glutes"
+      "back"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -53105,7 +53538,6 @@
     "name": "Otis-Up",
     "humanReadableId": "OtisUp",
     "primaryMuscles": [
-      "glutes",
       "shoulders",
       "abs"
     ],
@@ -53124,7 +53556,6 @@
     "name": "Band Decline Sit up",
     "humanReadableId": "BandDeclineSitup",
     "primaryMuscles": [
-      "glutes",
       "abs"
     ],
     "secondaryMuscles": [],
@@ -53839,8 +54270,10 @@
     "name": "Dumbbell One Arm Snatch",
     "humanReadableId": "DumbbellOneArmSnatch",
     "primaryMuscles": [
+      "shoulders",
+      "back",
       "glutes",
-      "shoulders"
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -54163,6 +54596,7 @@
     "name": "Landmine Single Leg Landmine RDL",
     "humanReadableId": "LandmineSingleLegLandmineRDL",
     "primaryMuscles": [
+      "back",
       "glutes"
     ],
     "secondaryMuscles": [],
@@ -54180,7 +54614,8 @@
     "name": "Landmine Rear Lunge",
     "humanReadableId": "LandmineRearLunge",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -54299,6 +54734,7 @@
     "name": "Side Lying Leg Circle",
     "humanReadableId": "SideLyingLegCircle",
     "primaryMuscles": [
+      "adductors",
       "glutes"
     ],
     "secondaryMuscles": [],
@@ -54316,7 +54752,8 @@
     "name": "Squat Tip Toe",
     "humanReadableId": "SquatTipToe",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -54350,7 +54787,8 @@
     "name": "Standing Side Leg Raise",
     "humanReadableId": "StandingSideLegRaise",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "abs"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -54435,7 +54873,6 @@
     "name": "Seated Alternate Crunch",
     "humanReadableId": "SeatedAlternateCrunch",
     "primaryMuscles": [
-      "glutes",
       "abs"
     ],
     "secondaryMuscles": [],
@@ -54691,7 +55128,8 @@
     "name": "Forward to Side to Rear Lunge",
     "humanReadableId": "ForwardtoSidetoRearLunge",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -54776,7 +55214,8 @@
     "name": "Static Lunge Kick",
     "humanReadableId": "StaticLungeKick",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -55221,7 +55660,8 @@
     "name": "Static Lunge",
     "humanReadableId": "StaticLunge",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -55527,7 +55967,9 @@
     "name": "Criss Cross Leg Raises",
     "humanReadableId": "CrissCrossLegRaises",
     "primaryMuscles": [
-      "glutes"
+      "adductors",
+      "glutes",
+      "abs"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -55720,7 +56162,8 @@
     "name": "Landmine Rear Lunge (VERSION 2)",
     "humanReadableId": "LandmineRearLunge",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -56553,7 +56996,8 @@
     "name": "Landmine Sumo Squat",
     "humanReadableId": "LandmineSumoSquat",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -56570,7 +57014,9 @@
     "name": "Twist Superman",
     "humanReadableId": "TwistSuperman",
     "primaryMuscles": [
-      "glutes"
+      "back",
+      "glutes",
+      "abs"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -56723,7 +57169,8 @@
     "name": "Sled Wide Hack Squat",
     "humanReadableId": "SledWideHackSquat",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -56944,6 +57391,7 @@
     "name": "Landmine Romanian Deadlift",
     "humanReadableId": "LandmineRomanianDeadlift",
     "primaryMuscles": [
+      "back",
       "glutes"
     ],
     "secondaryMuscles": [],
@@ -57199,7 +57647,8 @@
     "name": "Weighted Counterbalanced Squat",
     "humanReadableId": "WeightedCounterbalancedSquat",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -57267,7 +57716,8 @@
     "name": "Kettlebell Sumo Deadlift with High Pull",
     "humanReadableId": "KettlebellSumoDeadliftwithHighPull",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -57318,7 +57768,8 @@
     "name": "Band Split Squat",
     "humanReadableId": "BandSplitSquat",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -57675,7 +58126,6 @@
     "name": "Lying Leg Hip Side Raise on Floor",
     "humanReadableId": "LyingLegHipSideRaiseonFloor",
     "primaryMuscles": [
-      "glutes",
       "abs"
     ],
     "secondaryMuscles": [],
@@ -57761,8 +58211,9 @@
     "name": "Dumbbell Rear Lunge Front Raise",
     "humanReadableId": "DumbbellRearLungeFrontRaise",
     "primaryMuscles": [
+      "shoulders",
       "glutes",
-      "shoulders"
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -59190,7 +59641,8 @@
     "name": "Landmine Front Squat",
     "humanReadableId": "LandmineFrontSquat",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -59207,6 +59659,7 @@
     "name": "Landmine Romanian Deadlift (VERSION 2)",
     "humanReadableId": "LandmineRomanianDeadlift",
     "primaryMuscles": [
+      "back",
       "glutes"
     ],
     "secondaryMuscles": [],
@@ -59445,7 +59898,8 @@
     "name": "Dumbbell Static Lunge",
     "humanReadableId": "DumbbellStaticLunge",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -59496,6 +59950,7 @@
     "name": "Dumbbell Straight Legs Deadlift",
     "humanReadableId": "DumbbellStraightLegsDeadlift",
     "primaryMuscles": [
+      "back",
       "glutes"
     ],
     "secondaryMuscles": [],
@@ -59513,7 +59968,8 @@
     "name": "Bodyweight Overhead Squat",
     "humanReadableId": "BodyweightOverheadSquat",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -59530,7 +59986,8 @@
     "name": "Dumbbell Walking Lunge",
     "humanReadableId": "DumbbellWalkingLunge",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -59547,7 +60004,7 @@
     "name": "Standing Hamstring and Calf Stretch with Starp",
     "humanReadableId": "StandingHamstringandCalfStretchwithStarp",
     "primaryMuscles": [
-      "quads"
+      "calves"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -59700,6 +60157,7 @@
     "name": "Bench Reverse Crunch Circle",
     "humanReadableId": "BenchReverseCrunchCircle",
     "primaryMuscles": [
+      "adductors",
       "glutes",
       "abs"
     ],
@@ -60160,7 +60618,8 @@
     "name": "Barbell Squat 2 sec Hold",
     "humanReadableId": "BarbellSquat2secHold",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -60177,7 +60636,8 @@
     "name": "Counterbalanced Skater Squat",
     "humanReadableId": "CounterbalancedSkaterSquat",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -60347,7 +60807,7 @@
     "name": "Hanging Deadbug",
     "humanReadableId": "HangingDeadbug",
     "primaryMuscles": [
-      "glutes"
+      "abs"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -61061,7 +61521,8 @@
     "name": "Sumo Squat Floor Touch",
     "humanReadableId": "SumoSquatFloorTouch",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -61078,7 +61539,7 @@
     "name": "Lying Leg Raise (Modified)",
     "humanReadableId": "LyingLegRaise",
     "primaryMuscles": [
-      "glutes"
+      "abs"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -61334,7 +61795,8 @@
     "name": "Kettlebell Step-Up (VERSION 2)",
     "humanReadableId": "KettlebellStepUp",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -61589,7 +62051,7 @@
     "name": "45 degrees Back Extension",
     "humanReadableId": "45degreesBackExtension",
     "primaryMuscles": [
-      "glutes"
+      "back"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -61844,7 +62306,7 @@
     "name": "Roll Ball Tensor Fasciae Latae",
     "humanReadableId": "RollBallTensorFasciaeLatae",
     "primaryMuscles": [
-      "glutes"
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -61912,7 +62374,7 @@
     "name": "Roll Ball Iliospsoas",
     "humanReadableId": "RollBallIliospsoas",
     "primaryMuscles": [
-      "glutes"
+      "abs"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -62788,7 +63250,7 @@
     "name": "Good Morning Squat",
     "humanReadableId": "GoodMorningSquat",
     "primaryMuscles": [
-      "glutes"
+      "hamstrings"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -63054,7 +63516,8 @@
     "name": "Dumbbell Step-up with Knee Raise",
     "humanReadableId": "DumbbellStepupwithKneeRaise",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -63293,7 +63756,8 @@
     "name": "Bodyweight Step-up on Stepbox",
     "humanReadableId": "BodyweightStepuponStepbox",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -63616,7 +64080,7 @@
     "name": "Roll Tensor Fasciae Latae",
     "humanReadableId": "RollTensorFasciaeLatae",
     "primaryMuscles": [
-      "glutes"
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -63633,7 +64097,7 @@
     "name": "Roll Iliospsoas",
     "humanReadableId": "RollIliospsoas",
     "primaryMuscles": [
-      "glutes"
+      "abs"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -63650,7 +64114,7 @@
     "name": "Roll Ball Lower Back",
     "humanReadableId": "RollBallLowerBack",
     "primaryMuscles": [
-      "glutes"
+      "back"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -63718,7 +64182,7 @@
     "name": "PVC Good Morning",
     "humanReadableId": "PVCGoodMorning",
     "primaryMuscles": [
-      "glutes"
+      "hamstrings"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -63752,7 +64216,8 @@
     "name": "PVC Overhead Squat",
     "humanReadableId": "PVCOverheadSquat",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -63803,7 +64268,9 @@
     "name": "Lying Side to Side Knee",
     "humanReadableId": "LyingSidetoSideKnee",
     "primaryMuscles": [
-      "glutes"
+      "adductors",
+      "glutes",
+      "abs"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -63871,7 +64338,9 @@
     "name": "Hip Swirls",
     "humanReadableId": "HipSwirls",
     "primaryMuscles": [
-      "glutes"
+      "adductors",
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -64163,7 +64632,9 @@
     "name": "Standing Single Leg High Knee to Butt Kick With Support",
     "humanReadableId": "StandingSingleLegHighKneetoButtKickWithSupport",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "hamstrings",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -64197,6 +64668,7 @@
     "name": "Kneeling Pulse",
     "humanReadableId": "KneelingPulse",
     "primaryMuscles": [
+      "back",
       "glutes"
     ],
     "secondaryMuscles": [],
@@ -64333,6 +64805,7 @@
     "name": "Bent Knee Back to Side Kick",
     "humanReadableId": "BentKneeBacktoSideKick",
     "primaryMuscles": [
+      "back",
       "glutes"
     ],
     "secondaryMuscles": [],
@@ -64401,6 +64874,8 @@
     "name": "Bar Band Swing",
     "humanReadableId": "BarBandSwing",
     "primaryMuscles": [
+      "shoulders",
+      "back",
       "glutes"
     ],
     "secondaryMuscles": [],
@@ -64418,7 +64893,8 @@
     "name": "Bar Band Split Squat",
     "humanReadableId": "BarBandSplitSquat",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -64452,7 +64928,8 @@
     "name": "Bar Band Lying Alternate Leg Press",
     "humanReadableId": "BarBandLyingAlternateLegPress",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -64486,7 +64963,8 @@
     "name": "Bar Band Squat",
     "humanReadableId": "BarBandSquat",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -64588,7 +65066,8 @@
     "name": "Resistance Band Split Squat",
     "humanReadableId": "ResistanceBandSplitSquat",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -64605,7 +65084,8 @@
     "name": "Kneeling Side Leg to Kick",
     "humanReadableId": "KneelingSideLegtoKick",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -64622,6 +65102,8 @@
     "name": "Kneeling Leg Half Circle",
     "humanReadableId": "KneelingLegHalfCircle",
     "primaryMuscles": [
+      "adductors",
+      "back",
       "glutes"
     ],
     "secondaryMuscles": [],
@@ -64759,6 +65241,7 @@
     "name": "Bar Band Single Leg Reverse Hyperextension",
     "humanReadableId": "BarBandSingleLegReverseHyperextension",
     "primaryMuscles": [
+      "back",
       "glutes"
     ],
     "secondaryMuscles": [],
@@ -64776,6 +65259,7 @@
     "name": "Alternating Superman",
     "humanReadableId": "AlternatingSuperman",
     "primaryMuscles": [
+      "back",
       "glutes"
     ],
     "secondaryMuscles": [],
@@ -65526,7 +66010,8 @@
     "name": "Dumbbell Side Squat",
     "humanReadableId": "DumbbellSideSquat",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -66122,7 +66607,8 @@
     "name": "Side Squat",
     "humanReadableId": "SideSquat",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -66139,7 +66625,8 @@
     "name": "Single Leg Bench Squat",
     "humanReadableId": "SingleLegBenchSquat",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -66309,7 +66796,12 @@
     "name": "Table Top Bridge",
     "humanReadableId": "TableTopBridge",
     "primaryMuscles": [
-      "glutes"
+      "shoulders",
+      "glutes",
+      "hamstrings",
+      "quads",
+      "abs",
+      "back"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -66462,7 +66954,8 @@
     "name": "Dumbbell Goblet 2 sec Hold Squat",
     "humanReadableId": "DumbbellGoblet2secHoldSquat",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -66479,7 +66972,7 @@
     "name": "Kettlebell Good Morning",
     "humanReadableId": "KettlebellGoodMorning",
     "primaryMuscles": [
-      "glutes"
+      "hamstrings"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -66565,8 +67058,8 @@
     "humanReadableId": "DumbbellRDLtoJumpShrug",
     "primaryMuscles": [
       "back",
-      "glutes",
-      "hamstrings"
+      "hamstrings",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -66600,7 +67093,9 @@
     "name": "Superman Chest Stretch",
     "humanReadableId": "SupermanChestStretch",
     "primaryMuscles": [
-      "glutes"
+      "shoulders",
+      "back",
+      "chest"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -67263,6 +67758,7 @@
     "name": "Butterfly Yoga Flaps",
     "humanReadableId": "ButterflyYogaFlaps",
     "primaryMuscles": [
+      "adductors",
       "glutes"
     ],
     "secondaryMuscles": [],
@@ -67348,6 +67844,7 @@
     "name": "Lying Criss-Cross Legs",
     "humanReadableId": "LyingCrissCrossLegs",
     "primaryMuscles": [
+      "adductors",
       "glutes"
     ],
     "secondaryMuscles": [],
@@ -67382,7 +67879,8 @@
     "name": "Side Lying Outward Knee Kick",
     "humanReadableId": "SideLyingOutwardKneeKick",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -67892,7 +68390,9 @@
     "name": "Dumbbell Deadlift (neutral grip)",
     "humanReadableId": "DumbbellDeadlift",
     "primaryMuscles": [
-      "glutes"
+      "back",
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -68130,7 +68630,8 @@
     "name": "Lunge Stretch",
     "humanReadableId": "LungeStretch",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -68164,7 +68665,9 @@
     "name": "Lying Bent Knee Figure 8",
     "humanReadableId": "LyingBentKneeFigure8",
     "primaryMuscles": [
-      "glutes"
+      "adductors",
+      "glutes",
+      "abs"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -68181,7 +68684,9 @@
     "name": "Standing Leg Circle",
     "humanReadableId": "StandingLegCircle",
     "primaryMuscles": [
-      "glutes"
+      "adductors",
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -68317,7 +68822,9 @@
     "name": "Standing Bent Knee Figure 8",
     "humanReadableId": "StandingBentKneeFigure8",
     "primaryMuscles": [
-      "glutes"
+      "adductors",
+      "glutes",
+      "abs"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -68402,7 +68909,8 @@
     "name": "Bodyweight Forward Lunge (Hinge at Hips)",
     "humanReadableId": "BodyweightForwardLunge",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -68436,7 +68944,8 @@
     "name": "Lever Pendulum Squat (plate loaded)",
     "humanReadableId": "LeverPendulumSquat",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -68538,7 +69047,8 @@
     "name": "Barbell Box Squat",
     "humanReadableId": "BarbellBoxSquat",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -68555,7 +69065,8 @@
     "name": "Kettlebell Box Squat",
     "humanReadableId": "KettlebellBoxSquat",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -68572,7 +69083,11 @@
     "name": "Jump Shrug",
     "humanReadableId": "JumpShrug",
     "primaryMuscles": [
-      "adductors"
+      "adductors",
+      "calves",
+      "glutes",
+      "quads",
+      "back"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -69065,7 +69580,8 @@
     "name": "Suspension Sumo Squat",
     "humanReadableId": "SuspensionSumoSquat",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -69423,7 +69939,7 @@
     "name": "Weighted Hyperextension",
     "humanReadableId": "WeightedHyperextension",
     "primaryMuscles": [
-      "glutes"
+      "back"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -70256,7 +70772,8 @@
     "name": "Dumbbell Single Arm Overhead Lunge",
     "humanReadableId": "DumbbellSingleArmOverheadLunge",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -70273,7 +70790,8 @@
     "name": "Single Arm Overhead Dumbbell Squat",
     "humanReadableId": "SingleArmOverheadDumbbellSquat",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -70358,7 +70876,7 @@
     "name": "Alternate Toe Tap Leg Lift",
     "humanReadableId": "AlternateToeTapLegLift",
     "primaryMuscles": [
-      "glutes"
+      "abs"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -70749,7 +71267,8 @@
     "name": "Bodyweight Kneeling Hold to Stand",
     "humanReadableId": "BodyweightKneelingHoldtoStand",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -70783,7 +71302,9 @@
     "name": "Lateral Step-up with Knee Drive",
     "humanReadableId": "LateralStepupwithKneeDrive",
     "primaryMuscles": [
-      "adductors"
+      "adductors",
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -70953,6 +71474,7 @@
     "name": "Single Leg Glute Bridge with External Rotation",
     "humanReadableId": "SingleLegGluteBridgewithExternalRotation",
     "primaryMuscles": [
+      "adductors",
       "glutes"
     ],
     "secondaryMuscles": [],
@@ -70970,7 +71492,7 @@
     "name": "Standing Hip Adduction (VERSION 2)",
     "humanReadableId": "StandingHipAdduction",
     "primaryMuscles": [
-      "glutes"
+      "adductors"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -71514,8 +72036,9 @@
     "name": "Medicine Ball Lunge with Biceps Curl",
     "humanReadableId": "MedicineBallLungewithBicepsCurl",
     "primaryMuscles": [
+      "biceps",
       "glutes",
-      "biceps"
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -71549,8 +72072,9 @@
     "name": "EZ-bar Deadlift with Biceps Curl",
     "humanReadableId": "EZbarDeadliftwithBicepsCurl",
     "primaryMuscles": [
+      "biceps",
       "glutes",
-      "biceps"
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -71687,7 +72211,8 @@
     "name": "Bodyweight Glute Dominant Step-Up",
     "humanReadableId": "BodyweightGluteDominantStepUp",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -71721,8 +72246,9 @@
     "name": "Landmine Kneeling Thruster Press",
     "humanReadableId": "LandmineKneelingThrusterPress",
     "primaryMuscles": [
+      "shoulders",
       "glutes",
-      "shoulders"
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -71740,7 +72266,8 @@
     "humanReadableId": "DumbbellSprinterThrustChestPress",
     "primaryMuscles": [
       "chest",
-      "glutes"
+      "glutes",
+      "abs"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -71842,7 +72369,8 @@
     "name": "Kettlebell Full Squat from Deficit",
     "humanReadableId": "KettlebellFullSquatfromDeficit",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -71961,7 +72489,8 @@
     "name": "Elevated Side Lunge",
     "humanReadableId": "ElevatedSideLunge",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -71995,7 +72524,8 @@
     "name": "Rear Lunge from Deficit",
     "humanReadableId": "RearLungefromDeficit",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -72012,7 +72542,9 @@
     "name": "Dumbbell Good Morning Squat",
     "humanReadableId": "DumbbellGoodMorningSquat",
     "primaryMuscles": [
-      "glutes"
+      "back",
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -72029,7 +72561,8 @@
     "name": "Dumbbell Glute Dominant Step-Up",
     "humanReadableId": "DumbbellGluteDominantStepUp",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -72046,7 +72579,8 @@
     "name": "Cable Glute Dominant Step-Up",
     "humanReadableId": "CableGluteDominantStepUp",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -72301,7 +72835,8 @@
     "name": "Lever Abduction Leg Raise",
     "humanReadableId": "LeverAbductionLegRaise",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "abs"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -72879,7 +73414,9 @@
     "name": "Stick Lunge with Overhead Raise Stretch",
     "humanReadableId": "StickLungewithOverheadRaiseStretch",
     "primaryMuscles": [
-      "glutes"
+      "shoulders",
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -72964,7 +73501,8 @@
     "name": "Stick Overhead Full Sumo Squat Stretch",
     "humanReadableId": "StickOverheadFullSumoSquatStretch",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -72981,7 +73519,9 @@
     "name": "Stick Twist Lunge Stretch",
     "humanReadableId": "StickTwistLungeStretch",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "abs",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -73372,7 +73912,8 @@
     "name": "Kettlebell Elevanted Goblet Squat",
     "humanReadableId": "KettlebellElevantedGobletSquat",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -73406,7 +73947,9 @@
     "name": "Weighted Plate Overhead March",
     "humanReadableId": "WeightedPlateOverheadMarch",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "abs",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -73474,7 +74017,8 @@
     "name": "Lever Reverse Vertical Hack Squat",
     "humanReadableId": "LeverReverseVerticalHackSquat",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -73610,7 +74154,9 @@
     "name": "Weighted Full Squat with Overhead Press",
     "humanReadableId": "WeightedFullSquatwithOverheadPress",
     "primaryMuscles": [
-      "glutes"
+      "shoulders",
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -73933,7 +74479,8 @@
     "name": "Landmine Hack Squat",
     "humanReadableId": "LandmineHackSquat",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -73950,7 +74497,8 @@
     "name": "Bodyweight Narrow Stance Squat",
     "humanReadableId": "BodyweightNarrowStanceSquat",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -74528,7 +75076,10 @@
     "name": "Barbell Jefferson Deadlift",
     "humanReadableId": "BarbellJeffersonDeadlift",
     "primaryMuscles": [
-      "glutes"
+      "adductors",
+      "back",
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [
@@ -85121,7 +85672,8 @@
     "name": "Lever Angled Leg Press",
     "humanReadableId": "LeverAngledLegPress",
     "primaryMuscles": [
-      "glutes"
+      "glutes",
+      "quads"
     ],
     "secondaryMuscles": [],
     "equipment": [

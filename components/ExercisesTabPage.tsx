@@ -18,23 +18,9 @@ import {
   getCategoryLabel,
 } from '../lib/exerciseTranslations';
 import { accent } from '../theme/colors';
+import { EXERCISE_CATEGORIES, exerciseMatchesCategory } from '../lib/exerciseCategories';
 
-const categories = ['All', 'Chest', 'Back', 'Legs', 'Arms', 'Shoulders'];
-
-const categoryMuscleKeywords: Record<string, string[]> = {
-  Chest: ['chest'],
-  Back: ['back', 'lats', 'traps', 'rhomboids'],
-  Legs: ['legs', 'quads', 'glutes', 'hamstrings', 'calves'],
-  Arms: ['bicep', 'tricep', 'forearm'],
-  Shoulders: ['delt', 'shoulder'],
-};
-
-function matchesCategory(ex: Exercise, category: string): boolean {
-  if (category === 'All') return true;
-  const keywords = categoryMuscleKeywords[category] ?? [];
-  const muscles = [...ex.primary_muscles, ...ex.secondary_muscles].map((m) => m.toLowerCase());
-  return keywords.some((kw) => muscles.some((m) => m.includes(kw)));
-}
+const categories = EXERCISE_CATEGORIES;
 
 export default function ExercisesTabPage() {
   const { t, i18n } = useTranslation('explore');
@@ -51,7 +37,7 @@ export default function ExercisesTabPage() {
   const filtered = useMemo(() => {
     const cat = categories[activeCategory];
     return exercises.filter(
-      (ex) => matchesCategory(ex, cat) && exerciseMatchesQuery(ex, search, locale),
+      (ex) => exerciseMatchesCategory(ex, cat) && exerciseMatchesQuery(ex, search, locale),
     );
   }, [exercises, activeCategory, search, locale]);
 

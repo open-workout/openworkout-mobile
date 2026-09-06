@@ -13,6 +13,7 @@ import {
   exerciseMatchesQuery,
   getExerciseDisplayName,
   getMuscleLabel,
+  getMuscleLabels,
   getEquipmentLabel,
   getCategoryLabel,
 } from '../lib/exerciseTranslations';
@@ -197,8 +198,8 @@ function ExerciseRow({ exercise, expanded, onToggle, onEdit, onDelete, onShowAni
 }) {
   const { t, i18n } = useTranslation('explore');
   const locale = i18n.language;
-  const muscle = exercise.primary_muscles[0]
-    ? getMuscleLabel(exercise.primary_muscles[0], locale)
+  const muscle = exercise.primary_muscles.length > 0
+    ? getMuscleLabels(exercise.primary_muscles, locale).join(', ')
     : t('exercise');
 
   return (

@@ -127,7 +127,7 @@ export async function getWorkoutExerciseSummaries(workoutId: string): Promise<Wo
        s.exercise_id,
        e.name AS exercise_name,
        COUNT(s.id) AS set_count,
-       SUM(s.weight * s.reps) AS total_volume,
+       SUM(CASE WHEN s.weight >= 0 THEN s.weight * s.reps ELSE 0 END) AS total_volume,
        s.unit,
        MIN(s.created_at) AS first_set_at
      FROM sets s
@@ -154,7 +154,7 @@ export async function getWorkoutExerciseSummariesBatch(
        s.exercise_id,
        e.name AS exercise_name,
        COUNT(s.id) AS set_count,
-       SUM(s.weight * s.reps) AS total_volume,
+       SUM(CASE WHEN s.weight >= 0 THEN s.weight * s.reps ELSE 0 END) AS total_volume,
        s.unit,
        MIN(s.created_at) AS first_set_at
      FROM sets s

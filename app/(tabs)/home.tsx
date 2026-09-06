@@ -1,14 +1,14 @@
 import { View } from 'react-native';
 import { useRouter, useFocusEffect } from 'expo-router';
 import { useCallback, useState } from 'react';
-import { getAllWorkouts } from '../db/workouts';
-import { SwipeableTabPager } from '../components/SwipeableTabPager';
-import { TabBar } from '../components/TabBar';
-import HomeTabPage from '../components/HomeTabPage';
-import PlanTabPage from '../components/PlanTabPage';
-import StatsTabPage from '../components/StatsTabPage';
-import ExercisesTabPage from '../components/ExercisesTabPage';
-import { C } from '../theme/colors';
+import { getAllWorkouts } from '@/db/workouts';
+import { SwipeableTabPager } from '@/components/SwipeableTabPager';
+import { TabBar } from '@/components/TabBar';
+import HomeTabPage from '@/components/HomeTabPage';
+import PlanTabPage from '@/components/PlanTabPage';
+import StatsTabPage from '@/components/StatsTabPage';
+import ExercisesTabPage from '@/components/ExercisesTabPage';
+import { C } from '@/theme/colors';
 
 // The single route backing the whole tab experience: a swipeable pager over
 // the 4 content pages, plus a hand-built tab bar (React Navigation's bottom

@@ -4,14 +4,14 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import { useMuscleDetail } from './hooks/useMuscleDetail';
-import { PeriodSelector } from './components/stats/PeriodSelector';
-import { TrainedDaysCalendar } from './components/stats/TrainedDaysCalendar';
-import { SetHistoryList, type SetHistoryRow } from './components/stats/SetHistoryList';
-import { getMuscleLabel } from './lib/exerciseTranslations';
-import { DEFAULT_STATS_PERIODS, statsPeriodFromParams, type StatsPeriod } from './lib/statsPeriod';
-import type { SimplifiedMuscle } from './lib/muscleMapping';
-import { C, accent } from './theme/colors';
+import { useMuscleDetail } from '@/hooks/useMuscleDetail';
+import { PeriodSelector } from '@/components/stats/PeriodSelector';
+import { TrainedDaysCalendar } from '@/components/stats/TrainedDaysCalendar';
+import { SetHistoryList, type SetHistoryRow } from '@/components/stats/SetHistoryList';
+import { getMuscleLabel } from '@/lib/exerciseTranslations';
+import { DEFAULT_STATS_PERIODS, statsPeriodFromParams, type StatsPeriod } from '@/lib/statsPeriod';
+import type { SimplifiedMuscle } from '@/lib/muscleMapping';
+import { C, accent } from '@/theme/colors';
 
 export default function MuscleStatsScreen() {
   const { t, i18n } = useTranslation('stats');

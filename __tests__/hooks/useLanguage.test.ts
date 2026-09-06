@@ -1,12 +1,12 @@
-jest.mock('../../app/storage', () => ({
+jest.mock('../../storage', () => ({
   getLanguage: jest.fn(),
   setLanguage: jest.fn(),
 }));
 
 import { renderHook, act, waitFor } from '@testing-library/react-native';
-import { getLanguage, setLanguage } from '../../app/storage';
-import { useLanguage } from '../../app/hooks/useLanguage';
-import i18n from '../../app/i18n';
+import { getLanguage, setLanguage } from '../../storage';
+import { useLanguage } from '../../hooks/useLanguage';
+import i18n from '../../i18n';
 
 beforeEach(() => {
   jest.clearAllMocks();

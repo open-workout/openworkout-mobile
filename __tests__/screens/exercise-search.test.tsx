@@ -1,11 +1,11 @@
-jest.mock('../../app/hooks/useExercises', () => ({ useExercises: jest.fn() }));
+jest.mock('../../hooks/useExercises', () => ({ useExercises: jest.fn() }));
 
 import { render, screen, fireEvent } from '@testing-library/react-native';
-import ExploreScreen from '../../app/components/ExercisesTabPage';
-import { useExercises } from '../../app/hooks/useExercises';
+import ExploreScreen from '../../components/ExercisesTabPage';
+import { useExercises } from '../../hooks/useExercises';
 import { FIXTURE_EXERCISES, CABLE_MATCHES, LAST_CABLE_MATCH } from '../fixtures/exercises';
-import i18n from '../../app/i18n';
-import type { Exercise } from '../../app/db/exercises';
+import i18n from '../../i18n';
+import type { Exercise } from '../../db/exercises';
 
 const BENCH_PRESS_SEED: Exercise = {
   id: 'ex-bench-seed',

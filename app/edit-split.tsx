@@ -4,10 +4,10 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
-import { deleteAllSplits, insertSplit } from './db/splits';
-import { useSplit } from './hooks/useSplit';
-import { PRESET_SPLITS, type SplitDay } from './constants/splits';
-import SplitEditor from './components/SplitEditor';
+import { deleteAllSplits, insertSplit } from '@/db/splits';
+import { useSplit } from '@/hooks/useSplit';
+import { PRESET_SPLITS, type SplitDay } from '@/constants/splits';
+import SplitEditor from '@/components/SplitEditor';
 
 const C = {
   bg: '#0a0a0a',

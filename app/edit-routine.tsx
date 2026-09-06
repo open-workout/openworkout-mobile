@@ -4,14 +4,14 @@ import { Ionicons } from '@expo/vector-icons';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useState, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { getAllRoutines, insertRoutine, updateRoutine } from './db/routines';
-import { useExercises } from './hooks/useExercises';
-import { useKeyboardHeight } from './hooks/useKeyboardHeight';
-import FormField from './components/FormField';
-import AddExerciseModal from './components/AddExerciseModal';
-import type { Exercise, NewExerciseInput } from './db/exercises';
-import { getAllExercises } from './db/exercises';
-import { exerciseMatchesQuery, getExerciseDisplayName, getMuscleLabels } from './lib/exerciseTranslations';
+import { getAllRoutines, insertRoutine, updateRoutine } from '@/db/routines';
+import { useExercises } from '@/hooks/useExercises';
+import { useKeyboardHeight } from '@/hooks/useKeyboardHeight';
+import FormField from '@/components/FormField';
+import AddExerciseModal from '@/components/AddExerciseModal';
+import type { Exercise, NewExerciseInput } from '@/db/exercises';
+import { getAllExercises } from '@/db/exercises';
+import { exerciseMatchesQuery, getExerciseDisplayName, getMuscleLabels } from '@/lib/exerciseTranslations';
 
 const C = {
   bg: '#0a0a0a',

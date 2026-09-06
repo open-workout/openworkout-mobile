@@ -1,13 +1,13 @@
-jest.mock('../../app/db/exercises', () => ({
+jest.mock('../../db/exercises', () => ({
   getAllExercises: jest.fn(),
   insertExercise: jest.fn(),
   subscribeToExerciseChanges: jest.fn(() => () => {}),
 }));
 
 import { renderHook, act, waitFor } from '@testing-library/react-native';
-import { getAllExercises, insertExercise } from '../../app/db/exercises';
-import { useExercises } from '../../app/hooks/useExercises';
-import type { Exercise, NewExerciseInput } from '../../app/db/exercises';
+import { getAllExercises, insertExercise } from '../../db/exercises';
+import { useExercises } from '../../hooks/useExercises';
+import type { Exercise, NewExerciseInput } from '../../db/exercises';
 
 const MOCK_EXERCISES: Exercise[] = [
   {

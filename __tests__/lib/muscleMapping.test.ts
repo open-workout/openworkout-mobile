@@ -1,6 +1,6 @@
-import { normalizeMuscle, normalizeMuscles, SIMPLIFIED_MUSCLES } from '../../app/lib/muscleMapping';
-import { SEED_EXERCISES } from '../../app/constants/exerciseData';
-import exercisesCsv from '../../app/constants/exercisesCsv.json';
+import { normalizeMuscle, normalizeMuscles, SIMPLIFIED_MUSCLES } from '../../lib/muscleMapping';
+import { SEED_EXERCISES } from '../../constants/exerciseData';
+import exercisesCsv from '../../constants/exercisesCsv.json';
 
 describe('normalizeMuscle', () => {
   it('passes already-simplified tags through unchanged', () => {

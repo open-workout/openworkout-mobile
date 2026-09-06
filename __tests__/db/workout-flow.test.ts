@@ -1,11 +1,11 @@
 // Tests for the workout session lifecycle:
 // start workout → add exercise (via insertSet) → resume (getSetsForWorkout) → see exercises → finish
 
-jest.mock('../../app/db/database', () => ({ getDb: jest.fn() }));
+jest.mock('../../db/database', () => ({ getDb: jest.fn() }));
 
-import { getDb } from '../../app/db/database';
-import { insertWorkout, getAllWorkouts, markWorkoutFinished } from '../../app/db/workouts';
-import { insertSet, getSetsForWorkout } from '../../app/db/sets';
+import { getDb } from '../../db/database';
+import { insertWorkout, getAllWorkouts, markWorkoutFinished } from '../../db/workouts';
+import { insertSet, getSetsForWorkout } from '../../db/sets';
 
 const mockDb = {
   runAsync: jest.fn<Promise<void>, unknown[]>().mockResolvedValue(undefined),

@@ -1,12 +1,12 @@
 // One-off generator: chisels assets/exercises/exercises.csv into
-// app/constants/exercisesCsv.json, which app/_layout.tsx seeds into SQLite.
+// constants/exercisesCsv.json, which app/_layout.tsx seeds into SQLite.
 // Re-run this script (`node scripts/generate-exercises-from-csv.js`) any time
 // the source CSV changes.
 const fs = require('fs');
 const path = require('path');
 
 const CSV_PATH = path.join(__dirname, '..', 'assets', 'exercises', 'exercises.csv');
-const OUT_PATH = path.join(__dirname, '..', 'app', 'constants', 'exercisesCsv.json');
+const OUT_PATH = path.join(__dirname, '..', 'constants', 'exercisesCsv.json');
 
 function parseCsv(text) {
   const rows = [];

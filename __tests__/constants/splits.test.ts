@@ -4,7 +4,7 @@ import {
   compressMuscles,
   SUPER_MUSCLE_MAP,
   PRESET_SPLITS,
-} from '../../app/constants/splits';
+} from '../../constants/splits';
 
 describe('expandMuscles', () => {
   it('expands a super-muscle key to its children', () => {

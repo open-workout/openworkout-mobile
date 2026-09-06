@@ -4,13 +4,13 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
-import { insertSplit } from './db/splits';
-import { markOnboardingDone, setWeightUnit, setWorkoutPreferences, getWorkoutPreferences, DEFAULT_WORKOUT_PREFS, type WorkoutPreferences } from './storage';
-import type { SplitDay } from './constants/splits';
-import SplitEditor from './components/SplitEditor';
-import WorkoutPrefsEditor from './components/WorkoutPrefsEditor';
-import { useLanguage } from './hooks/useLanguage';
-import { SUPPORTED_LANGUAGES, LANGUAGE_LABELS } from './i18n/resources';
+import { insertSplit } from '@/db/splits';
+import { markOnboardingDone, setWeightUnit, setWorkoutPreferences, getWorkoutPreferences, DEFAULT_WORKOUT_PREFS, type WorkoutPreferences } from '@/storage';
+import type { SplitDay } from '@/constants/splits';
+import SplitEditor from '@/components/SplitEditor';
+import WorkoutPrefsEditor from '@/components/WorkoutPrefsEditor';
+import { useLanguage } from '@/hooks/useLanguage';
+import { SUPPORTED_LANGUAGES, LANGUAGE_LABELS } from '@/i18n/resources';
 
 export default function OnboardingScreen() {
   const { t } = useTranslation('onboarding');

@@ -1,12 +1,12 @@
-jest.mock('../../app/db/splits', () => ({
+jest.mock('../../db/splits', () => ({
   getActiveSplit: jest.fn(),
   insertSplit: jest.fn(),
 }));
 
 import { renderHook, act, waitFor } from '@testing-library/react-native';
-import { getActiveSplit, insertSplit } from '../../app/db/splits';
-import { useSplit } from '../../app/hooks/useSplit';
-import type { Split } from '../../app/db/splits';
+import { getActiveSplit, insertSplit } from '../../db/splits';
+import { useSplit } from '../../hooks/useSplit';
+import type { Split } from '../../db/splits';
 
 const MOCK_SPLIT: Split = {
   id: 'abc',

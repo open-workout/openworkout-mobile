@@ -4,7 +4,7 @@ import {
   periodsEqual,
   statsPeriodToParams,
   statsPeriodFromParams,
-} from '../../app/lib/statsPeriod';
+} from '../../lib/statsPeriod';
 
 describe('periodStartMs', () => {
   it('returns null (no lower bound) for all_time', () => {

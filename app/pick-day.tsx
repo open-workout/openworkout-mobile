@@ -5,14 +5,14 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useTranslation } from 'react-i18next';
-import { useExercises } from './hooks/useExercises';
-import { useRoutines } from './hooks/useRoutines';
-import { setPendingWorkout } from './lib/pendingWorkout';
-import type { GeneratedSlot } from './lib/generateWorkout';
-import type { Routine } from './db/routines';
-import type { Exercise } from './db/exercises';
-import { getExerciseDisplayName } from './lib/exerciseTranslations';
-import { C, accent } from './theme/colors';
+import { useExercises } from '@/hooks/useExercises';
+import { useRoutines } from '@/hooks/useRoutines';
+import { setPendingWorkout } from '@/lib/pendingWorkout';
+import type { GeneratedSlot } from '@/lib/generateWorkout';
+import type { Routine } from '@/db/routines';
+import type { Exercise } from '@/db/exercises';
+import { getExerciseDisplayName } from '@/lib/exerciseTranslations';
+import { C, accent } from '@/theme/colors';
 
 type ScreenView = 'menu' | 'routines';
 

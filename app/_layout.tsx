@@ -4,12 +4,12 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SQLiteProvider, type SQLiteDatabase } from 'expo-sqlite';
 import { I18nextProvider } from 'react-i18next';
 import '@/global.css';
-import { setDb } from './db/database';
-import { SEED_EXERCISES } from './constants/exerciseData';
-import { insertCsvExercises } from './db/exercises';
-import i18n from './i18n';
-import { getLanguage } from './storage';
-import { C } from './theme/colors';
+import { setDb } from '@/db/database';
+import { SEED_EXERCISES } from '@/constants/exerciseData';
+import { insertCsvExercises } from '@/db/exercises';
+import i18n from '@/i18n';
+import { getLanguage } from '@/storage';
+import { C } from '@/theme/colors';
 
 async function initializeDb(database: SQLiteDatabase) {
   setDb(database);

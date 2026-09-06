@@ -21,6 +21,7 @@ type Props = {
 // (e.g. a tab bar tap), which animates the same way a completed swipe would.
 export function SwipeableTabPager({ pages, activeIndex, onIndexChange }: Props) {
   const pageWidth = Dimensions.get('window').width;
+  const pageCount = pages.length;
   const translateX = useSharedValue(-activeIndex * pageWidth);
   const settledIndex = useSharedValue(activeIndex);
 
@@ -37,7 +38,7 @@ export function SwipeableTabPager({ pages, activeIndex, onIndexChange }: Props) 
     .onUpdate((e) => {
       const base = -settledIndex.value * pageWidth;
       let next = base + e.translationX;
-      const min = -(pages.length - 1) * pageWidth;
+      const min = -(pageCount - 1) * pageWidth;
       const max = 0;
       if (next > max) next = max + (next - max) * OVERSCROLL_RESISTANCE;
       if (next < min) next = min + (next - min) * OVERSCROLL_RESISTANCE;
@@ -49,7 +50,7 @@ export function SwipeableTabPager({ pages, activeIndex, onIndexChange }: Props) 
       const distanceRatio = e.translationX / pageWidth;
       if (
         (distanceRatio < -SWIPE_DISTANCE_RATIO_THRESHOLD || e.velocityX < -SWIPE_VELOCITY_THRESHOLD) &&
-        current < pages.length - 1
+        current < pageCount - 1
       ) {
         target = current + 1;
       } else if (

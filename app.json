@@ -9,7 +9,6 @@
     "scheme": "openworkout",
     "userInterfaceStyle": "automatic",
     "backgroundColor": "#0a0a0a",
-    "newArchEnabled": true,
     "ios": {
       "bundleIdentifier": "com.freeopenworkout.app",
       "supportsTablet": true
@@ -17,7 +16,6 @@
     "android": {
       "icon": "./assets/images/icon.png",
       "backgroundColor": "#0a0a0a",
-      "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
       "package": "com.freeopenworkout.app"
     },
@@ -36,7 +34,12 @@
           "backgroundColor": "#000000"
         }
       ],
-      "expo-localization"
+      "expo-localization",
+      "expo-font",
+      "expo-image",
+      "expo-sqlite",
+      "expo-status-bar",
+      "expo-web-browser"
     ],
     "experiments": {
       "typedRoutes": true,

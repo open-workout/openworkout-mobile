@@ -6,6 +6,7 @@ import settings from './settings.json';
 import routines from './routines.json';
 import workout from './workout.json';
 import onboarding from './onboarding.json';
+import stats from './stats.json';
 
 export default {
   common,
@@ -16,4 +17,5 @@ export default {
   routines,
   workout,
   onboarding,
+  stats,
 };

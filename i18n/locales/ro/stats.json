@@ -13,8 +13,6 @@
   "periodWeek": "1 Săptămână",
   "periodMonth": "1 Lună",
   "periodAllTime": "Tot Timpul",
-  "frontView": "Față",
-  "backView": "Spate",
   "legendLess": "Mai puțin",
   "legendMore": "Mai mult",
   "chartMax": "Max: {{value}} {{unit}}",

@@ -13,8 +13,6 @@
   "periodWeek": "1 Semana",
   "periodMonth": "1 Mes",
   "periodAllTime": "Todo",
-  "frontView": "Frente",
-  "backView": "Espalda",
   "legendLess": "Menos",
   "legendMore": "Más",
   "chartMax": "Máx: {{value}} {{unit}}",

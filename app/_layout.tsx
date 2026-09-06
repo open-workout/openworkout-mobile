@@ -229,7 +229,6 @@ export default function RootLayout() {
           <Stack.Screen name="edit-routine" options={{ headerShown: false, presentation: 'fullScreenModal' }} />
           <Stack.Screen name="settings" options={{ headerShown: false, presentation: 'fullScreenModal' }} />
           <Stack.Screen name="exercise-stats" options={{ headerShown: false, presentation: 'fullScreenModal' }} />
-          <Stack.Screen name="muscle-stats" options={{ headerShown: false, presentation: 'fullScreenModal' }} />
           <Stack.Screen
             name="generated-workout"
             options={{

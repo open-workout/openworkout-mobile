@@ -15,8 +15,8 @@ function pad2(n: number): string {
 
 // Custom month grid with prev/next buttons — deliberately not swipeable,
 // since the outer SwipeableTabPager owns horizontal pan gestures on the
-// Stats tab (this component is used from the pushed muscle-stats route,
-// outside that pager, but stays button-nav for consistency/simplicity).
+// Stats tab (this component is also used from the pushed exercise-stats
+// route, outside that pager, but stays button-nav for consistency/simplicity).
 export function TrainedDaysCalendar({ trainedDates }: Props) {
   const [cursor, setCursor] = useState(() => {
     const now = new Date();

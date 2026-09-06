@@ -5,7 +5,6 @@ import { SQLiteProvider, type SQLiteDatabase } from 'expo-sqlite';
 import { I18nextProvider } from 'react-i18next';
 import '@/global.css';
 import { setDb } from '@/db/database';
-import { SEED_EXERCISES } from '@/constants/exerciseData';
 import { insertCsvExercises } from '@/db/exercises';
 import i18n from '@/i18n';
 import { getLanguage } from '@/storage';
@@ -188,38 +187,18 @@ async function initializeDb(database: SQLiteDatabase) {
     );
   `);
 
-  const row = await database.getFirstAsync<{ count: number }>(
-    'SELECT COUNT(*) as count FROM exercises',
-  );
-  if ((row?.count ?? 0) === 0) {
-    const now = Date.now();
-    await database.withTransactionAsync(async () => {
-      for (const ex of SEED_EXERCISES) {
-        const id = `seed_${Math.random().toString(36).slice(2, 10)}`;
-        await database.runAsync(
-          `INSERT INTO exercises
-             (id, name, primary_muscles, secondary_muscles,
-              alt_names, description, weight_direction, logging_type, created_at)
-           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-          id,
-          ex.name,
-          JSON.stringify(ex.primary_muscles),
-          JSON.stringify(ex.secondary_muscles),
-          JSON.stringify(ex.alt_names),
-          ex.description,
-          ex.weight_direction,
-          ex.logging_type ?? 'reps',
-          now,
-        );
-      }
-    });
-  }
+  // Migration: remove exercises seeded from the retired curated SEED_EXERCISES
+  // dataset — the CSV-derived catalog (seedcsv_-prefixed, seeded below) is now
+  // the only preloaded exercise source. ESCAPE keeps SQLite's '_' wildcard
+  // from also matching "seedcsv_" rows, which must be left alone; sets
+  // logged against a removed exercise aren't touched, same as deleting any
+  // other exercise.
+  await database.runAsync(`DELETE FROM exercises WHERE id LIKE 'seed\\_%' ESCAPE '\\'`);
 
-  // Seed the CSV-derived exercise dataset (independent of the check above, since
-  // installs that already had the original SEED_EXERCISES seeded would otherwise never
-  // pick this up). Gated on its own one-time marker so it only runs once. Supersedes the
-  // older seedjson_ dataset (thinner: no equipment, no csv_id) — delete those rows first
-  // so upgrading installs don't end up with both.
+  // Seed the CSV-derived exercise dataset. Gated on its own one-time marker so
+  // it only runs once. Supersedes the older seedjson_ dataset (thinner: no
+  // equipment, no csv_id) — delete those rows first so upgrading installs
+  // don't end up with both.
   const csvSeeded = await database.getFirstAsync<{ id: string }>(
     `SELECT id FROM exercises WHERE id LIKE 'seedcsv_%' LIMIT 1`,
   );

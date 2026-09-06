@@ -160,7 +160,7 @@ export async function deleteAllUserExercises(): Promise<void> {
   await db.runAsync(`DELETE FROM exercises WHERE id NOT LIKE 'seed_%'`);
 }
 
-// Inserts the CSV-derived exercise dataset (app/constants/exercisesCsv.json) into the
+// Inserts the CSV-derived exercise dataset (constants/exercisesCsv.json) into the
 // exercises table under seedcsv_-prefixed ids. Shared by the initial app-launch seeding
 // in app/_layout.tsx and the dev-only resetCsvExerciseLibrary below, so both stay in sync.
 export async function insertCsvExercises(db: SQLiteDatabase): Promise<void> {

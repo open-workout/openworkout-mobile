@@ -1,5 +1,4 @@
 import { normalizeMuscle, normalizeMuscles, SIMPLIFIED_MUSCLES } from '../../lib/muscleMapping';
-import { SEED_EXERCISES } from '../../constants/exerciseData';
 import exercisesCsv from '../../constants/exercisesCsv.json';
 
 describe('normalizeMuscle', () => {
@@ -67,10 +66,13 @@ describe('normalizeMuscles', () => {
   });
 });
 
-// Coverage guard: every distinct muscle tag actually present in either
-// exercise dataset must be an explicitly-understood tag (a simplified
-// muscle itself, or a known mapping to null/another muscle) — not silently
-// falling through due to a typo or a new tag the mapping hasn't seen yet.
+// Coverage guard: every distinct muscle tag actually present in the exercise
+// dataset must be an explicitly-understood tag (a simplified muscle itself,
+// or a known mapping to null/another muscle) — not silently falling through
+// due to a typo or a new tag the mapping hasn't seen yet. The detailed
+// (front/side/rear delts, lats, etc.) tags stay in this set even though the
+// CSV catalog no longer uses them, since AddExerciseModal still lets users
+// tag custom exercises with them.
 describe('dataset coverage', () => {
   const KNOWN_TAGS = new Set<string>([
     ...SIMPLIFIED_MUSCLES,
@@ -92,20 +94,9 @@ describe('dataset coverage', () => {
     'hands',
   ]);
 
-  it('covers every muscle tag used by the curated seed dataset', () => {
-    const tags = new Set<string>();
-    for (const ex of SEED_EXERCISES) {
-      ex.primary_muscles.forEach((m) => tags.add(m));
-      ex.secondary_muscles.forEach((m) => tags.add(m));
-    }
-    for (const tag of tags) {
-      expect(KNOWN_TAGS.has(tag)).toBe(true);
-    }
-  });
-
   it('covers every muscle tag used by the CSV-derived catalog', () => {
     const tags = new Set<string>();
-    for (const ex of exercisesCsv as Array<{ primaryMuscles: string[]; secondaryMuscles: string[] }>) {
+    for (const ex of exercisesCsv as { primaryMuscles: string[]; secondaryMuscles: string[] }[]) {
       ex.primaryMuscles.forEach((m) => tags.add(m));
       ex.secondaryMuscles.forEach((m) => tags.add(m));
     }

@@ -1,9 +1,9 @@
 // Simplified muscle vocabulary shared by the Body stats screen. Matches the
-// vocabulary already used by the CSV-derived exercise catalog (the bulk of
-// the exercise library) so every exercise's tags resolve without guessing.
-// The smaller curated SEED_EXERCISES dataset uses finer-grained tags (e.g.
-// individual delt heads, individual back muscles) that get folded down onto
-// this list via MUSCLE_MAP below.
+// vocabulary already used by the CSV-derived exercise catalog, the only
+// preloaded exercise source, so every exercise's tags resolve without
+// guessing. Custom exercises (AddExerciseModal) can still be tagged with
+// finer-grained tags (e.g. individual delt heads, individual back muscles)
+// that get folded down onto this list via MUSCLE_MAP below.
 export const SIMPLIFIED_MUSCLES = [
   'chest',
   'back',

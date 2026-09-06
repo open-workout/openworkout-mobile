@@ -3,7 +3,7 @@ import {
   getExerciseSearchTerms,
   exerciseMatchesQuery,
   getMuscleLabel,
-} from '../../app/lib/exerciseTranslations';
+} from '../../lib/exerciseTranslations';
 import { FIXTURE_EXERCISES } from '../fixtures/exercises';
 
 const BENCH_PRESS = { name: 'Bench Press (Barbell)', alt_names: ['Bench Press', 'Flat Bench'] };

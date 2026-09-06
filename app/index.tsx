@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
 import { View } from 'react-native';
 import { Redirect } from 'expo-router';
-import { getActiveSplit } from './db/splits';
-import { hasCompletedOnboarding } from './storage';
+import { getActiveSplit } from '@/db/splits';
+import { hasCompletedOnboarding } from '@/storage';
 
 export default function Index() {
   const [target, setTarget] = useState<string | null>(null);

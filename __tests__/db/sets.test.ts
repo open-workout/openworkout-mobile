@@ -1,7 +1,7 @@
-jest.mock('../../app/db/database', () => ({ getDb: jest.fn() }));
+jest.mock('../../db/database', () => ({ getDb: jest.fn() }));
 
-import { getDb } from '../../app/db/database';
-import { insertSet, updateSet, deleteSet, getSetsForWorkout } from '../../app/db/sets';
+import { getDb } from '../../db/database';
+import { insertSet, updateSet, deleteSet, getSetsForWorkout } from '../../db/sets';
 
 const mockDb = {
   runAsync: jest.fn<Promise<void>, unknown[]>().mockResolvedValue(undefined),

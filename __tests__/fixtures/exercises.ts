@@ -1,4 +1,4 @@
-import type { Exercise } from '../../app/db/exercises';
+import type { Exercise } from '../../db/exercises';
 
 // Ordered so the three "cable" matches are interleaved with non-matches, and
 // "Cable Curl" is deliberately last — it's the item that regresses if a

@@ -1,8 +1,8 @@
 import {
   computeSimilarity,
   findAlternatives,
-} from '../../app/lib/generateWorkout';
-import type { Exercise } from '../../app/db/exercises';
+} from '../../lib/generateWorkout';
+import type { Exercise } from '../../db/exercises';
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 

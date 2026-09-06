@@ -2,14 +2,14 @@ jest.mock('expo-router', () => ({
   useRouter: () => ({ back: jest.fn(), replace: jest.fn(), push: jest.fn() }),
   useLocalSearchParams: () => ({}),
 }));
-jest.mock('../../app/hooks/useExercises', () => ({ useExercises: jest.fn() }));
-jest.mock('../../app/hooks/useKeyboardHeight', () => ({ useKeyboardHeight: jest.fn() }));
+jest.mock('../../hooks/useExercises', () => ({ useExercises: jest.fn() }));
+jest.mock('../../hooks/useKeyboardHeight', () => ({ useKeyboardHeight: jest.fn() }));
 
 import { render, screen, fireEvent } from '@testing-library/react-native';
 import { Platform } from 'react-native';
 import EditRoutineScreen from '../../app/edit-routine';
-import { useExercises } from '../../app/hooks/useExercises';
-import { useKeyboardHeight } from '../../app/hooks/useKeyboardHeight';
+import { useExercises } from '../../hooks/useExercises';
+import { useKeyboardHeight } from '../../hooks/useKeyboardHeight';
 import { FIXTURE_EXERCISES, CABLE_MATCHES, LAST_CABLE_MATCH } from '../fixtures/exercises';
 
 const originalPlatformOS = Platform.OS;

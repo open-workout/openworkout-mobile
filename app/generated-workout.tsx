@@ -5,26 +5,28 @@ import { Ionicons } from '@expo/vector-icons';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useWorkouts } from './hooks/useWorkouts';
-import { useExercises } from './hooks/useExercises';
-import { useWeightUnit } from './hooks/useWeightUnit';
-import { useKeyboardHeight } from './hooks/useKeyboardHeight';
-import { insertWorkout, deleteWorkout, getWorkoutById, updateWorkoutSupersetLinks } from './db/workouts';
-import { insertSet, deleteSetsByExercise, getLastSetsForExercise, getSetsForWorkout, generateId, type NewSetInput } from './db/sets';
-import { getAllExercises } from './db/exercises';
-import { getPendingWorkout, clearPendingWorkout, restorePendingWorkout, updatePendingSlotExercise } from './lib/pendingWorkout';
-import { findAlternatives } from './lib/generateWorkout';
-import { compressMuscles } from './constants/splits';
-import type { Exercise, NewExerciseInput } from './db/exercises';
-import { isSetFilled, defaultMeasurementType, type LocalSet, type MeasurementType } from './components/SetRows';
-import AddExerciseModal from './components/AddExerciseModal';
-import ConfirmModal from './components/ConfirmModal';
-import { ExerciseCard } from './components/ExerciseCard';
-import { ExerciseTabStrip } from './components/ExerciseTabStrip';
-import { computeProgressSuggestion, type OverloadSuggestion } from './lib/progressiveOverload';
-import { getWorkoutPreferences, DEFAULT_WORKOUT_PREFS, type WorkoutPreferences } from './storage';
-import { exerciseMatchesQuery, getExerciseDisplayName, getMuscleLabels } from './lib/exerciseTranslations';
-import { C } from './theme/colors';
+import { useWorkouts } from '@/hooks/useWorkouts';
+import { useExercises } from '@/hooks/useExercises';
+import { useWeightUnit } from '@/hooks/useWeightUnit';
+import { useKeyboardHeight } from '@/hooks/useKeyboardHeight';
+import { insertWorkout, deleteWorkout, getWorkoutById, updateWorkoutSupersetLinks } from '@/db/workouts';
+import { insertSet, deleteSetsByExercise, getLastSetsForExercise, getSetsForWorkout, generateId, type NewSetInput } from '@/db/sets';
+import { getAllExercises } from '@/db/exercises';
+import { getPendingWorkout, clearPendingWorkout, restorePendingWorkout, updatePendingSlotExercise } from '@/lib/pendingWorkout';
+import { findAlternatives } from '@/lib/generateWorkout';
+import { compressMuscles } from '@/constants/splits';
+import type { Exercise, NewExerciseInput } from '@/db/exercises';
+import { isSetFilled, defaultMeasurementType, type LocalSet, type MeasurementType } from '@/components/SetRows';
+import AddExerciseModal from '@/components/AddExerciseModal';
+import ConfirmModal from '@/components/ConfirmModal';
+import { ExerciseCard } from '@/components/ExerciseCard';
+import { ExerciseTabStrip } from '@/components/ExerciseTabStrip';
+import { ExerciseThumbnail } from '@/components/ExerciseThumbnail';
+import { computeProgressSuggestion, type OverloadSuggestion } from '@/lib/progressiveOverload';
+import { getWorkoutPreferences, DEFAULT_WORKOUT_PREFS, type WorkoutPreferences } from '@/storage';
+import { exerciseMatchesQuery, getExerciseDisplayName, getMuscleLabels, getCategoryLabel } from '@/lib/exerciseTranslations';
+import { EXERCISE_CATEGORIES, exerciseMatchesCategory } from '@/lib/exerciseCategories';
+import { C } from '@/theme/colors';
 
 type WorkoutCard = {
   cardId: string;
@@ -36,9 +38,11 @@ function mkId() {
 }
 
 // Progressive-overload suggestions are a weight/reps heuristic — only
-// meaningful for exercises whose default (highest-priority) mode is reps.
+// meaningful for exercises that track weight and whose default
+// (highest-priority) mode is reps. Bodyweight-only exercises have no weight
+// to progress, so they're excluded regardless of measurement type.
 function suggestsProgress(exercise: Exercise): boolean {
-  return defaultMeasurementType(exercise) === 'reps';
+  return exercise.requires_weight && defaultMeasurementType(exercise) === 'reps';
 }
 
 function exerciseRefOf(exercise: Exercise): string {
@@ -114,7 +118,7 @@ export default function GeneratedWorkoutScreen() {
   // only iOS needs the list to pad itself to clear the keyboard.
   const pickerListBottomPadding = Platform.OS === 'ios' ? keyboardHeight + 24 : 24;
   const { exercises, createExercise, isLoading: exercisesLoading } = useExercises();
-  const { finishWorkout, editSet, removeSet } = useWorkouts();
+  const { finishWorkout, editSet, removeSet, renameWorkout } = useWorkouts();
 
   const pending = getPendingWorkout();
   const slots = pending?.slots ?? [];
@@ -157,6 +161,7 @@ export default function GeneratedWorkoutScreen() {
   // Add exercise picker
   const [showPicker, setShowPicker] = useState(false);
   const [pickerSearch, setPickerSearch] = useState('');
+  const [pickerCategory, setPickerCategory] = useState(0);
   const [showCreateForAdd, setShowCreateForAdd] = useState(false);
 
   // Remove-sets multi-select mode — scoped to a single card, since 2+ cards
@@ -168,6 +173,7 @@ export default function GeneratedWorkoutScreen() {
   // Delete confirmations
   const [deletingCardId, setDeletingCardId] = useState<string | null>(null);
   const [showFinishModal, setShowFinishModal] = useState(false);
+  const [finishTitle, setFinishTitle] = useState(() => t('workoutFallbackTitle'));
 
   // Warns before advancing past an exercise with unchecked sets
   const [showUnfinishedWarning, setShowUnfinishedWarning] = useState(false);
@@ -663,6 +669,7 @@ export default function GeneratedWorkoutScreen() {
     selectCard(newCard.cardId);
     setShowPicker(false);
     setPickerSearch('');
+    setPickerCategory(0);
 
     const setsPerExercise = localPrefs?.sets_per_exercise ?? DEFAULT_WORKOUT_PREFS.sets_per_exercise;
     if (!suggestsProgress(exercise)) {
@@ -711,6 +718,7 @@ export default function GeneratedWorkoutScreen() {
   const handleFinish = async () => {
     const workoutId = workoutRef.current ? await workoutRef.current : null;
     if (workoutId) {
+      await renameWorkout(workoutId, finishTitle.trim() || t('workoutFallbackTitle'));
       await finishWorkout(workoutId, new Date().toISOString());
     }
     clearPendingWorkout();
@@ -781,9 +789,10 @@ export default function GeneratedWorkoutScreen() {
   // ─── Picker search ───────────────────────────────────────────────────────────
 
   const pq = pickerSearch.trim();
-  const pickerCandidates = pq
-    ? exercises.filter((e) => exerciseMatchesQuery(e, pq, locale))
-    : exercises;
+  const pickerCategoryName = EXERCISE_CATEGORIES[pickerCategory];
+  const pickerCandidates = exercises.filter(
+    (e) => exerciseMatchesCategory(e, pickerCategoryName) && exerciseMatchesQuery(e, pq, locale),
+  );
 
   const muscleLabel = pending?.muscles
     ? getMuscleLabels(compressMuscles(pending.muscles), locale).join(' · ')
@@ -856,7 +865,12 @@ export default function GeneratedWorkoutScreen() {
                   key={member.cardId}
                   exercise={member.exercise}
                   sets={cardSets[member.cardId] ?? []}
-                  suggestion={suggestions[member.cardId] ?? null}
+                  suggestion={
+                    member.exercise.requires_weight &&
+                    (currentMeasurementType[member.cardId] ?? defaultMeasurementType(member.exercise)) === 'reps'
+                      ? suggestions[member.cardId] ?? null
+                      : null
+                  }
                   weightUnit={weightUnit}
                   removeMode={removeModeCardId === member.cardId}
                   selectedForRemoval={selectedForRemoval}
@@ -984,20 +998,20 @@ export default function GeneratedWorkoutScreen() {
         visible={showPicker}
         animationType="slide"
         presentationStyle="pageSheet"
-        onRequestClose={() => { setShowPicker(false); setPickerSearch(''); }}
+        onRequestClose={() => { setShowPicker(false); setPickerSearch(''); setPickerCategory(0); }}
       >
         <SafeAreaView style={{ flex: 1, backgroundColor: C.bg }} edges={['top']}>
           <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 16, paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: C.border }}>
             <Text style={{ color: C.text, fontSize: 17, fontWeight: '700' }}>{t('routines:addExercise')}</Text>
             <TouchableOpacity
-              onPress={() => { setShowPicker(false); setPickerSearch(''); }}
+              onPress={() => { setShowPicker(false); setPickerSearch(''); setPickerCategory(0); }}
               style={{ width: 40, height: 40, alignItems: 'center', justifyContent: 'center' }}
             >
               <Ionicons name="close" size={24} color={C.textMuted} />
             </TouchableOpacity>
           </View>
 
-          <View style={{ flexDirection: 'row', alignItems: 'center', margin: 12, paddingHorizontal: 12, backgroundColor: C.card, borderRadius: 12, borderWidth: 1, borderColor: C.border }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', marginHorizontal: 12, marginTop: 12, paddingHorizontal: 12, backgroundColor: C.card, borderRadius: 12, borderWidth: 1, borderColor: C.border }}>
             <Ionicons name="search" size={16} color={C.textMuted} style={{ marginRight: 8 }} />
             <TextInput
               value={pickerSearch}
@@ -1015,10 +1029,36 @@ export default function GeneratedWorkoutScreen() {
             )}
           </View>
 
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            style={{ flexGrow: 0 }}
+            contentContainerStyle={{ paddingHorizontal: 12, paddingVertical: 12, gap: 8 }}
+          >
+            {EXERCISE_CATEGORIES.map((cat, i) => (
+              <TouchableOpacity
+                key={cat}
+                onPress={() => setPickerCategory(i)}
+                style={{
+                  paddingHorizontal: 16,
+                  paddingVertical: 8,
+                  borderRadius: 999,
+                  backgroundColor: i === pickerCategory ? '#f4f4f5' : C.card,
+                  borderWidth: i === pickerCategory ? 0 : 1,
+                  borderColor: C.border,
+                }}
+              >
+                <Text style={{ fontSize: 13, fontWeight: '600', color: i === pickerCategory ? '#09090b' : '#d4d4d8' }}>
+                  {getCategoryLabel(cat, locale)}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
+
           <FlatList
             style={{ flex: 1 }}
             keyboardShouldPersistTaps="handled"
-            contentContainerStyle={{ paddingBottom: pickerListBottomPadding }}
+            contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: pickerListBottomPadding }}
             data={pickerCandidates}
             keyExtractor={(candidate) => candidate.id ?? candidate.name}
             initialNumToRender={20}
@@ -1026,7 +1066,7 @@ export default function GeneratedWorkoutScreen() {
             ListHeaderComponent={
               <TouchableOpacity
                 onPress={() => setShowCreateForAdd(true)}
-                style={{ flexDirection: 'row', alignItems: 'center', gap: 10, paddingHorizontal: 20, paddingVertical: 16, borderBottomWidth: 1, borderBottomColor: C.border }}
+                style={{ flexDirection: 'row', alignItems: 'center', gap: 10, paddingHorizontal: 4, paddingVertical: 16, borderBottomWidth: 1, borderBottomColor: C.border, marginBottom: 4 }}
               >
                 <View style={{ width: 28, height: 28, borderRadius: 8, backgroundColor: C.card, borderWidth: 1, borderColor: C.borderAlt, alignItems: 'center', justifyContent: 'center' }}>
                   <Ionicons name="add" size={18} color={C.text} />
@@ -1034,17 +1074,34 @@ export default function GeneratedWorkoutScreen() {
                 <Text style={{ color: C.text, fontSize: 15, fontWeight: '600' }}>{t('routines:createExercise')}</Text>
               </TouchableOpacity>
             }
+            ListEmptyComponent={
+              <Text style={{ color: C.textDim, fontSize: 14, textAlign: 'center', marginTop: 32 }}>
+                {t('routines:noExercisesMatchSearch')}
+              </Text>
+            }
             renderItem={({ item: candidate }) => (
               <TouchableOpacity
                 onPress={() => addCard(candidate)}
-                style={{ paddingHorizontal: 20, paddingVertical: 16, borderBottomWidth: 1, borderBottomColor: C.border }}
+                style={{
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  backgroundColor: 'rgba(24,24,27,0.4)',
+                  borderWidth: 1,
+                  borderColor: 'rgba(39,39,42,0.5)',
+                  borderRadius: 16,
+                  padding: 12,
+                  marginBottom: 12,
+                }}
               >
-                <Text style={{ color: C.text, fontSize: 16, fontWeight: '600' }}>{getExerciseDisplayName(candidate, locale)}</Text>
-                {candidate.primary_muscles.length > 0 && (
-                  <Text style={{ color: C.textDim, fontSize: 13, marginTop: 2 }}>
-                    {getMuscleLabels(candidate.primary_muscles, locale).join(', ')}
-                  </Text>
-                )}
+                <ExerciseThumbnail csvId={candidate.csv_id} size={56} />
+                <View style={{ flex: 1, marginLeft: 14 }}>
+                  <Text style={{ color: C.text, fontSize: 14, fontWeight: '700' }}>{getExerciseDisplayName(candidate, locale)}</Text>
+                  {candidate.primary_muscles.length > 0 && (
+                    <Text style={{ color: C.textDim, fontSize: 12, marginTop: 4 }}>
+                      {getMuscleLabels(candidate.primary_muscles, locale).join(', ')}
+                    </Text>
+                  )}
+                </View>
               </TouchableOpacity>
             )}
           />
@@ -1079,11 +1136,34 @@ export default function GeneratedWorkoutScreen() {
 
       {/* Finish / Discard modal */}
       <Modal visible={showFinishModal} transparent animationType="fade" onRequestClose={() => setShowFinishModal(false)}>
+        <KeyboardAvoidingView
+          style={{ flex: 1 }}
+          behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        >
         <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.6)', alignItems: 'center', justifyContent: 'center', padding: 32 }}>
           <View style={{ width: '100%', backgroundColor: C.card, borderRadius: 20, borderWidth: 1, borderColor: C.border, overflow: 'hidden' }}>
             <View style={{ padding: 24, gap: 6 }}>
               <Text style={{ color: C.text, fontSize: 17, fontWeight: '700' }}>{t('finishWorkoutTitle')}</Text>
               <Text style={{ color: C.textMuted, fontSize: 14, lineHeight: 20 }}>{t('finishWorkoutMessage')}</Text>
+              <TextInput
+                value={finishTitle}
+                onChangeText={setFinishTitle}
+                placeholder={t('workoutFallbackTitle')}
+                placeholderTextColor={C.textDim}
+                style={{
+                  marginTop: 8,
+                  color: C.text,
+                  fontSize: 15,
+                  backgroundColor: C.bg,
+                  borderWidth: 1,
+                  borderColor: C.border,
+                  borderRadius: 10,
+                  paddingHorizontal: 12,
+                  paddingVertical: 10,
+                }}
+                autoCorrect={false}
+                returnKeyType="done"
+              />
             </View>
             <View style={{ borderTopWidth: 1, borderTopColor: C.border }}>
               <TouchableOpacity
@@ -1107,6 +1187,7 @@ export default function GeneratedWorkoutScreen() {
             </View>
           </View>
         </View>
+        </KeyboardAvoidingView>
       </Modal>
 
       {/* Unfinished sets warning */}

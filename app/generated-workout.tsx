@@ -38,9 +38,11 @@ function mkId() {
 }
 
 // Progressive-overload suggestions are a weight/reps heuristic — only
-// meaningful for exercises whose default (highest-priority) mode is reps.
+// meaningful for exercises that track weight and whose default
+// (highest-priority) mode is reps. Bodyweight-only exercises have no weight
+// to progress, so they're excluded regardless of measurement type.
 function suggestsProgress(exercise: Exercise): boolean {
-  return defaultMeasurementType(exercise) === 'reps';
+  return exercise.requires_weight && defaultMeasurementType(exercise) === 'reps';
 }
 
 function exerciseRefOf(exercise: Exercise): string {
@@ -863,7 +865,12 @@ export default function GeneratedWorkoutScreen() {
                   key={member.cardId}
                   exercise={member.exercise}
                   sets={cardSets[member.cardId] ?? []}
-                  suggestion={suggestions[member.cardId] ?? null}
+                  suggestion={
+                    member.exercise.requires_weight &&
+                    (currentMeasurementType[member.cardId] ?? defaultMeasurementType(member.exercise)) === 'reps'
+                      ? suggestions[member.cardId] ?? null
+                      : null
+                  }
                   weightUnit={weightUnit}
                   removeMode={removeModeCardId === member.cardId}
                   selectedForRemoval={selectedForRemoval}

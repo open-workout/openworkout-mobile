@@ -76,3 +76,15 @@ export function getEquipmentLabels(slugs: string[], locale: string): string[] {
 export function getCategoryLabel(categoryKey: string, locale: string): string {
   return CATEGORY_LABELS[locale as SupportedLanguage]?.[categoryKey] ?? CATEGORY_LABELS.en[categoryKey] ?? categoryKey;
 }
+
+// Stable partition: exercises the user has performed before float to the top,
+// preserving the existing relative order within each group (Array.prototype.sort
+// is spec-guaranteed stable).
+export function sortExercisesByPerformed<T extends Pick<Exercise, 'id'>>(
+  exercises: T[],
+  performedIds: Set<string>,
+): T[] {
+  return [...exercises].sort(
+    (a, b) => Number(performedIds.has(b.id)) - Number(performedIds.has(a.id)),
+  );
+}

@@ -6,12 +6,13 @@ import { useState, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { getAllRoutines, insertRoutine, updateRoutine } from '@/db/routines';
 import { useExercises } from '@/hooks/useExercises';
+import { usePerformedExerciseIds } from '@/hooks/usePerformedExerciseIds';
 import { useKeyboardHeight } from '@/hooks/useKeyboardHeight';
 import FormField from '@/components/FormField';
 import AddExerciseModal from '@/components/AddExerciseModal';
 import type { Exercise, NewExerciseInput } from '@/db/exercises';
 import { getAllExercises } from '@/db/exercises';
-import { exerciseMatchesQuery, getExerciseDisplayName, getMuscleLabels } from '@/lib/exerciseTranslations';
+import { exerciseMatchesQuery, getExerciseDisplayName, getMuscleLabels, sortExercisesByPerformed } from '@/lib/exerciseTranslations';
 
 const C = {
   bg: '#0a0a0a',
@@ -30,6 +31,7 @@ export default function EditRoutineScreen() {
   const router = useRouter();
   const { routineId } = useLocalSearchParams<{ routineId?: string }>();
   const { exercises, createExercise } = useExercises();
+  const { performedIds } = usePerformedExerciseIds();
   const keyboardHeight = useKeyboardHeight();
   // Android's Modal already resizes for the keyboard natively (SOFT_INPUT_ADJUST_RESIZE);
   // only iOS needs the list to pad itself to clear the keyboard.
@@ -63,10 +65,11 @@ export default function EditRoutineScreen() {
   );
 
   const pickerCandidates = useMemo(() => {
-    return exercises.filter(
+    const matches = exercises.filter(
       (e) => !alreadyAdded.has(e.id) && exerciseMatchesQuery(e, pickerSearch, locale),
     );
-  }, [exercises, pickerSearch, alreadyAdded, locale]);
+    return sortExercisesByPerformed(matches, performedIds);
+  }, [exercises, pickerSearch, alreadyAdded, locale, performedIds]);
 
   const addExercise = (exercise: Exercise) => {
     setSelectedExercises((prev) => [...prev, exercise]);

@@ -1,8 +1,10 @@
 jest.mock('../../hooks/useExercises', () => ({ useExercises: jest.fn() }));
+jest.mock('../../hooks/usePerformedExerciseIds', () => ({ usePerformedExerciseIds: jest.fn() }));
 
 import { render, screen, fireEvent } from '@testing-library/react-native';
 import ExploreScreen from '../../components/ExercisesTabPage';
 import { useExercises } from '../../hooks/useExercises';
+import { usePerformedExerciseIds } from '../../hooks/usePerformedExerciseIds';
 import { FIXTURE_EXERCISES, CABLE_MATCHES, LAST_CABLE_MATCH } from '../fixtures/exercises';
 import i18n from '../../i18n';
 import type { Exercise } from '../../db/exercises';
@@ -36,6 +38,7 @@ beforeEach(() => {
     deleteExercise: jest.fn(),
     reload: jest.fn(),
   });
+  jest.mocked(usePerformedExerciseIds).mockReturnValue({ performedIds: new Set(), reload: jest.fn() });
   i18n.changeLanguage('en');
 });
 

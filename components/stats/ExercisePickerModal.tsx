@@ -4,7 +4,8 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
 import { useExercises } from '../../hooks/useExercises';
-import { exerciseMatchesQuery, getExerciseDisplayName, getMuscleLabels } from '../../lib/exerciseTranslations';
+import { usePerformedExerciseIds } from '../../hooks/usePerformedExerciseIds';
+import { exerciseMatchesQuery, getExerciseDisplayName, getMuscleLabels, sortExercisesByPerformed } from '../../lib/exerciseTranslations';
 import type { Exercise } from '../../db/exercises';
 import { C } from '../../theme/colors';
 
@@ -20,11 +21,12 @@ export function ExercisePickerModal({ visible, onClose, onSelect }: Props) {
   const { t, i18n } = useTranslation('stats');
   const locale = i18n.language;
   const { exercises } = useExercises();
+  const { performedIds } = usePerformedExerciseIds();
   const [search, setSearch] = useState('');
 
   const candidates = useMemo(
-    () => exercises.filter((e) => exerciseMatchesQuery(e, search, locale)),
-    [exercises, search, locale],
+    () => sortExercisesByPerformed(exercises.filter((e) => exerciseMatchesQuery(e, search, locale)), performedIds),
+    [exercises, search, locale, performedIds],
   );
 
   const handleClose = () => {

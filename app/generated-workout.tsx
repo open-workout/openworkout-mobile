@@ -7,6 +7,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useWorkouts } from '@/hooks/useWorkouts';
 import { useExercises } from '@/hooks/useExercises';
+import { usePerformedExerciseIds } from '@/hooks/usePerformedExerciseIds';
 import { useWeightUnit } from '@/hooks/useWeightUnit';
 import { useKeyboardHeight } from '@/hooks/useKeyboardHeight';
 import { insertWorkout, deleteWorkout, getWorkoutById, updateWorkoutSupersetLinks } from '@/db/workouts';
@@ -24,7 +25,7 @@ import { ExerciseTabStrip } from '@/components/ExerciseTabStrip';
 import { ExerciseThumbnail } from '@/components/ExerciseThumbnail';
 import { computeProgressSuggestion, type OverloadSuggestion } from '@/lib/progressiveOverload';
 import { getWorkoutPreferences, DEFAULT_WORKOUT_PREFS, type WorkoutPreferences } from '@/storage';
-import { exerciseMatchesQuery, getExerciseDisplayName, getMuscleLabels, getCategoryLabel } from '@/lib/exerciseTranslations';
+import { exerciseMatchesQuery, getExerciseDisplayName, getMuscleLabels, getCategoryLabel, sortExercisesByPerformed } from '@/lib/exerciseTranslations';
 import { EXERCISE_CATEGORIES, exerciseMatchesCategory } from '@/lib/exerciseCategories';
 import { C } from '@/theme/colors';
 
@@ -118,6 +119,7 @@ export default function GeneratedWorkoutScreen() {
   // only iOS needs the list to pad itself to clear the keyboard.
   const pickerListBottomPadding = Platform.OS === 'ios' ? keyboardHeight + 24 : 24;
   const { exercises, createExercise, isLoading: exercisesLoading } = useExercises();
+  const { performedIds } = usePerformedExerciseIds();
   const { finishWorkout, editSet, removeSet, renameWorkout } = useWorkouts();
 
   const pending = getPendingWorkout();
@@ -741,7 +743,7 @@ export default function GeneratedWorkoutScreen() {
 
   const q = switchSearch.trim();
   const switchCandidates = q
-    ? exercises.filter((e) => exerciseMatchesQuery(e, q, locale))
+    ? sortExercisesByPerformed(exercises.filter((e) => exerciseMatchesQuery(e, q, locale)), performedIds)
     : alternatives;
 
   const selectAlternative = async (cardId: string, exercise: Exercise) => {
@@ -790,8 +792,11 @@ export default function GeneratedWorkoutScreen() {
 
   const pq = pickerSearch.trim();
   const pickerCategoryName = EXERCISE_CATEGORIES[pickerCategory];
-  const pickerCandidates = exercises.filter(
-    (e) => exerciseMatchesCategory(e, pickerCategoryName) && exerciseMatchesQuery(e, pq, locale),
+  const pickerCandidates = sortExercisesByPerformed(
+    exercises.filter(
+      (e) => exerciseMatchesCategory(e, pickerCategoryName) && exerciseMatchesQuery(e, pq, locale),
+    ),
+    performedIds,
   );
 
   const muscleLabel = pending?.muscles

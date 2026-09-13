@@ -1,5 +1,35 @@
 import { getDb } from './database';
 
+// Lets usePerformedExerciseIds() instances know history changed (a workout was
+// finished or deleted) from outside their own load call, so pickers can refresh
+// without waiting for a navigation focus event.
+const historyChangeListeners = new Set<() => void>();
+
+export function subscribeToHistoryChanges(listener: () => void): () => void {
+  historyChangeListeners.add(listener);
+  return () => historyChangeListeners.delete(listener);
+}
+
+export function notifyHistoryChangeListeners(): void {
+  historyChangeListeners.forEach((listener) => listener());
+}
+
+// Ids of every exercise the user has logged at least one real set for, in a
+// finished workout. Backed by sets/workouts directly (not exercise_stats)
+// since exercise_stats is only populated going forward from when it was
+// introduced and isn't backfilled for older finished workouts.
+export async function getPerformedExerciseIds(): Promise<Set<string>> {
+  const db = await getDb();
+  const rows = await db.getAllAsync<{ exercise_id: string }>(
+    `SELECT DISTINCT s.exercise_id AS exercise_id
+     FROM sets s
+     JOIN workouts w ON s.workout_id = w.id
+     WHERE w.finished_at IS NOT NULL
+       AND s.logged_at NOT IN ('seed', 'pending')`,
+  );
+  return new Set(rows.map((row) => row.exercise_id));
+}
+
 export type ExerciseHistoryPoint = {
   setId: string;
   workoutId: string;

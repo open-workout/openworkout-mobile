@@ -20,6 +20,7 @@ import {
   type UpdateSetInput,
 } from '../db/sets';
 import { refreshExerciseStats } from '../db/exerciseStats';
+import { notifyHistoryChangeListeners } from '../db/exerciseHistory';
 
 export function useWorkouts() {
   const [workouts, setWorkouts] = useState<Workout[]>([]);
@@ -57,6 +58,7 @@ export function useWorkouts() {
       await deletePendingSetsForWorkout(id);
       await detectAndMarkPRs(id);
       await refreshExerciseStats(id, finishedAt);
+      notifyHistoryChangeListeners();
       await loadLocal();
     },
     [loadLocal],
@@ -65,6 +67,7 @@ export function useWorkouts() {
   const removeWorkout = useCallback(
     async (id: string) => {
       await deleteWorkout(id);
+      notifyHistoryChangeListeners();
       await loadLocal();
     },
     [loadLocal],

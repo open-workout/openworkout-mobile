@@ -4,6 +4,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useState, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useExercises } from '../hooks/useExercises';
+import { usePerformedExerciseIds } from '../hooks/usePerformedExerciseIds';
 import AddExerciseModal from './AddExerciseModal';
 import ConfirmModal from './ConfirmModal';
 import { ExerciseThumbnail } from './ExerciseThumbnail';
@@ -16,6 +17,7 @@ import {
   getMuscleLabels,
   getEquipmentLabel,
   getCategoryLabel,
+  sortExercisesByPerformed,
 } from '../lib/exerciseTranslations';
 import { accent } from '../theme/colors';
 import { EXERCISE_CATEGORIES, exerciseMatchesCategory } from '../lib/exerciseCategories';
@@ -33,13 +35,15 @@ export default function ExercisesTabPage() {
   const [expandedKey, setExpandedKey] = useState<string | null>(null);
   const [animatingCsvId, setAnimatingCsvId] = useState<string | null>(null);
   const { exercises, isLoading, createExercise, editExercise, deleteExercise } = useExercises();
+  const { performedIds } = usePerformedExerciseIds();
 
   const filtered = useMemo(() => {
     const cat = categories[activeCategory];
-    return exercises.filter(
+    const matches = exercises.filter(
       (ex) => exerciseMatchesCategory(ex, cat) && exerciseMatchesQuery(ex, search, locale),
     );
-  }, [exercises, activeCategory, search, locale]);
+    return sortExercisesByPerformed(matches, performedIds);
+  }, [exercises, activeCategory, search, locale, performedIds]);
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: '#0a0a0a' }} edges={['top']}>

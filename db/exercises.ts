@@ -1,20 +1,24 @@
 import type { SQLiteDatabase } from 'expo-sqlite';
 import { getDb } from './database';
-import exercisesCsv from '../constants/exercisesCsv.json';
+import exercisesData from '../constants/exercises.json';
 
 type CsvExercise = {
   csvId: string;
   name: string;
-  humanReadableId: string;
-  primaryMuscles: string[];
-  secondaryMuscles: string[];
+  alt_names: { en: string[] };
+  human_readable_ids: string[];
+  primary_muscles: string[];
   equipment: string[];
   canBeDoneInReps: boolean;
   canBeDoneInTime: boolean;
   canBeDoneInDistance: boolean;
   requiresWeight: boolean;
-  weightDirection: number;
 };
+
+// The dataset has no explicit weight-direction field; assisted exercises
+// (e.g. "Assisted Pull-up") load less weight as more is added, same as the
+// old CSV pipeline's heuristic.
+const ASSISTED_PATTERN = /assisted/i;
 
 export type LoggingType = 'reps' | 'time';
 
@@ -160,13 +164,13 @@ export async function deleteAllUserExercises(): Promise<void> {
   await db.runAsync(`DELETE FROM exercises WHERE id NOT LIKE 'seed_%'`);
 }
 
-// Inserts the CSV-derived exercise dataset (constants/exercisesCsv.json) into the
-// exercises table under seedcsv_-prefixed ids. Shared by the initial app-launch seeding
+// Inserts the exercise dataset (constants/exercises.json) into the exercises
+// table under seedcsv_-prefixed ids. Shared by the initial app-launch seeding
 // in app/_layout.tsx and the dev-only resetCsvExerciseLibrary below, so both stay in sync.
 export async function insertCsvExercises(db: SQLiteDatabase): Promise<void> {
   const now = Date.now();
   await db.withTransactionAsync(async () => {
-    for (const ex of exercisesCsv as CsvExercise[]) {
+    for (const ex of exercisesData as CsvExercise[]) {
       const id = `seedcsv_${ex.csvId}`;
       const loggingType = ex.canBeDoneInReps ? 'reps' : 'time';
       await db.runAsync(
@@ -178,11 +182,11 @@ export async function insertCsvExercises(db: SQLiteDatabase): Promise<void> {
          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         id,
         ex.name,
-        JSON.stringify(ex.primaryMuscles),
-        JSON.stringify(ex.secondaryMuscles),
+        JSON.stringify(ex.primary_muscles),
         '[]',
+        JSON.stringify(ex.alt_names.en),
         '',
-        ex.weightDirection,
+        ASSISTED_PATTERN.test(ex.name) ? -1 : 1,
         loggingType,
         now,
         ex.canBeDoneInReps ? 1 : 0,
@@ -191,15 +195,15 @@ export async function insertCsvExercises(db: SQLiteDatabase): Promise<void> {
         ex.requiresWeight ? 1 : 0,
         JSON.stringify(ex.equipment),
         ex.csvId,
-        ex.humanReadableId,
+        ex.human_readable_ids[0] ?? null,
       );
     }
   });
 }
 
-// Dev-only: wipes the CSV-derived exercises and reseeds them from the current
-// exercisesCsv.json, so tweaks to scripts/generate-exercises-from-csv.js can be seen
-// without uninstalling the app / clearing its storage.
+// Dev-only: wipes the seeded exercises and reseeds them from the current
+// constants/exercises.json, so tweaks to that dataset can be seen without
+// uninstalling the app / clearing its storage.
 export async function resetCsvExerciseLibrary(): Promise<void> {
   const db = await getDb();
   await db.runAsync(`DELETE FROM exercises WHERE id LIKE 'seedcsv_%'`);

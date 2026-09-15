@@ -64,7 +64,7 @@ app/
 
 `assets/exercises/media/thumbnails/` and `assets/exercises/media/animations/` hold the exercise thumbnail images and animations. These are licensed and **not committed to git** (see `.gitignore`) - the project is open source, but this media isn't.
 
-To build the app locally you need those files on disk yourself (get them from wherever you keep the licensed set), named `<csvId>-<anything>.<ext>` per exercise (IDs come from the `csvId` field in `app/constants/exercisesCsv.json`). After adding or removing files, regenerate the bundler map:
+To build the app locally you need those files on disk yourself (get them from wherever you keep the licensed set), named `<csvId>-<anything>.<ext>` per exercise (IDs come from the `csvId` field in `app/constants/exercises.json`). After adding or removing files, regenerate the bundler map:
 
 ```bash
 npm run generate:exercise-media

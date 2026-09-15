@@ -1,5 +1,5 @@
 import { normalizeMuscle, normalizeMuscles, SIMPLIFIED_MUSCLES } from '../../lib/muscleMapping';
-import exercisesCsv from '../../constants/exercisesCsv.json';
+import exercisesData from '../../constants/exercises.json';
 
 describe('normalizeMuscle', () => {
   it('passes already-simplified tags through unchanged', () => {
@@ -71,8 +71,8 @@ describe('normalizeMuscles', () => {
 // or a known mapping to null/another muscle) — not silently falling through
 // due to a typo or a new tag the mapping hasn't seen yet. The detailed
 // (front/side/rear delts, lats, etc.) tags stay in this set even though the
-// CSV catalog no longer uses them, since AddExerciseModal still lets users
-// tag custom exercises with them.
+// preloaded catalog no longer uses them, since AddExerciseModal still lets
+// users tag custom exercises with them.
 describe('dataset coverage', () => {
   const KNOWN_TAGS = new Set<string>([
     ...SIMPLIFIED_MUSCLES,
@@ -94,11 +94,10 @@ describe('dataset coverage', () => {
     'hands',
   ]);
 
-  it('covers every muscle tag used by the CSV-derived catalog', () => {
+  it('covers every muscle tag used by the preloaded catalog', () => {
     const tags = new Set<string>();
-    for (const ex of exercisesCsv as { primaryMuscles: string[]; secondaryMuscles: string[] }[]) {
-      ex.primaryMuscles.forEach((m) => tags.add(m));
-      ex.secondaryMuscles.forEach((m) => tags.add(m));
+    for (const ex of exercisesData as { primary_muscles: string[] }[]) {
+      ex.primary_muscles.forEach((m) => tags.add(m));
     }
     for (const tag of tags) {
       expect(KNOWN_TAGS.has(tag)).toBe(true);

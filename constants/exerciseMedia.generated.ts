@@ -1,7 +1,7 @@
 // GENERATED FILE - do not edit by hand.
 // Run `node scripts/generate-exercise-media.js` to regenerate after adding
 // or removing files in assets/exercises/media/.
-// Keyed by the exercise's csvId (see constants/exercisesCsv.json), taken
+// Keyed by the exercise's csvId (see constants/exercises.json), taken
 // from the leading "<csvId>-..." segment of each filename.
 
 export const EXERCISE_THUMBNAILS: Record<string, number> = {
